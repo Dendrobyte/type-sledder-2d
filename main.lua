@@ -22,19 +22,12 @@ end
 function love.draw()
     slope.draw_map()
     -- Draw character on top of e
-    love.graphics.draw(char.sprite, char.x, char.y, 0, 3)
+    -- Change to character.draw function?
+    love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
 end
 
 function love.keypressed(key, isrepeat)
-    if key == "right" or key == "d" then
-        char.x = char.x + 10
-    end
-    if key == "left" or key == "a" then
-        char.x = char.x - 10
-    end
-    if key == "down" or key == "s" then
-        char.y = char.y + 5 -- TODO: Lerp this...? I think that's the animation keyword.
-    end
+    -- TODO: Handle keypresses as a user is typing words and detect the word being typed, etc.
 end
 
 -- Design notes

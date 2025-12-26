@@ -17,7 +17,7 @@ function char.update_sprite(dt)
 
     -- Simulate downard skiing
     if count % 2 == 0 then
-        char.y = char.y + 1
+        char.y = char.y + 4
     end
 
     -- Swap sprites back and forth to simulate skiing motions
