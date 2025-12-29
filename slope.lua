@@ -13,12 +13,20 @@ function slope.load()
     edge = love.graphics.newImage("ski_assets/Tiles/tile_0003.png") -- 1
     snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 2
     snow_left = love.graphics.newImage("ski_assets/Tiles/tile_0004.png") -- 3
-    tileWidth = 16
-    love.graphics.draw(edge, 100, 400, 0, 3)
+    tile_width = 16
+    slope.grid_create()
 end
 
 -- Create initial nxm grid
+-- TODO: See the note about using getDimensions -- https://love2d.org/wiki/love.graphics.getPixelDimensions
 function slope.grid_create()
+    pixel_w, pixel_h = love.graphics.getPixelDimensions()
+    cols = pixel_w / tile_width
+    rows = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
+
+    -- PICKUP
+    -- Have 0,1,3,4 tile numbers generate (based on png names), moving the left_edge and right_edge initialization numbers here
+    -- Then have the draw_map logic use the grid instead of the nested for loop
 
 end
 
@@ -76,8 +84,6 @@ function slope.draw_map()
         -- Reset this to zero for when we redraw
         counter = 0
     end
-    print("Counter:", counter)
-    print("Direction counter:", dir_counter)
 end
 
 return slope
