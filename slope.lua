@@ -1,7 +1,14 @@
 local slope = {}
+local counter = 0
 
+-- TODOS
+-- Use tilemap instead of individual images
+-- Scatter ski slope details on the non-snow parts
+-- Randomly change the width by 1 or 2 on each side tops
+-- Generate a grid and spawn the tiles based on that?
+
+-- Load up the basic tile images
 function slope.load()
-    -- Load up the basic tile images
     snow = love.graphics.newImage("ski_assets/Tiles/tile_0000.png") -- 0
     edge = love.graphics.newImage("ski_assets/Tiles/tile_0003.png") -- 1
     snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 2
@@ -17,8 +24,6 @@ function slope.draw_map()
     -- TODO: Change these to draw the tilemaps
     --       https://love2d.org/wiki/Tutorial:Tile-based_Scrolling
     pxlWidth, pxlHeight = love.graphics.getPixelDimensions()
-    print("Width and height:", pxlWidth, pxlHeight)
-    print("Width SHOULD be:", love.graphics.getPixelWidth())
     -- Each tile is 16x16, so we need to adjust accordingly
     pxlWidth = pxlWidth / 16
     pxlHeight = pxlHeight / 16
@@ -41,8 +46,7 @@ function slope.draw_map()
             end
         end
     end
-
-    -- Figure out the logic for moving...
+    counter += 1
 end
 
 return slope

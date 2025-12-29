@@ -15,7 +15,7 @@ local count = 0
 function char.update_sprite(dt)
     -- TODO: Something something framerate independent?
 
-    -- Simulate downard skiing
+    -- Simulate downward skiing
     if count % 2 == 0 then
         char.y = char.y + 4
     end
