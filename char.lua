@@ -8,16 +8,17 @@ function char.load()
     char.sprite = char.move_two
 
     char.x = 400
-    char.y = 100
+    char.y = 300
 end
 
 local count = 0
 function char.update_sprite(dt)
     -- TODO: Something something framerate independent?
+    --       Figure out using dt for all the 'player movement'
 
-    -- Simulate downward skiing
+    -- Slowly approaching the top
     if count % 2 == 0 then
-        char.y = char.y + 4
+        char.y = char.y - 1
     end
 
     -- Swap sprites back and forth to simulate skiing motions
@@ -30,5 +31,8 @@ function char.update_sprite(dt)
     end
     count = count + 1
 end
+
+-- TODO: Function to call when the skiier moves "lanes" and also moves forward a little bit
+-- Could probably modify a global var for the char.y-1 line so we don't conflict over frames
 
 return char
