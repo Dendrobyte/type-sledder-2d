@@ -1,4 +1,5 @@
 local slope = {}
+local util = require("util")
 
 -- TODOS
 -- Use tilemap instead of individual images
@@ -9,65 +10,75 @@ local slope = {}
 
 -- Load up the basic tile images
 function slope.load()
-    snow = love.graphics.newImage("ski_assets/Tiles/tile_0000.png") -- 0
     edge = love.graphics.newImage("ski_assets/Tiles/tile_0003.png") -- 1
-    snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 2
-    snow_left = love.graphics.newImage("ski_assets/Tiles/tile_0004.png") -- 3
+    snow = love.graphics.newImage("ski_assets/Tiles/tile_0000.png") -- 2
+    snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 3
+    snow_left = love.graphics.newImage("ski_assets/Tiles/tile_0004.png") -- 4
     tile_width = 16
     slope.grid_create()
+
+    grid_to_tile = { -- indices are just starting from 1
+        edge,
+        snow,
+        snow_left,
+        snow_right,
+    }
 end
 
 -- Create initial nxm grid
--- TODO: See the note about using getDimensions -- https://love2d.org/wiki/love.graphics.getPixelDimensions
+local grid = {}
 function slope.grid_create()
     pixel_w, pixel_h = love.graphics.getPixelDimensions()
-    cols = pixel_w / tile_width
-    rows = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
+    rows = pixel_w / tile_width
+    cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 
-    -- PICKUP
-    -- Have 0,1,3,4 tile numbers generate (based on png names), moving the left_edge and right_edge initialization numbers here
-    -- Then have the draw_map logic use the grid instead of the nested for loop
+    for i = 1, cols do
+        row = {}
+        for j = 1, rows do
+            row[j] = 1
+        end
+        grid[i] = row
+    end
+
+    -- Set up path (can/should move above at some point)
+    -- TODO: Don't use fixed numbers but it works for now
+    local left_edge = 4 -- pxlWidth / 8 -- 1/8th from the left
+    local right_edge = 32 -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
+    for i, row in ipairs(grid)  do
+        row[left_edge] = 3
+        for j = left_edge+1, right_edge-1 do
+            row[j] = 2
+        end
+        row[right_edge] = 4
+    end
+
+    util.print_matrix(grid)
+    -- TODO: Second grid for extra stuff on top, or odd nums imply snow below or something
 
 end
 
 -- Add a row to the grid, removing the first row
-function slope.grid_add_row()
+function slope.grid_next_row()
 
 end
 
 local counter = 0
 -- TODO: Do the actual math here (global util functions to translate by 16? maybe when we do the text stuff?)
-local left_edge = 4 -- pxlWidth / 8 -- 1/8th from the left
-local right_edge = 32 -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
 local dir = 1
 local dir_counter = 0
+
 function slope.draw_map()
-    -- Generate the 2d array representation
-    -- TODO: Change these to draw the tilemaps
-    --       https://love2d.org/wiki/Tutorial:Tile-based_Scrolling
-    pxlWidth, pxlHeight = love.graphics.getPixelDimensions()
-    -- Each tile is 16x16, so we need to adjust accordingly
-    pxlWidth = pxlWidth / 16
-    pxlHeight = pxlHeight / 16
-    for i = 0, pxlWidth do
-        for j = 0, pxlHeight do
-            if i < left_edge or i > right_edge then
-                love.graphics.draw(edge, i*16, j*16-counter, 0, 1)
-            end
-            if i == left_edge then
-                love.graphics.draw(snow_left, i*16, j*16-counter, 0, 1)
-            end
-            if i == right_edge then
-                love.graphics.draw(snow_right, i*16, j*16-counter, 0, 1)
-            end
-            if i > left_edge and i < right_edge then
-                love.graphics.draw(snow, i*16, j*16-counter, 0, 1)
-            end
+    -- Draw the map based on the grid
+    -- [i,j] serves as our grid coordinate, we just need to mult by 16. Rendering here looks a little backwards but cols are x values in this case
+    -- TODO: See the note about using getDimensions -- https://love2d.org/wiki/love.graphics.getPixelDimensions
+    for i, row in ipairs(grid) do
+        for j, val in ipairs(row) do
+            love.graphics.draw(grid_to_tile[val], (j-1)*16, (i-1)*16-counter, 0, 1)
         end
     end
 
+
     -- Counter inc to generate a new row
-    -- TODO: We need the grid system to hold on to the rows so we don't shift the entire slope
     counter = counter+1
     if counter == 16 then
         -- Just for now, change the direction of the path every 4 tiles
