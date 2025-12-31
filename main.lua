@@ -1,6 +1,13 @@
 local char = require("char")
 local slope = require("slope")
 
+-- Attempt at state management by having the callback call state functions
+local curr_state = { current = "start_screen" }
+local states = {}
+
+
+
+
 -- Load default values
 function love.load()
     -- Set up some default behaviors

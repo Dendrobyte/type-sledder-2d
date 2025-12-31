@@ -67,8 +67,8 @@ end
 -- TODO: Randomize ("procedurally generate") path directional shift, but for now just go back and forth every 2
 local shifting = 0
 function slope.grid_add_next_row()
-    if shifting % 2 == 0 then -- shift
-        if shifting % 4 == 0 then -- shift right
+    if shifting % 4 == 0 then -- shift
+        if shifting % 8 == 0 then -- shift right
             left_edge = left_edge + 1
             right_edge = right_edge + 1
         else -- shift left
@@ -76,18 +76,22 @@ function slope.grid_add_next_row()
             right_edge = right_edge - 1
         end
     end -- else, we just add an identical row
+    shifting = shifting + 1
 
     -- Replace the head row
     new_row = {}
-    for i = 1, cols do
-        if i < left_edge then
+    for i = 1, rows do -- row major, this shit confuses me
+        if i < left_edge or i > right_edge then
+            new_row[i] = 1
+        elseif i == left_edge then
             new_row[i] = 3
-        elseif i > left_edge and i < right_edge then
-            new_row[i] = 2
-        else
+        elseif i == right_edge then
             new_row[i] = 4
+        else -- Snow is the implied case
+            new_row[i] = 2
         end
     end
+    grid[grid_head] = new_row
 
     -- Shift head
     if grid_head < #grid then
@@ -97,16 +101,22 @@ function slope.grid_add_next_row()
     end
 end
 
+-- Function to calculate the shifted row index (i.e. logical index 1 translates to grid_head)
+function slope.calc_grid_idx(logical_index)
+    return ((grid_head + logical_index - 1) % #grid+1)
+end
+
 local counter = 0
 -- TODO: Do the actual math here (global util functions to translate by 16? maybe when we do the text stuff?)
 local dir = 1
 local dir_counter = 0
-
 function slope.draw_map()
     -- Draw the map based on the grid
     -- [i,j] serves as our grid coordinate, we just need to mult by 16. Rendering here looks a little backwards but cols are x values in this case
     -- TODO: See the note about using getDimensions -- https://love2d.org/wiki/love.graphics.getPixelDimensions
-    for i, row in ipairs(grid) do
+    for i = 1, #grid do
+        idx = slope.calc_grid_idx(i)
+        row = grid[idx]
         for j, val in ipairs(row) do
             love.graphics.draw(grid_to_tile[val], (j-1)*16, (i-1)*16-counter, 0, 1)
         end
