@@ -1,11 +1,6 @@
 local char = require("char")
 local slope = require("slope")
-
--- Attempt at state management by having the callback call state functions
-local curr_state = { current = "start_screen" }
-local states = {}
-
-
+local states = require("state_manager")
 
 
 -- Load default values
@@ -22,15 +17,14 @@ function love.load()
 end
 
 function love.update(dt)
+    -- TODO: Move out to the state functions
     char.update_sprite(dt)
 end
 
 -- Draw things in the scene. Draw order is dependent on line order, so keep that in mind.
 function love.draw()
-    slope.draw_map()
-    -- Draw character on top of e
-    -- Change to character.draw function?
-    love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
+    local curr_state = states[states.curr_state.name] -- this... naming feels weird... meh
+    if curr_state.draw then curr_state.draw() end
 end
 
 function love.keypressed(key, isrepeat)
