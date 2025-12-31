@@ -7,6 +7,7 @@ local util = require("util")
 -- Randomly change the width by 1 or 2 on each side tops
 -- Generate a grid and spawn the tiles based on that?
 -- Make the draw slope "tick based" so we can speed up over time (and as we test)
+-- Make the tile map numbers constants for easier readability
 
 -- Load up the basic tile images
 function slope.load()
@@ -14,7 +15,6 @@ function slope.load()
     snow = love.graphics.newImage("ski_assets/Tiles/tile_0000.png") -- 2
     snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 3
     snow_left = love.graphics.newImage("ski_assets/Tiles/tile_0004.png") -- 4
-    tile_width = 16
     slope.grid_create()
 
     grid_to_tile = { -- indices are just starting from 1
@@ -26,13 +26,19 @@ function slope.load()
 end
 
 -- Create initial nxm grid
-local grid = {}
-function slope.grid_create()
-    pixel_w, pixel_h = love.graphics.getPixelDimensions()
-    rows = pixel_w / tile_width
-    cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 
-    for i = 1, cols do
+local pixel_w, pixel_h = love.graphics.getPixelDimensions()
+local tile_width = 16
+local rows = pixel_w / tile_width
+local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
+local grid = {}
+local grid_head = 1
+local grid_size = -1
+local left_edge = 4 -- pxlWidth / 8 -- 1/8th from the left
+local right_edge = 32 -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
+function slope.grid_create()
+
+    for i = 1, cols+1 do -- Adding 1 so we don't get the flickering absent row as the game scrolls
         row = {}
         for j = 1, rows do
             row[j] = 1
@@ -42,8 +48,6 @@ function slope.grid_create()
 
     -- Set up path (can/should move above at some point)
     -- TODO: Don't use fixed numbers but it works for now
-    local left_edge = 4 -- pxlWidth / 8 -- 1/8th from the left
-    local right_edge = 32 -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
     for i, row in ipairs(grid)  do
         row[left_edge] = 3
         for j = left_edge+1, right_edge-1 do
@@ -52,14 +56,45 @@ function slope.grid_create()
         row[right_edge] = 4
     end
 
+    grid_size = #grid
+
     util.print_matrix(grid)
     -- TODO: Second grid for extra stuff on top, or odd nums imply snow below or something
 
 end
 
--- Add a row to the grid, removing the first row
-function slope.grid_next_row()
+-- Overwrite the row where the current head is, then step head up by 1
+-- TODO: Randomize ("procedurally generate") path directional shift, but for now just go back and forth every 2
+local shifting = 0
+function slope.grid_add_next_row()
+    if shifting % 2 == 0 then -- shift
+        if shifting % 4 == 0 then -- shift right
+            left_edge = left_edge + 1
+            right_edge = right_edge + 1
+        else -- shift left
+            left_edge = left_edge - 1
+            right_edge = right_edge - 1
+        end
+    end -- else, we just add an identical row
 
+    -- Replace the head row
+    new_row = {}
+    for i = 1, cols do
+        if i < left_edge then
+            new_row[i] = 3
+        elseif i > left_edge and i < right_edge then
+            new_row[i] = 2
+        else
+            new_row[i] = 4
+        end
+    end
+
+    -- Shift head
+    if grid_head < #grid then
+        grid_head = grid_head + 1
+    else
+        grid_head = 1
+    end
 end
 
 local counter = 0
@@ -82,15 +117,18 @@ function slope.draw_map()
     counter = counter+1
     if counter == 16 then
         -- Just for now, change the direction of the path every 4 tiles
-        if dir_counter == 8 then -- Incr to slow down shift, decr to speed up shift
-            dir = dir * -1 -- flip direction
-            dir_counter = 0
-        end
+        -- #### Alternate option for path shifting ####
+        -- if dir_counter == 8 then -- Incr to slow down shift, decr to speed up shift
+        --     dir = dir * -1 -- flip direction
+        --     dir_counter = 0
+        -- end
         
-        left_edge = left_edge + dir
-        right_edge = right_edge + dir
+        -- left_edge = left_edge + dir
+        -- right_edge = right_edge + dir
 
-        dir_counter = dir_counter + 1
+        -- dir_counter = dir_counter + 1
+        -- #### End of alternate logic ####
+        slope.grid_add_next_row()
 
         -- Reset this to zero for when we redraw
         counter = 0
