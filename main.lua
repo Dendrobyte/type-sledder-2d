@@ -1,6 +1,7 @@
 local char = require("char")
 local slope = require("slope")
 local states = require("state_manager")
+local menu = require("menu")
 
 
 -- Load default values
@@ -13,7 +14,8 @@ function love.load()
     slope.load()
 
     -- Load "objects"
-    char.load() 
+    char.load()
+    menu.load()
 end
 
 function love.update(dt)
@@ -23,12 +25,13 @@ end
 
 -- Draw things in the scene. Draw order is dependent on line order, so keep that in mind.
 function love.draw()
-    local curr_state = states[states.curr_state.name] -- this... naming feels weird... meh
+    local curr_state = states[states.curr_state] -- this... naming feels weird... meh
     if curr_state.draw then curr_state.draw() end
 end
 
 function love.keypressed(key, isrepeat)
-    -- TODO: Handle keypresses as a user is typing words and detect the word being typed, etc.
+    local curr_state = states[states.curr_state]
+    if curr_state.keypressed then curr_state.keypressed(key, isrepeat) end
 end
 
 -- Design notes
