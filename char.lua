@@ -17,9 +17,10 @@ function char.update_sprite(dt)
     --       Figure out using dt for all the 'player movement'
 
     -- Slowly approaching the top
-    if count % 2 == 0 then
-        char.y = char.y - 1
-    end
+    -- #### Commenting out just as I work on the typing stuff lol
+    -- if count % 2 == 0 then
+    --     char.y = char.y - 1
+    -- end
 
     -- Swap sprites back and forth to simulate skiing motions
     if count == 40 then

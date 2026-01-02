@@ -10,6 +10,7 @@ function love.load()
     -- Set up some default behaviors
     love.graphics.setDefaultFilter("nearest", "nearest", 0) -- Linear can die :)
     love.window.setTitle("Type Sledder")
+    math.randomseed(love.timer.getTime())
 
     -- Set up the background and start it
     slope.load()
