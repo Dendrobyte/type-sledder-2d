@@ -95,7 +95,7 @@ end
 -- TODO: Constants opportunity for the indices, if/when I come back and add more than just left/right
 function typing.update_word(rendered_idx, replaced_word)
     local new_word = word_bucket[math.random(#word_bucket)]
-    while active_words[new_word] == true do -- Avoid repeats of what's active
+    while active_words[new_word] ~= nil do -- Avoid repeats of what's active
         new_word = word_bucket[math.random(#word_bucket)]
     end
     rendered_words[rendered_idx] = new_word
