@@ -108,6 +108,7 @@ end
 
 local counter = 0
 -- TODO: Do the actual math here (global util functions to translate by 16? maybe when we do the text stuff?)
+-- TODO: Function arg to shift the rows, so we can just keep shifting a regular grid at game start (behind the menu) and when player collides, ending game
 local dir = 1
 local dir_counter = 0
 function slope.draw_map()
@@ -126,18 +127,6 @@ function slope.draw_map()
     -- Counter inc to generate a new row
     counter = counter+1
     if counter == 16 then
-        -- Just for now, change the direction of the path every 4 tiles
-        -- #### Alternate option for path shifting ####
-        -- if dir_counter == 8 then -- Incr to slow down shift, decr to speed up shift
-        --     dir = dir * -1 -- flip direction
-        --     dir_counter = 0
-        -- end
-        
-        -- left_edge = left_edge + dir
-        -- right_edge = right_edge + dir
-
-        -- dir_counter = dir_counter + 1
-        -- #### End of alternate logic ####
         slope.grid_add_next_row()
 
         -- Reset this to zero for when we redraw

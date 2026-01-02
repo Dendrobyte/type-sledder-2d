@@ -22,6 +22,7 @@ function love.load()
 end
 
 function love.update(dt)
+    -- TODO: Move out to the state functions
     char.update_sprite(dt)
 end
 
@@ -33,7 +34,8 @@ function love.draw()
 end
 
 function love.keypressed(key, isrepeat)
-    -- TODO: Handle keypresses as a user is typing words and detect the word being typed, etc.
+    local curr_state = states[states.curr_state]
+    if curr_state.keypressed then curr_state.keypressed(key, isrepeat) end
 end
 
 function love.mousepressed(x, y, button, _istouch, _presses)
