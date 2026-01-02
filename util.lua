@@ -51,5 +51,4 @@ function util.debug_grid(spacing)
     love.graphics.setColor(r, g, b, a)
 end
 
-
 return util

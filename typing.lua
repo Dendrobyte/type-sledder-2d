@@ -16,8 +16,8 @@ local word_right = {
     y = 25,
 }
 
--- Becomes a map of word -> true so we can check for a word simply (but like... it's 4 words tops...)
--- Used for typing, updated independently from what the left and right words being rendered are
+-- Becomes a map of word -> render_idx so we can check for a word simply (but like... it's 4 words tops...)
+-- Used for typing, updated independently from what the left and right words being rendered are, but value for accessing it
 local active_words = {}
 
 -- Stores the words for "left" and "right", updated independently from active words
@@ -30,6 +30,50 @@ function typing.load()
     typing.update_word("right", "")
 end
 
+-- Handle the active typing
+local current_word = {
+    final = nil, -- This comes from active_words when we register the first unique keypress
+    buffer = "", -- This is the word they are typing as they type it
+    render_idx = "", -- This is the word we end up selecting for them
+}
+function typing.on_key_press(key)
+    -- If we're typing and we've assigned a word, match on that wor
+    if  #current_word.buffer ~= 0 and current_word.final ~= nil then
+        local next_buffer = current_word.buffer .. key
+        -- Match the substr by length with the typed word
+        if current_word.final:sub(1, #next_buffer) == next_buffer then
+            current_word.buffer = next_buffer
+        else
+            -- Do nothing
+            -- TODO: Visual indicator we are wrong
+        end
+
+        -- PICKUP: When word is complete, move char
+    -- Otherwise, go until we match on an active word
+    else
+        -- So the current "buffer" is effectively our prefix, the list is so small
+        local next_buffer = current_word.buffer .. key
+        local matches = 0
+        local matched_word = "" -- It's only ever 1 word when we care about this
+        for active_word, _ in pairs(active_words) do
+            if active_word:sub(1, #next_buffer) == next_buffer then
+                matches = matches + 1
+                matched_word = active_word
+            end
+        end
+
+        -- If we find one match, we have our final word
+        -- If we have mult matches, keep building the buffer. Otherwise, don't append to buffer
+        if matches == 1 then
+            current_word.buffer = next_buffer
+            current_word.final = matched_word 
+            current_word.render_idx = active_words[active_word]
+        elseif matches > 1 then
+            current_word.buffer = next_buffer
+        end
+    end
+end
+
 function typing.draw_words()
     love.graphics.setFont(typing.default_font)
     love.graphics.setColor(0, 0, 0)
@@ -39,7 +83,12 @@ function typing.draw_words()
     love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
     love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
 
+    -- ## DEBUGGING ##
+    love.graphics.setColor(0, .5, 1)
+    love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)
+
     love.graphics.setColor(1, 1, 1) -- font is always set, but color needs to be reset for general drawing it appears
+
 end
 
 -- Given the index in the rendered word list, change it
@@ -51,7 +100,7 @@ function typing.update_word(rendered_idx, replaced_word)
     end
     rendered_words[rendered_idx] = new_word
     active_words[replaced_word] = nil
-    active_words[new_word] = true
+    active_words[new_word] = rendered_idx
 end
 
 return typing

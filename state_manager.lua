@@ -35,7 +35,8 @@ states.in_game = {
     end,
 
     keypressed = function(key)
-        -- TODO: Handle input for the typing in the game stuff
+        -- TODO: Only send a-z in this, use ascii values
+        typing.on_key_press(key)
     end,
 }
 
