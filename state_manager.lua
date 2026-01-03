@@ -1,10 +1,11 @@
 local char = require("char")
 local slope = require("slope")
 local menu = require("menu")
+local typing = require("typing")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 
-states.curr_state = "start_screen"
+states.curr_state = "in_game" -- "start_screen"
 
 states.start_screen = {
     draw = function()
@@ -16,19 +17,26 @@ states.start_screen = {
             states.curr_state = "in_game"
         end
     end,
-    -- TODO: mouse press for the button click
+
+    mousepressed = function(x, y, button, _istouch, _presses)
+        if button == 1 then
+            is_button_pressed = menu.pre_game.is_button_pressed(x, y)
+            if is_button_pressed then states.curr_state = "in_game" end
+        end
+    end
 }
 
 states.in_game = {
     draw = function()
         slope.draw_map()
         -- Draw character on top of e
-        -- Change to character.draw function?
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
+        typing.draw_words()
     end,
 
     keypressed = function(key)
-        -- TODO: Handle input for the typing in the game stuff
+        -- TODO: Only send a-z in this, use ascii values
+        typing.on_key_press(key)
     end,
 }
 
