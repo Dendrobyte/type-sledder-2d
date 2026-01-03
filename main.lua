@@ -4,6 +4,7 @@ local util = require("util")
 local states = require("state_manager")
 local menu = require("menu")
 local typing = require("typing")
+local sounds = require("sounds")
 
 -- Load default values
 function love.load()
@@ -16,15 +17,20 @@ function love.load()
     slope.load()
 
     -- Load "objects"
+    -- TODO: Loading bar? It's kinda fast though
     char.load()
     menu.load()
     typing.load()
+    sounds.load()
     debug_mode = false
 end
 
 function love.update(dt)
     -- TODO: Move out to the state functions
     char.update_sprite(dt)
+    
+    -- TODO: Move this... idk, this is a spaghetti moment. Just don't understand dt stuff fully yet
+    typing.show_floating_message(dt)
 end
 
 -- Draw things in the scene. Draw order is dependent on line order, so keep that in mind.
