@@ -1,5 +1,6 @@
 local slope = {}
 local util = require("util")
+local const = require("environment.constants")
 
 -- TODOS
 -- Use tilemap instead of individual images
@@ -26,16 +27,14 @@ function slope.load()
 end
 
 -- Create initial nxm grid
-
-local pixel_w, pixel_h = love.graphics.getPixelDimensions()
-local tile_width = 16
+local pixel_w, pixel_h = const.PIXEL_W, const.PIXEL_H
+local tile_width = const.TILE_WIDTH
 local rows = pixel_w / tile_width
 local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 local grid = {}
 local grid_head = 1
-local grid_size = -1
-local left_edge = 4 -- pxlWidth / 8 -- 1/8th from the left
-local right_edge = 32 -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
+local left_edge = const.LEFT_EDGE
+local right_edge = const.RIGHT_EDGE
 function slope.grid_create()
 
     for i = 1, cols+1 do -- Adding 1 so we don't get the flickering absent row as the game scrolls
@@ -56,10 +55,11 @@ function slope.grid_create()
         row[right_edge] = 4
     end
 
-    grid_size = #grid
-
-    util.print_matrix(grid)
-    -- TODO: Second grid for extra stuff on top, or odd nums imply snow below or something
+    if util.get_debug() == true then
+        print("---- Start of slope grid ----")
+        util.print_matrix(grid)
+        print("---- End of slope grid ----")
+    end
 
 end
 
@@ -67,8 +67,8 @@ end
 -- TODO: Randomize ("procedurally generate") path directional shift, but for now just go back and forth every 2
 local shifting = 0
 function slope.grid_add_next_row()
-    if shifting % 4 == 0 then -- shift
-        if shifting % 8 == 0 then -- shift right
+    if shifting % 8 == 0 then -- shift
+        if shifting % 16 == 0 then -- shift right
             left_edge = left_edge + 1
             right_edge = right_edge + 1
         else -- shift left
@@ -122,7 +122,6 @@ function slope.draw_map()
             love.graphics.draw(grid_to_tile[val], (j-1)*16, (i-1)*16-counter, 0, 1)
         end
     end
-
 
     -- Counter inc to generate a new row
     counter = counter+1

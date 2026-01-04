@@ -2,6 +2,7 @@ local char = require("char")
 local slope = require("environment.slope")
 local menu = require("menu")
 local typing = require("typing")
+local entities = require("environment.entities")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 
@@ -29,6 +30,7 @@ states.start_screen = {
 states.in_game = {
     draw = function()
         slope.draw_map()
+        entities.draw_entities()
         -- Draw character on top of e
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         typing.draw_words()
