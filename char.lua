@@ -1,5 +1,6 @@
 -- Define the character as a table I guess
 local char = {}
+local entities = require("environment.entities")
 
 function char.load()
     char.name = "Mark"
@@ -7,8 +8,7 @@ function char.load()
     char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0083.png")
     char.sprite = char.move_two
 
-    char.x = 400
-    char.y = 300
+    char.x, char.y = entities.cell_to_coord(25, 20)
 end
 
 local count = 0
@@ -21,6 +21,7 @@ function char.update_sprite(dt)
     --       Figure out using dt for all the 'player movement'
 
     -- Slowly approaching the top
+    -- TODO: Touch this when we do the end of screen collision
     if count % 2 == 0 then
         char.y = char.y - 1
     end
@@ -39,6 +40,14 @@ function char.update_sprite(dt)
     if move.counter_y ~= 0 then -- y is always moving in one direction, but the counter increases
         char.y = char.y + 1
         move.counter_y = move.counter_y - 1
+    end
+
+    -- Check for collision
+    -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
+    is_collision = entities.is_entity_at_position(char.x, char.y)
+    if is_collision == true then
+        -- TODO: Call state_manager.end_game(), don't change it directly here
+        print("womp womp")
     end
 
     -- Swap sprites back and forth to simulate skiing motions

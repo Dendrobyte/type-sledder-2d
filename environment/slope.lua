@@ -55,7 +55,7 @@ function slope.grid_create()
         row[right_edge] = 4
     end
 
-    if util.get_debug() == true then
+    if util.get_debug() == true and nil ~= nil then
         print("---- Start of slope grid ----")
         util.print_matrix(grid)
         print("---- End of slope grid ----")

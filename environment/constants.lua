@@ -8,4 +8,5 @@ return {
     PIXEL_H = pixel_h,
     LEFT_EDGE = 4, -- pxlWidth / 8 -- 1/8th from the left
     RIGHT_EDGE = 32, -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
+    EMPTY_SPACE = 0,
 }

@@ -22,6 +22,7 @@ states.start_screen = {
     mousepressed = function(x, y, button, _istouch, _presses)
         if button == 1 then
             is_button_pressed = menu.pre_game.is_button_pressed(x, y)
+            -- TODO: entities.trigger_entity_spawning() or whatever
             if is_button_pressed then states.curr_state = "in_game" end
         end
     end

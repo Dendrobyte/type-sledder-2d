@@ -5,6 +5,7 @@ local states = require("state_manager")
 local menu = require("menu")
 local typing = require("typing")
 local sounds = require("sounds")
+local entities = require("environment.entities")
 
 -- Load default values
 function love.load()
@@ -12,10 +13,11 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest", 0) -- Linear can die :)
     love.window.setTitle("Type Sledder")
     math.randomseed(love.timer.getTime())
-    util.set_debug(true)
+    util.set_debug(false)
 
     -- Set up the background and start it
     slope.load()
+    entities.load()
 
     -- Load "objects"
     -- TODO: Loading bar? It's kinda fast though

@@ -1,4 +1,5 @@
 local const = require("environment.constants")
+local util = require("util")
 
 -- This is our grid system responsible for handling collision between player and edge, player and obstacle, etc.
 local entities = {}
@@ -21,16 +22,36 @@ function entities.grid_create()
     for i = 1, cols+1 do
         row = {}
         for j = 1, rows do
-            row[j] = 0
+            row[j] = const.EMPTY_SPACE
         end
         grid[i] = row
     end
 
+    if util.get_debug() == true then
+        print("Entities grid is ", rows, "x", cols)
+    end
+end
+
+-- Map a grid cell to x,y coordinates, returning x,y for drawing, etc.
+function entities.cell_to_coord(r, c)
+    return r*const.TILE_WIDTH, c*const.TILE_WIDTH
+end
+
+-- Map x,y coordinates to cell, returning r,c for grid[r][c]
+-- Adding 1 because sticking to the 1 index cultist ideology
+-- Also following the row major cultist ideology
+function entities.coord_to_cell(x, y)
+    return math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
 end
 
 -- Draw function that runs on top of the slope draw
 function entities.draw_entities()
 
+end
+
+function entities.is_entity_at_position(x, y)
+    local r, c = entities.coord_to_cell(x, y)
+    return grid[r][c] ~= const.EMPTY_SPACE
 end
 
 return entities
