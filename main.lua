@@ -1,5 +1,5 @@
 local char = require("char")
-local slope = require("slope")
+local slope = require("environment.slope")
 local util = require("util")
 local states = require("state_manager")
 local menu = require("menu")
@@ -12,6 +12,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest", 0) -- Linear can die :)
     love.window.setTitle("Type Sledder")
     math.randomseed(love.timer.getTime())
+    util.set_debug(true)
 
     -- Set up the background and start it
     slope.load()
@@ -22,7 +23,6 @@ function love.load()
     menu.load()
     typing.load()
     sounds.load()
-    debug_mode = false
 end
 
 function love.update(dt)
@@ -35,9 +35,9 @@ end
 
 -- Draw things in the scene. Draw order is dependent on line order, so keep that in mind.
 function love.draw()
-    if debug_mode == true then util.debug_grid() end
     local curr_state = states[states.curr_state] -- this... naming feels weird... meh
     if curr_state.draw then curr_state.draw() end
+    if util.get_debug() == true then util.debug_grid(16) end
 end
 
 function love.keypressed(key, isrepeat)

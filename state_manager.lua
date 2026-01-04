@@ -1,5 +1,5 @@
 local char = require("char")
-local slope = require("slope")
+local slope = require("environment.slope")
 local menu = require("menu")
 local typing = require("typing")
 -- Attempt at state management by having the callback call state functions

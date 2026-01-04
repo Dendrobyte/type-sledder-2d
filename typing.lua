@@ -1,5 +1,6 @@
 local char = require("char")
 local sounds = require("sounds")
+local util = require("util")
 
 local typing = {}
 
@@ -138,8 +139,10 @@ function typing.draw_words()
     end
 
     -- ## DEBUGGING ##
-    love.graphics.setColor(0, .5, 1)
-    love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)
+    if util.get_debug() == true then
+        love.graphics.setColor(0, .5, 1)
+        love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)
+    end
 
     love.graphics.setColor(1, 1, 1) -- font is always set, but color needs to be reset for general drawing it appears
 
