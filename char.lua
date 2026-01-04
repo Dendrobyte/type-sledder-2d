@@ -67,7 +67,7 @@ function char.move(dir)
     --       The movement will then change entirely, and we may not have to convert to pixels
     --       i.e. this might calc an animation and we just run that in update
     local v_move = 5
-    local h_move = 10
+    local h_move = 5
     move.counter_y = move.counter_y + entities.cell_to_pixels(v_move)
     if dir == "left" then
         move.counter_x = move.counter_x - entities.cell_to_pixels(h_move)

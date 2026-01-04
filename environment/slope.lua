@@ -107,10 +107,19 @@ function slope.calc_grid_idx(logical_index)
 end
 
 local counter = 0
--- TODO: Do the actual math here (global util functions to translate by 16? maybe when we do the text stuff?)
--- TODO: Function arg to shift the rows, so we can just keep shifting a regular grid at game start (behind the menu) and when player collides, ending game
 local dir = 1
 local dir_counter = 0
+function slope.update_grid(dt)
+    -- Counter inc to generate a new row
+    counter = counter+1
+    if counter == const.TILE_WIDTH then
+        slope.grid_add_next_row()
+
+        -- Reset this to zero for when we redraw
+        counter = 0
+    end
+end
+
 function slope.draw_map()
     -- Draw the map based on the grid
     -- [i,j] serves as our grid coordinate, we just need to mult by 16. Rendering here looks a little backwards but cols are x values in this case
@@ -123,14 +132,6 @@ function slope.draw_map()
         end
     end
 
-    -- Counter inc to generate a new row
-    counter = counter+1
-    if counter == 16 then
-        slope.grid_add_next_row()
-
-        -- Reset this to zero for when we redraw
-        counter = 0
-    end
 end
 
 return slope

@@ -28,6 +28,8 @@ function love.load()
 end
 
 function love.update(dt)
+    local curr_state = states[states.curr_state]
+    if curr_state.update then curr_state.update(dt) end
     -- TODO: Move out to the state functions
     char.update_sprite(dt)
     

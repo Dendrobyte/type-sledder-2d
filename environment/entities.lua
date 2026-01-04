@@ -32,6 +32,10 @@ function entities.grid_create()
     end
 end
 
+function entities.update_grid(dt)
+
+end
+
 -- Map a grid cell to x,y coordinates, returning x,y for drawing, etc.
 function entities.cell_to_coord(r, c)
     return r*const.TILE_WIDTH, c*const.TILE_WIDTH

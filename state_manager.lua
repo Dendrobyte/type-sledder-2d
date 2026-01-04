@@ -41,6 +41,14 @@ states.in_game = {
         -- TODO: Only send a-z in this, use ascii values
         typing.on_key_press(key)
     end,
+
+    update = function(dt)
+        slope.update_grid(dt)
+        entities.update_grid(dt)
+        char.update_sprite(dt)
+        typing.show_floating_message(dt)
+    end
+
 }
 
 return states 
