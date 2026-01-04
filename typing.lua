@@ -126,10 +126,23 @@ function typing.draw_words()
     love.graphics.setFont(typing.default_font)
     love.graphics.setColor(0, 0, 0)
 
-    -- TODO: Change these to draw what's typed and untyped, just draw over each other
     -- Don't loop or anything, I think it's more readable this way
     love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
     love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
+    if current_word.final ~= nil then
+        -- Draw the working word over its start
+        love.graphics.setColor(0, .8, 1)
+        local curr_word_x, curr_word_y = -1, -1
+        if current_word.render_idx == "left" then
+            curr_word_x = char.x+word_left.x
+            curr_word_y = char.y+word_left.y
+        else
+            curr_word_x = char.x+word_right.x
+            curr_word_y = char.y+word_right.y
+        end
+        love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
+
+    end
 
     -- Draw a "NICE!" message if it's there
     for _, msg in ipairs(floating_messages) do

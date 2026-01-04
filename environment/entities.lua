@@ -37,7 +37,7 @@ function entities.cell_to_coord(r, c)
     return r*const.TILE_WIDTH, c*const.TILE_WIDTH
 end
 
--- Map x,y coordinates to cell, returning r,c for grid[r][c]
+-- Map x,y coordinates to cell, returning r,c for grid[c][r]
 -- Adding 1 because sticking to the 1 index cultist ideology
 -- Also following the row major cultist ideology
 function entities.coord_to_cell(x, y)
@@ -54,9 +54,11 @@ function entities.draw_entities()
 
 end
 
+-- TODO: We error out here when we go out of bounds (obviously)
+-- Make sure that doesn't still happen since we should be error catching now
 function entities.is_entity_at_position(x, y)
     local r, c = entities.coord_to_cell(x, y)
-    return grid[r][c] ~= const.EMPTY_SPACE
+    return grid[c][r] ~= const.EMPTY_SPACE
 end
 
 return entities
