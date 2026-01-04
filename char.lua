@@ -61,13 +61,18 @@ function char.update_sprite(dt)
     count = count + 1
 end
 
--- TODO: Make the character move over an animated frame
+-- Move the character based on some number of lanes
 function char.move(dir)
-    move.counter_y = move.counter_y + 40
+    -- TODO: Ensure the movement doesn't have to be symmetrical
+    --       The movement will then change entirely, and we may not have to convert to pixels
+    --       i.e. this might calc an animation and we just run that in update
+    local v_move = 5
+    local h_move = 10
+    move.counter_y = move.counter_y + entities.cell_to_pixels(v_move)
     if dir == "left" then
-        move.counter_x = move.counter_x - 40
+        move.counter_x = move.counter_x - entities.cell_to_pixels(h_move)
     elseif dir == "right" then
-        move.counter_x = move.counter_x + 40
+        move.counter_x = move.counter_x + entities.cell_to_pixels(h_move)
     end
 end
 

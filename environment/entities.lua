@@ -44,6 +44,11 @@ function entities.coord_to_cell(x, y)
     return math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
 end
 
+-- Given a number of lines, return that in pixels
+function entities.cell_to_pixels(cells)
+    return cells*const.TILE_WIDTH
+end
+
 -- Draw function that runs on top of the slope draw
 function entities.draw_entities()
 
