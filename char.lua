@@ -1,6 +1,7 @@
 -- Define the character as a table I guess
 local char = {}
 local entities = require("environment.entities")
+local const = require("environment.constants") -- ...? make it global? idk. consts will evolve.
 
 function char.load()
     char.name = "Mark"
@@ -17,15 +18,6 @@ local move = {
     counter_y = 0,
 }
 function char.update_sprite(dt)
-    -- TODO: Something something framerate independent?
-    --       Figure out using dt for all the 'player movement'
-
-    -- Slowly approaching the top
-    -- TODO: Touch this when we do the end of screen collision
-    if count % 2 == 0 then
-        char.y = char.y - 1
-    end
-
     -- Move if the counters are nonzero. The idea is to gradually move back to 0, hence inversion
     -- TODO: Refactor, just seeing if this works for now
     if move.counter_x ~= 0 then
@@ -42,12 +34,24 @@ function char.update_sprite(dt)
         move.counter_y = move.counter_y - 1
     end
 
-    -- Check for collision
+    -- Check for collision (TODO: function?)
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
+    in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
+    if not in_bounds then
+        print("You hit the top, womp womp")
+        return
+    end
     is_collision = entities.is_entity_at_position(char.x, char.y)
     if is_collision == true then
         -- TODO: Call state_manager.end_game(), don't change it directly here
-        print("womp womp")
+        print("womp womp, you collided")
+        return
+    end
+
+    -- Slowly approaching the top
+    -- TODO: Touch this when we do the end of screen collision
+    if count % 2 == 0 then
+        char.y = char.y - 1
     end
 
     -- Swap sprites back and forth to simulate skiing motions
