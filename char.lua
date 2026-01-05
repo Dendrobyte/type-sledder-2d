@@ -39,7 +39,7 @@ function char.update_sprite(dt)
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
     if not in_bounds then
-        return nil
+        return
     end
     is_collision = entities.is_entity_at_position(char.x, char.y)
     if is_collision == true then

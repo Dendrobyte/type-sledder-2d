@@ -69,6 +69,7 @@ states.end_game = {
         love.graphics.setFont(menu.title_font)
         love.graphics.setColor(0, 0, 0)
         love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
+        love.graphics.setColor(1, 1, 1)
     end,
 }
 
