@@ -11,18 +11,21 @@ local const = require("environment.constants")
 -- Make the tile map numbers constants for easier readability
 
 -- Load up the basic tile images
+local tiles = {}
+local grid_to_tile = nil
 function slope.load()
-    edge = love.graphics.newImage("ski_assets/Tiles/tile_0003.png") -- 1
-    snow = love.graphics.newImage("ski_assets/Tiles/tile_0000.png") -- 2
-    snow_right = love.graphics.newImage("ski_assets/Tiles/tile_0001.png") -- 3
-    snow_left = love.graphics.newImage("ski_assets/Tiles/tile_0004.png") -- 4
+    local tilePath = "ski_assets/Tiles/"
+    tiles.edge = love.graphics.newImage(tilePath .. "tile_0003.png") -- 1
+    tiles.snow = love.graphics.newImage(tilePath .. "tile_0000.png") -- 2
+    tiles.snow_right = love.graphics.newImage(tilePath .. "tile_0001.png") -- 3
+    tiles.snow_left = love.graphics.newImage(tilePath .. "tile_0004.png") -- 4
     slope.grid_create()
 
     grid_to_tile = { -- indices are just starting from 1
-        edge,
-        snow,
-        snow_left,
-        snow_right,
+        tiles.edge,
+        tiles.snow,
+        tiles.snow_left,
+        tiles.snow_right,
     }
 end
 
@@ -37,7 +40,7 @@ local left_edge = const.LEFT_EDGE
 local right_edge = const.RIGHT_EDGE
 function slope.grid_create()
 
-    for i = 1, cols+1 do -- Adding 1 so we don't get the flickering absent row as the game scrolls
+    for i = 1, cols+2 do -- Adding 2 so we don't get the flickering absent row as the game scrolls
         row = {}
         for j = 1, rows do
             row[j] = 1
@@ -93,12 +96,7 @@ function slope.grid_add_next_row()
     end
     grid[grid_head] = new_row
 
-    -- Shift head
-    if grid_head < #grid then
-        grid_head = grid_head + 1
-    else
-        grid_head = 1
-    end
+    if grid_head < #grid then grid_head = grid_head + 1 else grid_head = 1 end
 end
 
 -- Function to calculate the shifted row index (i.e. logical index 1 translates to grid_head)

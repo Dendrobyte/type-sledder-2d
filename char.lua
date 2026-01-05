@@ -1,7 +1,8 @@
--- Define the character as a table I guess
-local char = {}
+
 local entities = require("environment.entities")
 local const = require("environment.constants") -- ...? make it global? idk. consts will evolve.
+
+local char = {}
 
 function char.load()
     char.name = "Mark"
@@ -38,20 +39,18 @@ function char.update_sprite(dt)
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
     if not in_bounds then
-        print("You hit the top, womp womp")
-        return
+        return nil
     end
     is_collision = entities.is_entity_at_position(char.x, char.y)
     if is_collision == true then
         -- TODO: Call state_manager.end_game(), don't change it directly here
-        print("womp womp, you collided")
-        return
+        return true
     end
 
-    -- Slowly approaching the top
+    -- Slowly approaching the top, but slightly slower than scroll
     -- TODO: Touch this when we do the end of screen collision
     if count % 2 == 0 then
-        char.y = char.y - 1
+        char.y = char.y - .5
     end
 
     -- Swap sprites back and forth to simulate skiing motions
