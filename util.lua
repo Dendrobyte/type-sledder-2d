@@ -60,4 +60,19 @@ function util.debug_grid(spacing)
     love.graphics.setColor(r, g, b, a)
 end
 
+local debug_draw_calls = {}
+function util.add_debug_draw_call(callback)
+    table.insert(debug_draw_calls, callback)
+end
+
+function util.draw_debug_calls()
+    love.graphics.setColor(1, 0, 0)
+    for _, fn in ipairs(debug_draw_calls) do
+        fn()
+    end
+    love.graphics.setColor(1, 1, 1)
+    debug_draw_calls = {}
+
+end
+
 return util

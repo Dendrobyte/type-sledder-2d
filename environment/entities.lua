@@ -84,11 +84,14 @@ function entities.cell_to_coord(r, c)
     return r*const.TILE_WIDTH, c*const.TILE_WIDTH
 end
 
--- Map x,y coordinates to cell, returning r,c for grid[c][r]
+-- Map x,y coordinates to cell, returning c,r for grid[r][c]
 -- Adding 1 because sticking to the 1 index cultist ideology
--- Also following the row major cultist ideology
 function entities.coord_to_cell(x, y)
-    return math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
+    local c, r = math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
+    -- Need to adjust the row for the cyclic offset, effectively getting the "shifted" grid
+    r = r+grid_head
+    if r > #grid then r = r % #grid end
+    return c, r
 end
 
 -- Given a number of lines, return that in pixels
@@ -117,8 +120,7 @@ function entities.is_entity_in_player_area(char_x, char_y)
         {char_x, char_y+const.TILE_WIDTH}, -- bottom left
         {char_x+const.TILE_WIDTH, char_y+const.TILE_WIDTH}, -- bottom right
     }
-    -- TODO: Slight digression to add a "debug list" of items that we call and draw on top of everything else
-    -- and then here just add the rectangle stuff
+    local c, r = entities.coord_to_cell(char_x, char_y)
     for _, coords in ipairs(tile_coords) do
         local c, r = entities.coord_to_cell(coords[1], coords[2])
         if grid[r][c] ~= const.EMPTY_SPACE then
