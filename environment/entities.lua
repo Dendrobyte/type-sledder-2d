@@ -117,6 +117,8 @@ function entities.is_entity_in_player_area(char_x, char_y)
         {char_x, char_y+const.TILE_WIDTH}, -- bottom left
         {char_x+const.TILE_WIDTH, char_y+const.TILE_WIDTH}, -- bottom right
     }
+    -- TODO: Slight digression to add a "debug list" of items that we call and draw on top of everything else
+    -- and then here just add the rectangle stuff
     for _, coords in ipairs(tile_coords) do
         local c, r = entities.coord_to_cell(coords[1], coords[2])
         if grid[r][c] ~= const.EMPTY_SPACE then

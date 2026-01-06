@@ -38,8 +38,10 @@ states.in_game = {
         slope.draw_map()
         entities.draw_entities()
         -- Draw character on top of e
+        entities.is_entity_in_player_area(char.x, char.y)
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         typing.draw_words()
+        -- TODO: debug.draw_debug_items()
     end,
 
     keypressed = function(key)
