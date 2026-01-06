@@ -39,8 +39,7 @@ local grid_head = 1
 local left_edge = const.LEFT_EDGE
 local right_edge = const.RIGHT_EDGE
 function slope.grid_create()
-
-    for i = 1, cols+2 do -- Adding 2 so we don't get the flickering absent row as the game scrolls
+    for i = 1, cols+3 do -- Adding arbitrary constant so we don't get the flickering absent row as the game scrolls
         row = {}
         for j = 1, rows do
             row[j] = 1
@@ -97,6 +96,29 @@ function slope.grid_add_next_row()
     grid[grid_head] = new_row
 
     if grid_head < #grid then grid_head = grid_head + 1 else grid_head = 1 end
+end
+
+-- Currently used for slope collision
+function slope.get_tile_at_cell(r, c)
+    return grid[r][c]
+end
+
+-- Currently used for obstacle spawning on snowy paths only
+-- Returns [a, b] such that we can spawn an obstacle in that range (all 2s)
+-- NOTE: In the future, we'll want to return a list of indices of the 0s
+function slope.get_valid_obstacle_indices(curr_head_idx)
+    -- There's an assumption here that the entity index head matches slope (they need to be the same size!)
+    -- Thus that's the same row being replaced in both, but we'll pass in the index anyway
+    local row = grid[curr_head_idx]
+    local start_idx, end_idx = nil, nil
+    for i, tile_num in ipairs(row) do
+        if tile_num == 2 then
+            start_idx = start_idx or i -- Gimmicky JS mode activated
+            end_idx = i
+        end
+    end
+    return start_idx+1, end_idx-1 -- Don't include the transition tiles
+
 end
 
 -- Function to calculate the shifted row index (i.e. logical index 1 translates to grid_head)

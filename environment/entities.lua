@@ -1,5 +1,6 @@
 local const = require("environment.constants")
 local util = require("util")
+local slope = require("environment.slope") -- NOTE: I don't love this dependency being here
 
 -- This is our grid system responsible for handling collision between player and edge, player and obstacle, etc.
 local entities = {}
@@ -30,7 +31,7 @@ local cols = const.PIXEL_H / const.TILE_WIDTH
 local grid = {}
 local grid_head = 1
 function entities.grid_create()
-    for i = 1, cols+3 do
+    for i = 1, cols+3 do -- This '3' needs to be the same for the obstacle gen... constant!
         row = {}
         for j = 1, rows do
             row[j] = const.EMPTY_SPACE
@@ -59,11 +60,12 @@ end
 -- NOTE: So if it became new_chunk, circular buffer would change
 function entities.new_row()
     -- Generate the new item
-    -- TODO: Make sure the rock/stump is only generated on actual snowy path
     new_row = {}
     for i = 1, rows do new_row[i] = const.EMPTY_SPACE end
     if math.random(3) == 1 then
-        local obstacle_idx = 26 -- math.random(#new_row)
+        local snow_start, snow_end = slope.get_valid_obstacle_indices(grid_head)
+        local obstacle_idx = math.random(snow_start, snow_end)
+        print("Spawning obstacle at", obstacle_idx)
         new_row[obstacle_idx] = math.random(#grid_to_tile)
     end
 
@@ -89,7 +91,7 @@ end
 function entities.coord_to_cell(x, y)
     local c, r = math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
     -- Need to adjust the row for the cyclic offset, effectively getting the "shifted" grid
-    r = r+grid_head
+    r = r+grid_head+1 -- This is... a little sus... but I think it works. +1 because ????
     if r > #grid then r = r % #grid end
     return c, r
 end
@@ -112,7 +114,7 @@ end
 
 -- TODO: We error out here when we go out of bounds (obviously)
 -- Make sure that doesn't still happen since we should be error catching now
-function entities.is_entity_in_player_area(char_x, char_y)
+function entities.is_entity_in_player_area(char_x, char_y, slope_cell)
     -- Given the character x and y, find all the tiles for it
     local tile_coords = {
         {char_x, char_y}, -- top left
@@ -123,7 +125,8 @@ function entities.is_entity_in_player_area(char_x, char_y)
     local c, r = entities.coord_to_cell(char_x, char_y)
     for _, coords in ipairs(tile_coords) do
         local c, r = entities.coord_to_cell(coords[1], coords[2])
-        if grid[r][c] ~= const.EMPTY_SPACE then
+        local slope_cell = slope.get_tile_at_cell(r, c)
+        if grid[r][c] ~= const.EMPTY_SPACE or slope_cell == 1 then -- If the slope cell is a (full) edge
             return true
         end
     end
