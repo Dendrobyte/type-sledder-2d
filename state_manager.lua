@@ -55,10 +55,9 @@ states.in_game = {
 
         -- So function returns are kind of like "emits" in a way
         if collided == true then
-            update_state("end_game")
+            update_state("end_game") -- TODO: Use a const
         end
     end
-
 }
 
 states.end_game = {

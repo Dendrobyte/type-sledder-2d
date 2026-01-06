@@ -41,7 +41,7 @@ function char.update_sprite(dt)
     if not in_bounds then
         return
     end
-    is_collision = entities.is_entity_at_position(char.x, char.y)
+    is_collision = entities.is_entity_in_player_area(char.x, char.y)
     if is_collision == true then
         -- TODO: Call state_manager.end_game(), don't change it directly here
         return true

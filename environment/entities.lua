@@ -109,13 +109,20 @@ end
 
 -- TODO: We error out here when we go out of bounds (obviously)
 -- Make sure that doesn't still happen since we should be error catching now
-function entities.is_entity_at_position(x, y)
-    local c, r = entities.coord_to_cell(x, y)
-    if grid[r][c] ~= const.EMPTY_SPACE then
-        print("Found entity at r=", r, "c=", c)
-        print("Position passed in was x=", x, "y=", y)
+function entities.is_entity_in_player_area(char_x, char_y)
+    -- Given the character x and y, find all the tiles for it
+    local tile_coords = {
+        {char_x, char_y}, -- top left
+        {char_x+const.TILE_WIDTH, char_y}, -- top right
+        {char_x, char_y+const.TILE_WIDTH}, -- bottom left
+        {char_x+const.TILE_WIDTH, char_y+const.TILE_WIDTH}, -- bottom right
+    }
+    for _, coords in ipairs(tile_coords) do
+        local c, r = entities.coord_to_cell(coords[1], coords[2])
+        if grid[r][c] ~= const.EMPTY_SPACE then
+            return true
+        end
     end
-    return grid[r][c] ~= const.EMPTY_SPACE
 end
 
 return entities
