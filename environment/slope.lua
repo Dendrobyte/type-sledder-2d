@@ -150,7 +150,7 @@ function slope.draw_map()
         idx = slope.calc_grid_idx(i)
         row = grid[idx]
         for j, val in ipairs(row) do
-            love.graphics.draw(grid_to_tile[val], (j-1)*16, (i-1)*16-counter, 0, 1)
+            love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-counter, 0, 2)
         end
     end
 

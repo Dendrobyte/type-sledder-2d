@@ -10,7 +10,6 @@ function util.get_debug()
 end
 
 function util.print_matrix(matrix)
-
     for i, row in ipairs(matrix) do
         io.write("[")
         for j, col_val in ipairs(row) do
@@ -18,7 +17,6 @@ function util.print_matrix(matrix)
         end
         print("]")
     end
-
 end
 
 -- Debug grid

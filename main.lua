@@ -38,7 +38,7 @@ function love.draw()
     if curr_state.draw then curr_state.draw() end
     if util.get_debug() == true then
         util.draw_debug_calls()
-        util.debug_grid(16)
+        util.debug_grid(32) -- match env const tilewidth
     end
 end
 

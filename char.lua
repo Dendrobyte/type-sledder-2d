@@ -14,7 +14,7 @@ function char.load()
 end
 
 function char.start_position()
-    return 25, 20
+    return 10, 8
 end
 
 local count = 0
