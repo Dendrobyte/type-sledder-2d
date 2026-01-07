@@ -3,7 +3,6 @@ local slope = require("environment.slope")
 local menu = require("menu")
 local typing = require("typing")
 local entities = require("environment.entities")
-local util = require("util")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 
@@ -42,18 +41,14 @@ states.in_game = {
         entities.is_entity_in_player_area(char.x, char.y)
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         typing.draw_words()
-        if util.get_debug() == true then
-            util.draw_debug_calls()
-        end
+
     end,
 
     keypressed = function(key)
         -- TODO: Only send a-z in this, use ascii values
         typing.on_key_press(key)
 
-        if key == "up" and love.keyboard.isDown("lshift") then
-            util.set_debug(not util.get_debug())
-        end
+        
     end,
 
     update = function(dt)

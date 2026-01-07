@@ -41,12 +41,19 @@ end
 function love.draw()
     local curr_state = states[states.curr_state] -- this... naming feels weird... meh
     if curr_state.draw then curr_state.draw() end
-    if util.get_debug() == true then util.debug_grid(16) end
+    if util.get_debug() == true then
+        util.draw_debug_calls()
+        util.debug_grid(16)
+    end
 end
 
 function love.keypressed(key, isrepeat)
     local curr_state = states[states.curr_state]
     if curr_state.keypressed then curr_state.keypressed(key, isrepeat) end
+
+    if key == "up" and love.keyboard.isDown("lshift") then
+                util.set_debug(not util.get_debug())
+            end
 end
 
 function love.mousepressed(x, y, button, _istouch, _presses)
