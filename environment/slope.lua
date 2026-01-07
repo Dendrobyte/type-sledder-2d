@@ -35,7 +35,7 @@ local tile_width = const.TILE_WIDTH
 local rows = pixel_w / tile_width
 local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 local grid = {}
-local grid_head = 1
+local grid_head = nil
 local left_edge = const.LEFT_EDGE
 local right_edge = const.RIGHT_EDGE
 function slope.grid_create()
@@ -56,6 +56,8 @@ function slope.grid_create()
         end
         row[right_edge] = 4
     end
+
+    grid_head = 1
 
     if util.get_debug() == true and nil ~= nil then
         print("---- Start of slope grid ----")

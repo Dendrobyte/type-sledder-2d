@@ -65,7 +65,6 @@ function entities.new_row()
     if math.random(3) == 1 then
         local snow_start, snow_end = slope.get_valid_obstacle_indices(grid_head)
         local obstacle_idx = math.random(snow_start, snow_end)
-        print("Spawning obstacle at", obstacle_idx)
         new_row[obstacle_idx] = math.random(#grid_to_tile)
     end
 
@@ -112,7 +111,6 @@ function entities.draw_entities()
     end
 end
 
--- TODO: We error out here when we go out of bounds (obviously)
 -- Make sure that doesn't still happen since we should be error catching now
 function entities.is_entity_in_player_area(char_x, char_y, slope_cell)
     -- Given the character x and y, find all the tiles for it

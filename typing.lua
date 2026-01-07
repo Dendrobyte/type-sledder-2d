@@ -36,11 +36,19 @@ local active_words = {}
 -- Stores the words for "left" and "right", updated independently from active words
 local rendered_words = {}
 
+local floating_messages = {} -- List of messages we can store...? Maybe multiple?
+
 function typing.load()
     typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
 
+    typing.reset_words()
+end
+
+function typing.reset_words()
     typing.update_word("left", "")
     typing.update_word("right", "")
+
+    floating_messages = {}
 end
 
 -- Handle the active typing
@@ -59,7 +67,6 @@ end
 -- Option 1: Some "animation" manager that we call if this is access from other places, like
 --      obstacle dodging, etc.
 -- Option 2: Pass dt somewhere further up the chain
-local floating_messages = {} -- List of messages we can store...? Maybe multiple?
 function typing.show_floating_message(dt)
     for i = #floating_messages, 1, -1 do
         local msg = floating_messages[i]
@@ -151,7 +158,6 @@ function typing.draw_words()
         love.graphics.print(msg.text, msg.x, msg.y)
     end
 
-    -- ## DEBUGGING ##
     if util.get_debug() == true then
         love.graphics.setColor(0, .5, 1)
         love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)

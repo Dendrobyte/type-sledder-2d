@@ -75,4 +75,8 @@ function util.draw_debug_calls()
 
 end
 
+function util.reset_color()
+    love.graphics.setColor(1, 1, 1)
+end
+
 return util

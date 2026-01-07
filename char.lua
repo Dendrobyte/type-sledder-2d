@@ -10,7 +10,11 @@ function char.load()
     char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0083.png")
     char.sprite = char.move_two
 
-    char.x, char.y = entities.cell_to_coord(25, 20)
+    char.x, char.y = entities.cell_to_coord(char.start_position())
+end
+
+function char.start_position()
+    return 25, 20
 end
 
 local count = 0
@@ -35,7 +39,6 @@ function char.update_sprite(dt)
         move.counter_y = move.counter_y - 1
     end
 
-    -- Check for collision (TODO: function?)
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
     if not in_bounds then
@@ -43,14 +46,14 @@ function char.update_sprite(dt)
     end
     is_collision = entities.is_entity_in_player_area(char.x, char.y)
     if is_collision == true then
-        -- TODO: Call state_manager.end_game(), don't change it directly here
+        print("colliding")
         return true
     end
 
     -- Slowly approaching the top, but slightly slower than scroll
     -- TODO: Touch this when we do the end of screen collision
     if count % 2 == 0 then
-        char.y = char.y - .5
+        char.y = char.y - 1
     end
 
     -- Swap sprites back and forth to simulate skiing motions
@@ -62,6 +65,13 @@ function char.update_sprite(dt)
         count = -1
     end
     count = count + 1
+end
+
+function char.reset_movement()
+    move = {
+        counter_x = 0,
+        counter_y = 0,
+    }
 end
 
 -- Move the character based on some number of lanes
@@ -78,8 +88,5 @@ function char.move(dir)
         move.counter_x = move.counter_x + entities.cell_to_pixels(h_move)
     end
 end
-
--- TODO: Function to call when the skiier moves "lanes" and also moves forward a little bit
--- Could probably modify a global var for the char.y-1 line so we don't conflict over frames
 
 return char
