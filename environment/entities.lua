@@ -31,7 +31,7 @@ local cols = const.PIXEL_H / const.TILE_WIDTH
 local grid = {}
 local grid_head = 1
 function entities.grid_create()
-    for i = 1, cols+3 do -- This '3' needs to be the same for the obstacle gen... constant!
+    for i = 1, cols+3 do -- Needs to match slope grid
         row = {}
         for j = 1, rows do
             row[j] = const.EMPTY_SPACE
@@ -47,12 +47,32 @@ function entities.calc_grid_idx(logical_index)
 end
 
 local counter = 0
+-- Storing all obstacles and their positions for the draw function and collision
+obstacles = {}
 function entities.update_grid(dt)
     counter = counter+1
     if counter == const.TILE_WIDTH then
         entities.new_row() -- TODO: new_chunk()
 
         counter = 0
+    end
+
+    -- Update obstacle coords for drawing based on coordinates to be used w collision
+    obstacles = {}
+    for i = 1, #grid do
+        idx = entities.calc_grid_idx(i)
+        row = grid[idx]
+        for j, val in ipairs(row) do
+            if val ~= 0 then
+                table.insert(obstacles, {
+                    tile_sprite = val,
+                    x_orig = (j-1)*const.TILE_WIDTH,
+                    y_orig = (i-1)*const.TILE_WIDTH-counter,
+                    x_end = (j-1)*const.TILE_WIDTH+const.TILE_WIDTH,
+                    y_end = (i-1)*const.TILE_WIDTH-counter+const.TILE_WIDTH,
+                })
+            end
+        end
     end
 end
 
@@ -102,32 +122,41 @@ end
 
 -- Draw function that runs on top of the slope draw
 function entities.draw_entities()
-    for i = 1, #grid do
-        idx = entities.calc_grid_idx(i)
-        row = grid[idx]
-        for j, val in ipairs(row) do
-            if val ~= 0 then love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-counter, 0, 1) end
+    for _, obst in ipairs(obstacles) do
+        love.graphics.draw(grid_to_tile[obst.tile_sprite], obst.x_orig, obst.y_orig, 0, 2)
+        if util.get_debug() == true then
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.rectangle('line', obst.x_orig, obst.y_orig, const.TILE_WIDTH, const.TILE_WIDTH)
+            love.graphics.setColor(1, 1, 1)
         end
     end
+
 end
 
--- Make sure that doesn't still happen since we should be error catching now
-function entities.is_entity_in_player_area(char_x, char_y, slope_cell)
-    -- Given the character x and y, find all the tiles for it
-    local tile_coords = {
-        {char_x, char_y}, -- top left
-        {char_x+const.TILE_WIDTH, char_y}, -- top right
-        {char_x, char_y+const.TILE_WIDTH}, -- bottom left
-        {char_x+const.TILE_WIDTH, char_y+const.TILE_WIDTH}, -- bottom right
-    }
-    local c, r = entities.coord_to_cell(char_x, char_y)
-    for _, coords in ipairs(tile_coords) do
-        local c, r = entities.coord_to_cell(coords[1], coords[2])
-        local slope_cell = slope.get_tile_at_cell(r, c)
-        if grid[r][c] ~= const.EMPTY_SPACE or slope_cell == 1 then -- If the slope cell is a (full) edge
+-- Check character coords with every obstacle coordinate
+-- NOTE: There's a possibility this is off by a pixel or so based on the order of the update calls?
+function entities.does_player_collide_with_entity(char_x, char_y, slope_cell)
+    for _, obst in ipairs(obstacles) do
+        if check_collision(char_x, char_y, obst.x_orig, obst.y_orig) == true then
             return true
         end
     end
+    util.add_debug_draw_call(function()
+        love.graphics.setColor(.8, .5, 0)
+        love.graphics.rectangle('line', char_x, char_y, const.TILE_WIDTH, const.TILE_WIDTH)
+        love.graphics.setColor(1, 1, 1)
+    end)
+end
+
+-- TK: oh maybe I don't need the x/y_end vars in the obstacles? the width is always the same, don't fuck with tile size
+function check_collision(cx_orig, cy_orig, ex_orig, ey_orig)
+    w = const.TILE_WIDTH
+    -- Logic here is to effectively invert a check if the rectangles overlap. If they don't not overlap, we have a collision
+    return
+        cx_orig + w > ex_orig and
+        cx_orig < ex_orig + w and
+        cy_orig + w > ey_orig and
+        cy_orig < ey_orig + w
 end
 
 return entities

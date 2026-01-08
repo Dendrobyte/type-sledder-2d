@@ -44,7 +44,7 @@ function char.update_sprite(dt)
     if not in_bounds then
         return
     end
-    is_collision = entities.is_entity_in_player_area(char.x, char.y)
+    is_collision = entities.does_player_collide_with_entity(char.x, char.y)
     if is_collision == true then
         print("colliding")
         return true
