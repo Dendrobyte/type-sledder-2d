@@ -21,11 +21,11 @@ local word_bucket = {
 
 -- Store offsets (may add more words later)
 local word_left = {
-    x = -75,
+    x = -65,
     y = 25,
 }
 local word_right = {
-    x = 75,
+    x = 50,
     y = 25,
 }
 

@@ -1,4 +1,5 @@
 
+local slope = require("environment.slope")
 local entities = require("environment.entities")
 local const = require("environment.constants") -- ...? make it global? idk. consts will evolve.
 
@@ -44,9 +45,9 @@ function char.update_sprite(dt)
     if not in_bounds then
         return
     end
+    is_off_slope = slope.does_player_go_off_slope(char.x, char.y)
     is_collision = entities.does_player_collide_with_entity(char.x, char.y)
-    if is_collision == true then
-        print("colliding")
+    if is_off_slope == true or is_collision == true then
         return true
     end
 

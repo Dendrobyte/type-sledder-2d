@@ -156,4 +156,19 @@ function slope.draw_map()
 
 end
 
+-- Map x,y coordinates to cell, returning c,r for grid[r][c]
+-- Adding 1 because sticking to the 1 index cultist ideology
+function slope.coord_to_cell(x, y)
+    local c, r = math.floor(x/const.TILE_WIDTH)+1, math.floor(y/const.TILE_WIDTH)+1
+    -- Need to adjust the row for the cyclic offset, effectively getting the "shifted" grid
+    r = r+grid_head+1 -- This is... a little sus... but I think it works. +1 because ????
+    if r > #grid then r = r % #grid end
+    return c, r
+end
+
+function slope.does_player_go_off_slope(char_x, char_y)
+    local c, r = slope.coord_to_cell(char_x, char_y)
+    return slope.get_tile_at_cell(r, c) == 1
+end
+
 return slope
