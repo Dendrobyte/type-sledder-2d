@@ -141,14 +141,15 @@ function entities.does_player_collide_with_entity(char_x, char_y, slope_cell)
 end
 
 -- TK: oh maybe I don't need the x/y_end vars in the obstacles? the width is always the same, don't fuck with tile size
+-- TODO: Change collision to be just bottom half of sprite
 function check_collision(cx_orig, cy_orig, ex_orig, ey_orig)
     w = const.TILE_WIDTH
     -- Logic here is to effectively invert a check if the rectangles overlap. If they don't not overlap, we have a collision
     return
         cx_orig + w > ex_orig and
         cx_orig < ex_orig + w and
-        cy_orig + w > ey_orig and
-        cy_orig < ey_orig + w
+        cy_orig + w > ey_orig+w and
+        cy_orig < ey_orig+w + w
 end
 
 return entities
