@@ -20,7 +20,6 @@ function entities.load()
         tiles.stump,
         tiles.rock,
     }
-
 end
 
 -- Create a grid akin to slope, but empty

@@ -20,24 +20,51 @@ end
 
 local count = 0
 local move = {
-    counter_x = 0,
-    counter_y = 0,
+    is_moving = false,
+    x_incr = 0,
+    y_incr = 0,
+    dest_cell = {
+        x = nil,
+        y = nil,
+    }
 }
+function reset_move_state()
+    move = {
+        is_moving = false,
+        x_incr = 0,
+        y_incr = 0,
+        dest_cell = {
+            x = nil,
+            y = nil,
+        }
+    }
+end
+
 function char.update_sprite(dt)
-    -- Move if the counters are nonzero. The idea is to gradually move back to 0, hence inversion
-    -- TODO: Refactor, just seeing if this works for now
-    if move.counter_x ~= 0 then
-        if move.counter_x > 0 then
-            char.x = char.x + 1
-            move.counter_x = move.counter_x - 1
-        elseif move.counter_x < 0 then
-            char.x = char.x - 1
-            move.counter_x = move.counter_x + 1
+    -- Update character based on move state
+    if move.is_moving == true then
+        char.x = char.x + x_incr
+        char.y = char.y + y_incr
+        local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
+        if curr_cell_c == move.dest_cell.x and curr_cell_r == move.dest_cell.y then
+           reset_move_state()
         end
     end
+    -- Old movement...
+    -- if move.counter_x ~= 0 then
+    --     if move.counter_x > 0 then
+    --         char.x = char.x + 1
+    --         move.counter_x = move.counter_x - 1
+    --     elseif move.counter_x < 0 then
+    --         char.x = char.x - 1
+    --         move.counter_x = move.counter_x + 1
+    --     end
+    -- end
+
     if move.counter_y ~= 0 then -- y is always moving in one direction, but the counter increases
         char.y = char.y + 1
         move.counter_y = move.counter_y - 1
+        print("y move counter=", move.counter_y)
     end
 
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
@@ -80,8 +107,8 @@ function char.move(dir)
     -- TODO: Ensure the movement doesn't have to be symmetrical
     --       The movement will then change entirely, and we may not have to convert to pixels
     --       i.e. this might calc an animation and we just run that in update
-    local v_move = 5
-    local h_move = 5
+    local v_move = 1
+    local h_move = 3
     move.counter_y = move.counter_y + entities.cell_to_pixels(v_move)
     if dir == "left" then
         move.counter_x = move.counter_x - entities.cell_to_pixels(h_move)

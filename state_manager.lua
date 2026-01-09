@@ -45,6 +45,11 @@ states.in_game = {
     keypressed = function(key)
         -- TODO: Only send a-z in this, use ascii values
         typing.on_key_press(key)
+
+        -- Reset game hotkey
+        if key == "r" and love.keyboard.isDown("lctrl") then
+            reset_game()
+        end
     end,
 
     update = function(dt)

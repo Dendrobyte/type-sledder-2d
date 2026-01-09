@@ -44,13 +44,6 @@ function typing.load()
     typing.reset_words()
 end
 
-function typing.reset_words()
-    typing.update_word("left", "")
-    typing.update_word("right", "")
-
-    floating_messages = {}
-end
-
 -- Handle the active typing
 local current_word = {
     final = nil, -- This comes from active_words when we register the first unique keypress
@@ -61,6 +54,15 @@ local function reset_current_word()
     current_word.final = nil
     current_word.buffer = ""
     current_word.render_idx = ""
+end
+
+function typing.reset_words()
+    active_words = {}
+    typing.update_word("left", "")
+    typing.update_word("right", "")
+    reset_current_word()
+
+    floating_messages = {}
 end
 
 -- TODO: This is a super one-off function :\
