@@ -24,8 +24,8 @@ local move = {
     x_incr = 0,
     y_incr = 0,
     dest_cell = {
-        x = nil,
-        y = nil,
+        c = nil,
+        r = nil,
     }
 }
 function reset_move_state()
@@ -34,8 +34,8 @@ function reset_move_state()
         x_incr = 0,
         y_incr = 0,
         dest_cell = {
-            x = nil,
-            y = nil,
+            c = nil,
+            r = nil,
         }
     }
 end
@@ -43,11 +43,16 @@ end
 function char.update_sprite(dt)
     -- Update character based on move state
     if move.is_moving == true then
-        char.x = char.x + x_incr
-        char.y = char.y + y_incr
+        char.x = char.x + move.x_incr
+        char.y = char.y + move.y_incr
         local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
-        if curr_cell_c == move.dest_cell.x and curr_cell_r == move.dest_cell.y then
+        if curr_cell_c == move.dest_cell.c and curr_cell_r == move.dest_cell.r then
            reset_move_state()
+        end
+    else
+        -- If we're not moving, slowly approach the top, but slightly slower than scroll
+        if count % 2 == 0 then
+            char.y = char.y - 1
         end
     end
     -- Old movement...
@@ -61,11 +66,6 @@ function char.update_sprite(dt)
     --     end
     -- end
 
-    if move.counter_y ~= 0 then -- y is always moving in one direction, but the counter increases
-        char.y = char.y + 1
-        move.counter_y = move.counter_y - 1
-        print("y move counter=", move.counter_y)
-    end
 
     -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
@@ -76,12 +76,6 @@ function char.update_sprite(dt)
     is_collision = entities.does_player_collide_with_entity(char.x, char.y)
     if is_off_slope == true or is_collision == true then
         return true
-    end
-
-    -- Slowly approaching the top, but slightly slower than scroll
-    -- TODO: Touch this when we do the end of screen collision
-    if count % 2 == 0 then
-        char.y = char.y - 1
     end
 
     -- Swap sprites back and forth to simulate skiing motions
@@ -103,18 +97,39 @@ function char.reset_movement()
 end
 
 -- Move the character based on some number of lanes
+-- We calculate the increments to move along each axis and then update function moves until we hit our target
 function char.move(dir)
-    -- TODO: Ensure the movement doesn't have to be symmetrical
-    --       The movement will then change entirely, and we may not have to convert to pixels
-    --       i.e. this might calc an animation and we just run that in update
-    local v_move = 1
-    local h_move = 3
-    move.counter_y = move.counter_y + entities.cell_to_pixels(v_move)
-    if dir == "left" then
-        move.counter_x = move.counter_x - entities.cell_to_pixels(h_move)
-    elseif dir == "right" then
-        move.counter_x = move.counter_x + entities.cell_to_pixels(h_move)
-    end
+    local dir_num = dir == "left" and -1 or 1 -- "and" apparently returns second value if first one is truthy??
+    local new_move_state = {
+        is_moving = true,
+        x_incr = 0,
+        y_incr = 0,
+        dest_cell = {
+            c = nil,
+            r = nil,
+        }
+    }
+
+    -- Represents how many cells over from the current position. Tweak these as necessary.
+    local x_move = 3 * dir_num
+    local y_move = 1
+    local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
+    local dest_c = curr_c + x_move
+    local dest_r = curr_r + y_move
+
+    -- Effectively getting the movement vectory
+    local dx = dest_c - curr_c
+    local dy = dest_r - curr_r
+    local dist = math.sqrt(dx*dx + dy*dy)
+    new_move_state.x_incr = (dx/dist)
+    new_move_state.y_incr = (dy/dist)
+
+    -- Set the dest cell
+    new_move_state.dest_cell.c = dest_c
+    new_move_state.dest_cell.r = dest_r
+
+    print(new_move_state.x_incr, new_move_state.y_incr)
+    move = new_move_state
 end
 
 return char
