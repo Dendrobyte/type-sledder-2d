@@ -55,22 +55,11 @@ function char.update_sprite(dt)
             char.y = char.y - 1
         end
     end
-    -- Old movement...
-    -- if move.counter_x ~= 0 then
-    --     if move.counter_x > 0 then
-    --         char.x = char.x + 1
-    --         move.counter_x = move.counter_x - 1
-    --     elseif move.counter_x < 0 then
-    --         char.x = char.x - 1
-    --         move.counter_x = move.counter_x + 1
-    --     end
-    -- end
 
-
-    -- NOTE: Is this a good spot...? I guess once we move, just check if it hits an invading cell
+    -- Collision and bounds checks
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
     if not in_bounds then
-        return
+        return true
     end
     is_off_slope = slope.does_player_go_off_slope(char.x, char.y)
     is_collision = entities.does_player_collide_with_entity(char.x, char.y)
@@ -79,6 +68,7 @@ function char.update_sprite(dt)
     end
 
     -- Swap sprites back and forth to simulate skiing motions
+    -- TODO: Adjust based on scroll speed... maybe count is scroll speed?
     if count == 40 then
         char.sprite = char.move_one
     end
@@ -112,7 +102,8 @@ function char.move(dir)
 
     -- Represents how many cells over from the current position. Tweak these as necessary.
     local x_move = 3 * dir_num
-    local y_move = 1
+    local y_move = 0
+    slope.set_scroll_speed(slope.get_scroll_speed() + 10)
     local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
     local dest_c = curr_c + x_move
     local dest_r = curr_r + y_move

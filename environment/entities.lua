@@ -45,15 +45,14 @@ function entities.calc_grid_idx(logical_index)
     return ((grid_head + logical_index - 1) % #grid+1)
 end
 
-local counter = 0
 -- Storing all obstacles and their positions for the draw function and collision
 obstacles = {}
+local scroll_offset = 0
 function entities.update_grid(dt)
-    counter = counter+1
-    if counter == const.TILE_WIDTH then
+    scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
+    if scroll_offset > const.TILE_WIDTH then
         entities.new_row() -- TODO: new_chunk()
-
-        counter = 0
+        scroll_offset = scroll_offset - const.TILE_WIDTH
     end
 
     -- Update obstacle coords for drawing based on coordinates to be used w collision
@@ -66,9 +65,9 @@ function entities.update_grid(dt)
                 table.insert(obstacles, {
                     tile_sprite = val,
                     x_orig = (j-1)*const.TILE_WIDTH,
-                    y_orig = (i-1)*const.TILE_WIDTH-counter,
+                    y_orig = (i-1)*const.TILE_WIDTH-scroll_offset,
                     x_end = (j-1)*const.TILE_WIDTH+const.TILE_WIDTH,
-                    y_end = (i-1)*const.TILE_WIDTH-counter+const.TILE_WIDTH,
+                    y_end = (i-1)*const.TILE_WIDTH-scroll_offset+const.TILE_WIDTH,
                 })
             end
         end

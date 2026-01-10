@@ -99,6 +99,7 @@ states.end_game = {
 function reset_game()
     -- Call only the things we need to reset
     slope.grid_create()
+    slope.reset_scroll_speed()
     char.x, char.y = entities.cell_to_coord(char.start_position())
     char.reset_movement()
     entities.grid_create()

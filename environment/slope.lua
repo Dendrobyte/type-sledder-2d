@@ -29,6 +29,23 @@ function slope.load()
     }
 end
 
+--[[
+    SCROLL SPEED VARIABLE!
+    Adjusting these speeds up the whole game. These are accessed in entities and char.
+]]
+local scroll_speed = 100
+function slope.get_scroll_speed()
+    return scroll_speed
+end
+
+function slope.set_scroll_speed(new_scroll_speed)
+    scroll_speed = new_scroll_speed
+end
+
+function slope.reset_scroll_speed()
+    scroll_speed = 100
+end
+
 -- Create initial nxm grid
 local pixel_w, pixel_h = const.PIXEL_W, const.PIXEL_H
 local tile_width = const.TILE_WIDTH
@@ -128,17 +145,16 @@ function slope.calc_grid_idx(logical_index)
     return ((grid_head + logical_index - 1) % #grid+1)
 end
 
-local counter = 0
+local scroll_offset = 0
 local dir = 1
 local dir_counter = 0
 function slope.update_grid(dt)
     -- Counter inc to generate a new row
-    counter = counter+1
-    if counter == const.TILE_WIDTH then
+    -- Scroll offset is effectively the pixels we need to account for
+    scroll_offset = scroll_offset + scroll_speed * dt
+    if scroll_offset > const.TILE_WIDTH then
         slope.grid_add_next_row()
-
-        -- Reset this to zero for when we redraw
-        counter = 0
+        scroll_offset = scroll_offset - const.TILE_WIDTH
     end
 end
 
@@ -150,10 +166,9 @@ function slope.draw_map()
         idx = slope.calc_grid_idx(i)
         row = grid[idx]
         for j, val in ipairs(row) do
-            love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-counter, 0, 2)
+            love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-scroll_offset, 0, 2)
         end
     end
-
 end
 
 -- Map x,y coordinates to cell, returning c,r for grid[r][c]
