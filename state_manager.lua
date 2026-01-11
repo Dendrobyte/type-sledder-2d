@@ -4,6 +4,7 @@ local menu = require("menu")
 local typing = require("typing")
 local entities = require("environment.entities")
 local sounds = require("sounds")
+local ui = require("ui")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 
@@ -46,6 +47,7 @@ states.in_game = {
         entities.draw_entities()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         typing.draw_words()
+        ui.draw_ui()
     end,
 
     keypressed = function(key)
@@ -63,6 +65,7 @@ states.in_game = {
         entities.update_grid(dt)
         typing.show_floating_message(dt)
         collided = char.update_sprite(dt)
+        ui.update_ui(dt)
 
         -- So function returns can be treated like "emits"
         if collided == true then

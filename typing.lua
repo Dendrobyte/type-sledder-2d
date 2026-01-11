@@ -2,7 +2,9 @@ local char = require("char")
 local sounds = require("sounds")
 local util = require("util")
 
-local typing = {}
+local typing = {
+    points = {}
+}
 
 -- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
@@ -17,7 +19,6 @@ local word_bucket = {
   "break","reset","retry","win","lose","draw","pause","resume","select",
   "confirm","cancel","escape","finish","victory","perfect"
 }
-
 
 -- Store offsets (may add more words later)
 local word_left = {
@@ -61,6 +62,7 @@ function typing.reset_words()
     typing.update_word("left", "")
     typing.update_word("right", "")
     reset_current_word()
+    typing.points.reset_points()
 
     floating_messages = {}
 end
@@ -104,6 +106,7 @@ function typing.on_key_press(key)
             })
             char.move(current_word.render_idx)
             reset_current_word()
+            typing.points.score_points()
         end
 
     -- Otherwise, go until we match on an active word
@@ -179,6 +182,26 @@ function typing.update_word(rendered_idx, replaced_word)
     rendered_words[rendered_idx] = new_word
     active_words[replaced_word] = nil -- if someone goes infinitely... is this a good idea??
     active_words[new_word] = rendered_idx
+end
+--[[
+    POINTS SYTEM
+    I'm putting it here for now... but 'submodule' for bringing it out.
+    When I add the discs I should revisit this
+]]
+local current_points = 0
+function typing.points.get_points()
+    return current_points
+end
+
+function typing.points.reset_points()
+    current_points = 0
+end
+
+function typing.points.score_points()
+    -- No real differentiation here, revisit with discs
+    -- Make CONSTANTS for the different types of increments (and multipliers, e.g. for speed)
+    -- TODO: Mult an addition of points based on scroll speed
+    current_points = current_points + 10
 end
 
 return typing
