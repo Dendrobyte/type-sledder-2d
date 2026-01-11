@@ -73,7 +73,7 @@ function menu.pre_game.draw_screen()
     love.graphics.print("Set your starting speed", 175, 400)
     love.graphics.print(slope.get_scroll_speed(), (menu.speed_incr.x + menu.speed_decr.x) / 2 - 10, menu.speed_incr.y)
     love.graphics.setFont(menu.default_font)
-    love.graphics.printf("- Every successful word increases speed by 5\n- Points increase by 10 but become more as your speed increases \n- Please note what you start with and, if present when you're testing, what your distance is! Feedback there would be super helpful\n- Obstacle collision is a LITTLE broken...", 100, 500, 700, 'left')
+    love.graphics.printf("- Press ENTER or click 'start game' to start\n- Every successful word increases speed by 5\n- Points scored increase the higher your speed goes \n- I would love to hear what your starting speed is and points you end up with. That way I can tune difficulties later on :)", 100, 500, 700, 'left')
 
     util.reset_color()
 end
