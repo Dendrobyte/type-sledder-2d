@@ -1,6 +1,7 @@
 local char = require("char")
 local sounds = require("sounds")
 local util = require("util")
+local slope = require("environment.slope")
 
 local typing = {
     points = {}
@@ -199,9 +200,9 @@ end
 
 function typing.points.score_points()
     -- No real differentiation here, revisit with discs
-    -- Make CONSTANTS for the different types of increments (and multipliers, e.g. for speed)
-    -- TODO: Mult an addition of points based on scroll speed
-    current_points = current_points + 10
+    -- TODO: Make CONSTANTS for the different types of increments (and multipliers, e.g. for speed)
+    points = 10 + math.floor(slope.get_scroll_speed() * .03)
+    current_points = current_points + points
 end
 
 return typing

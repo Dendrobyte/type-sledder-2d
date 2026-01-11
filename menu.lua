@@ -1,5 +1,6 @@
 local util = require("util")
 local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
+local typing = require("typing") -- Global state would be real nice
 
 local menu = {}
 menu.pre_game = {}
@@ -51,7 +52,8 @@ function menu.pre_game.draw_screen()
 
     menu_button("Start Game", 200, 300, 400)
 
-    -- (Temporary) speed buttons. Replace when we do settings page.
+    -- (Temporary) speed buttons and notes. Replace when we do settings page.
+    -- Then again, ideally the whole menu gets a task
     love.graphics.rectangle("fill",
         menu.speed_decr.x,
         menu.speed_decr.y,
@@ -71,7 +73,7 @@ function menu.pre_game.draw_screen()
     love.graphics.print("Set your starting speed", 175, 400)
     love.graphics.print(slope.get_scroll_speed(), (menu.speed_incr.x + menu.speed_decr.x) / 2 - 10, menu.speed_incr.y)
     love.graphics.setFont(menu.default_font)
-    love.graphics.printf("- Every successful word increases speed by 5\n- Please note what you start with and, if present when you're testing, what your distance is! Feedback there would be super helpful", 100, 500, 700, 'left')
+    love.graphics.printf("- Every successful word increases speed by 5\n- Points increase by 10 but become more as your speed increases \n- Please note what you start with and, if present when you're testing, what your distance is! Feedback there would be super helpful\n- Obstacle collision is a LITTLE broken...", 100, 500, 700, 'left')
 
     util.reset_color()
 end
@@ -80,6 +82,8 @@ function menu.end_game.draw_screen()
         love.graphics.setFont(menu.title_font)
         love.graphics.setColor(0, 0, 0)
         love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
+        love.graphics.setFont(menu.subtitle_font)
+        love.graphics.printf("Final Score: " .. typing.points.get_points(), 0, 250, 800, 'center')
         util.reset_color()
         menu_button("Try Again?", 200, 300, 400)
 end
