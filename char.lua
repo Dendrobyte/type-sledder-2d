@@ -51,9 +51,10 @@ function char.update_sprite(dt)
         end
     else
         -- If we're not moving, slowly approach the top, but slightly slower than scroll
-        if count % 2 == 0 then
-            char.y = char.y - 1
-        end
+        -- Disabled for now until I make the bounding box
+        -- if count % 4 == 0 then
+        --     char.y = char.y - 1
+        -- end
     end
 
     -- Collision and bounds checks
@@ -103,7 +104,7 @@ function char.move(dir)
     -- Represents how many cells over from the current position. Tweak these as necessary.
     local x_move = 3 * dir_num
     local y_move = 0
-    slope.set_scroll_speed(slope.get_scroll_speed() + 10)
+    slope.incr_scroll_speed()
     local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
     local dest_c = curr_c + x_move
     local dest_r = curr_r + y_move
@@ -119,7 +120,6 @@ function char.move(dir)
     new_move_state.dest_cell.c = dest_c
     new_move_state.dest_cell.r = dest_r
 
-    print(new_move_state.x_incr, new_move_state.y_incr)
     move = new_move_state
 end
 

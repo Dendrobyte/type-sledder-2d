@@ -1,4 +1,5 @@
 local util = require("util")
+local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
 
 local menu = {}
 menu.pre_game = {}
@@ -12,6 +13,18 @@ function menu.load()
         x = 200,
         y = 300,
         w = 400,
+        h = 40,
+    }
+    menu.speed_decr = {
+        x = 300,
+        y = 450,
+        w = 40,
+        h = 40,
+    }
+    menu.speed_incr = {
+        x = 450,
+        y = 450,
+        w = 40,
         h = 40,
     }
 end
@@ -37,6 +50,28 @@ function menu.pre_game.draw_screen()
     love.graphics.printf("TYPE SLEDDER", 0, 200, 800, 'center')
 
     menu_button("Start Game", 200, 300, 400)
+
+    -- (Temporary) speed buttons. Replace when we do settings page.
+    love.graphics.rectangle("fill",
+        menu.speed_decr.x,
+        menu.speed_decr.y,
+        menu.speed_decr.w,
+        menu.speed_decr.h
+    )
+    love.graphics.rectangle("fill",
+        menu.speed_incr.x,
+        menu.speed_incr.y,
+        menu.speed_incr.w,
+        menu.speed_incr.h
+    )
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.printf("+", menu.speed_incr.x, menu.speed_incr.y, 40, 'center')
+    love.graphics.printf("-", menu.speed_decr.x, menu.speed_decr.y, 40, 'center')
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("Set your starting speed", 175, 400)
+    love.graphics.print(slope.get_scroll_speed(), (menu.speed_incr.x + menu.speed_decr.x) / 2 - 10, menu.speed_incr.y)
+    love.graphics.setFont(menu.default_font)
+    love.graphics.printf("- Every successful word increases speed by 5\n- Please note what you start with and, if present when you're testing, what your distance is! Feedback there would be super helpful", 100, 500, 700, 'left')
 
     util.reset_color()
 end

@@ -5,10 +5,6 @@ local const = require("environment.constants")
 -- TODOS
 -- Use tilemap instead of individual images
 -- Scatter ski slope details on the non-snow parts
--- Randomly change the width by 1 or 2 on each side tops
--- Generate a grid and spawn the tiles based on that?
--- Make the draw slope "tick based" so we can speed up over time (and as we test)
--- Make the tile map numbers constants for easier readability
 
 -- Load up the basic tile images
 local tiles = {}
@@ -34,6 +30,8 @@ end
     Adjusting these speeds up the whole game. These are accessed in entities and char.
 ]]
 local scroll_speed = 100
+local starting_scroll_speed = 100
+local scroll_speed_incr = 5
 function slope.get_scroll_speed()
     return scroll_speed
 end
@@ -42,8 +40,19 @@ function slope.set_scroll_speed(new_scroll_speed)
     scroll_speed = new_scroll_speed
 end
 
+-- Increase the speed on each successful word
+function slope.incr_scroll_speed()
+    slope.set_scroll_speed(scroll_speed + scroll_speed_incr)
+end
+
 function slope.reset_scroll_speed()
-    scroll_speed = 100
+    scroll_speed = starting_scroll_speed
+end
+
+-- Used explicitly in the menu
+function slope.set_init_scroll_speed(init_scroll_speed)
+    starting_scroll_speed = init_scroll_speed
+    scroll_speed = init_scroll_speed
 end
 
 -- Create initial nxm grid

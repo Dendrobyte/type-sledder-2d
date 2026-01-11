@@ -30,6 +30,12 @@ states.start_screen = {
             is_button_pressed = menu.is_button_pressed("start_button", x, y)
             -- TODO: entities.trigger_entity_spawning() or whatever
             if is_button_pressed then states.curr_state = "in_game" end
+            if menu.is_button_pressed("speed_decr", x, y) then
+                slope.set_init_scroll_speed(slope.get_scroll_speed() - 10)
+            end
+            if menu.is_button_pressed("speed_incr", x, y) then
+                slope.set_init_scroll_speed(slope.get_scroll_speed() + 10)
+            end
         end
     end
 }
