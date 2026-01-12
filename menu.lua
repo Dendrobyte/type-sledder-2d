@@ -10,6 +10,7 @@ function menu.load()
     menu.default_font = love.graphics.newFont(16)
     menu.title_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Bold.ttf", 48)
     menu.subtitle_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 32)
+    menu.small_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 16)
     menu.start_button = {
         x = 200,
         y = 300,
@@ -79,13 +80,18 @@ function menu.pre_game.draw_screen()
 end
 
 function menu.end_game.draw_screen()
-        love.graphics.setFont(menu.title_font)
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
-        love.graphics.setFont(menu.subtitle_font)
-        love.graphics.printf("Final Score: " .. typing.points.get_points(), 0, 250, 800, 'center')
-        util.reset_color()
-        menu_button("Try Again?", 200, 300, 400)
+    love.graphics.setColor(0, .8, 1, .8)
+    love.graphics.rectangle("fill", 100, 100, 600, 400)
+    love.graphics.setFont(menu.title_font)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
+    love.graphics.setFont(menu.small_font)
+    love.graphics.printf("Points: " .. typing.points.get_points(), 200, 350, 800, 'left')
+    love.graphics.printf("Distance: " .. "TODO", 200, 370, 800, 'left')
+    love.graphics.printf("Final Score: " .. "BOUTTA", 200, 390, 800, 'left')
+    util.reset_color()
+    -- The x/y don't... do anything rn...
+    menu_button("Try Again?", 200, 800, 400)
 end
 
 -- Where 'button_type' is a string, e.g. for now menu[button_type] is chill
