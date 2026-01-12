@@ -1,3 +1,0 @@
-local discs = {}
-
-return discs
