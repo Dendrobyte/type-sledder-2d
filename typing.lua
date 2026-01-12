@@ -2,7 +2,7 @@ local char = require("char")
 local sounds = require("sounds")
 local util = require("util")
 local slope = require("environment.slope")
-local const = require("constants.lua")
+local const = require("constants")
 
 local typing = {
     points = {}
