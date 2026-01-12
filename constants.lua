@@ -1,0 +1,6 @@
+-- CONSTANTS FOR EVERYTHING I GUESS
+
+return {
+    WORD_POINTS = 10,
+    WORD_POINTS_MULT = .03,
+}

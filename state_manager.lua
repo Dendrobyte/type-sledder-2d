@@ -115,6 +115,7 @@ function reset_game()
     typing.reset_words()
     sounds.start()
     typing.points.reset_points()
+    slope.points.reset_distance()
 
     update_state("in_game")
 end

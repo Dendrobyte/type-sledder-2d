@@ -2,6 +2,7 @@ local char = require("char")
 local sounds = require("sounds")
 local util = require("util")
 local slope = require("environment.slope")
+local const = require("constants.lua")
 
 local typing = {
     points = {}
@@ -200,8 +201,7 @@ end
 
 function typing.points.score_points()
     -- No real differentiation here, revisit with discs
-    -- TODO: Make CONSTANTS for the different types of increments (and multipliers, e.g. for speed)
-    points = 10 + math.floor(slope.get_scroll_speed() * .03)
+    points = const.WORD_POINTS + math.floor(slope.get_scroll_speed() * const.WORD_POINTS_MULT)
     current_points = current_points + points
 end
 
