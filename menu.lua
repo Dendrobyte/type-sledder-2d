@@ -1,6 +1,7 @@
 local util = require("util")
 local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
 local typing = require("typing") -- Global state would be real nice
+local points = require("points") -- Points are a good example of a general state
 
 local menu = {}
 menu.pre_game = {}
@@ -86,9 +87,9 @@ function menu.end_game.draw_screen()
     love.graphics.setColor(0, 0, 0)
     love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
     love.graphics.setFont(menu.small_font)
-    love.graphics.printf("Points: " .. typing.points.get_points(), 200, 350, 800, 'left')
-    love.graphics.printf("Distance: " .. slope.points.get_distance(), 200, 370, 800, 'left')
-    love.graphics.printf("Final Score: " .. typing.points.get_points() + slope.points.get_distance(), 200, 390, 800, 'left')
+    love.graphics.printf("Points: " .. points.get_points(), 200, 350, 800, 'left')
+    love.graphics.printf("Distance: " .. points.get_distance(), 200, 370, 800, 'left')
+    love.graphics.printf("Final Score: " .. points.get_points() + points.get_distance(), 200, 390, 800, 'left')
     util.reset_color()
     -- The x/y don't... do anything rn...
     menu_button("Try Again?", 200, 800, 400)

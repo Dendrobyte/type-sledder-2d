@@ -1,5 +1,4 @@
-local typing = require("typing")
-local slope = require("environment.slope")
+local points = require("points")
 
 -- The UI should never be accessed elsewhere, but instead access state from within
 local ui = {}
@@ -16,8 +15,8 @@ ui.loc = {
 -- Update fields from state
 -- TODO: Most convincing argument to have a global game state file right here
 function ui.update_ui(dt)
-    ui.current_points = typing.points.get_points()
-    ui.current_distance = slope.points.get_distance()
+    ui.current_points = points.get_points()
+    ui.current_distance = points.get_distance()
 end
 
 function ui.draw_ui()

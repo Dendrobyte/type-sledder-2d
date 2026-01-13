@@ -116,7 +116,7 @@ function reset_game()
     entities.grid_create()
     typing.reset_words()
     sounds.start()
-    typing.points.reset_points()
+    points.reset_points()
     slope.points.reset_distance()
 
     update_state("in_game")

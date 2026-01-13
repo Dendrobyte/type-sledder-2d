@@ -3,10 +3,9 @@ local sounds = require("sounds")
 local util = require("util")
 local slope = require("environment.slope")
 local const = require("constants")
+local points = require("points")
 
-local typing = {
-    points = {}
-}
+local typing = {}
 
 -- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
@@ -64,7 +63,6 @@ function typing.reset_words()
     typing.update_word("left", "")
     typing.update_word("right", "")
     reset_current_word()
-    typing.points.reset_points()
 
     floating_messages = {}
 end
@@ -108,7 +106,9 @@ function typing.on_key_press(key)
             })
             char.move(current_word.render_idx)
             reset_current_word()
-            typing.points.score_points()
+            -- TODO: Points for word type
+            -- TODO: General game state of scroll speed
+            points.score_points(slope.get_scroll_speed())
         end
 
     -- Otherwise, go until we match on an active word
@@ -185,24 +185,6 @@ function typing.update_word(rendered_idx, replaced_word)
     active_words[replaced_word] = nil -- if someone goes infinitely... is this a good idea??
     active_words[new_word] = rendered_idx
 end
---[[
-    POINTS SYTEM
-    I'm putting it here for now... but 'submodule' for bringing it out.
-    When I add the discs I should revisit this
-]]
-local current_points = 0
-function typing.points.get_points()
-    return current_points
-end
 
-function typing.points.reset_points()
-    current_points = 0
-end
-
-function typing.points.score_points()
-    -- No real differentiation here, revisit with discs
-    points = const.WORD_POINTS + math.floor(slope.get_scroll_speed() * const.WORD_POINTS_MULT)
-    current_points = current_points + points
-end
 
 return typing

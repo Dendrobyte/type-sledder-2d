@@ -1,9 +1,8 @@
-local slope = {
-    points = {}
-}
 local util = require("util")
 local const = require("environment.constants")
+local points = require("points")
 
+local slope = {}
 -- TODOS
 -- Use tilemap instead of individual images
 -- Scatter ski slope details on the non-snow parts
@@ -56,25 +55,6 @@ function slope.set_init_scroll_speed(init_scroll_speed)
     starting_scroll_speed = init_scroll_speed
     scroll_speed = init_scroll_speed
 end
-
---[[
-    DISTANCE POINTS!
-    Handled by how much slope is covered. These points should be moved out, esp. when there are more
-]]
-local current_distance = 0
-function slope.points.get_distance()
-    return current_distance
-end
-
-function slope.points.reset_distance()
-    current_distance = 0
-end
-
--- 1 "meter" per tile? Tweak this over time for sure
-function slope.points.incr_distance()
-    current_distance = current_distance + 1
-end
-
 
 -- Create initial nxm grid
 local pixel_w, pixel_h = const.PIXEL_W, const.PIXEL_H
@@ -185,7 +165,7 @@ function slope.update_grid(dt)
     if scroll_offset > const.TILE_WIDTH then
         slope.grid_add_next_row()
         scroll_offset = scroll_offset - const.TILE_WIDTH
-        slope.points.incr_distance()
+        points.incr_distance()
     end
 end
 
