@@ -64,7 +64,7 @@ states.in_game = {
     update = function(dt)
         slope.update_grid(dt)
         entities.update_grid(dt)
-        typing.show_floating_message(dt)
+        typing.update(dt)
         collided = char.update_sprite(dt)
         ui.update_ui(dt)
         disc.update(dt)

@@ -4,6 +4,7 @@ local util = require("util")
 local slope = require("environment.slope")
 local const = require("constants")
 local points = require("points")
+local disc = require("disc")
 
 local typing = {}
 
@@ -62,16 +63,14 @@ function typing.reset_words()
     active_words = {}
     typing.update_word("left", "")
     typing.update_word("right", "")
+    typing.update_word("disc", "")
     reset_current_word()
 
     floating_messages = {}
 end
 
--- TODO: This is a super one-off function :\
--- Option 1: Some "animation" manager that we call if this is access from other places, like
---      obstacle dodging, etc.
--- Option 2: Pass dt somewhere further up the chain
-function typing.show_floating_message(dt)
+function typing.update(dt)
+    -- Show the floating messages
     for i = #floating_messages, 1, -1 do
         local msg = floating_messages[i]
         msg.age = msg.age + dt
@@ -80,6 +79,8 @@ function typing.show_floating_message(dt)
             table.remove(floating_messages, i)
         end
     end
+
+    typing.disc_update_check(dt)
 end
 
 function typing.on_key_press(key)
@@ -143,6 +144,7 @@ function typing.draw_words()
     -- Don't loop or anything, I think it's more readable this way
     love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
     love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
+    love.graphics.print(rendered_words.disc, curr_disc_info.x-10, curr_disc_info.y-10)
     if current_word.final ~= nil then
         -- Draw the working word over its start
         love.graphics.setColor(0, .8, 1)
@@ -150,9 +152,13 @@ function typing.draw_words()
         if current_word.render_idx == "left" then
             curr_word_x = char.x+word_left.x
             curr_word_y = char.y+word_left.y
-        else
+        elseif current_word.render_idx == "right" then
             curr_word_x = char.x+word_right.x
             curr_word_y = char.y+word_right.y
+        else
+            -- If/when we have multiple discs, this is going to need to change
+            curr_word_x = curr_disc_info.x-10
+            curr_word_y = curr_disc_info.y-10
         end
         love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
 
@@ -186,5 +192,16 @@ function typing.update_word(rendered_idx, replaced_word)
     active_words[new_word] = rendered_idx
 end
 
+-- Check for active disc...?
+local curr_disc_info = nil
+function typing.disc_update_check(dt)
+    if curr_disc_info ~= nil then return end -- early return, idt we need update for anything else
+    curr_disc_info = disc.get_current_disc()
+    if curr_disc_info ~= nil then
+        print(curr_disc_info)
+        rendered_words["disc"] = curr_disc_info.word
+        active_words[curr_disc_info.word] = "disc"
+    end
+end
 
 return typing
