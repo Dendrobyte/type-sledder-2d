@@ -41,4 +41,8 @@ function points.incr_distance()
     current_distance = current_distance + 1
 end
 
+function points.reset()
+    current_points = 0
+    current_distance = 0
+end
 return points

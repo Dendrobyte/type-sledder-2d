@@ -1,4 +1,5 @@
 local const = require("environment.constants")
+local util = require("util")
 
 local disc = {}
 
@@ -26,7 +27,6 @@ local active_words = {}
 local current_disc = nil
 local disc_speed = 10
 function disc.spawn()
-    print("const=", const.PIXEL_H)
     -- Just one disc at a time so we don't need to worry about checks (yet?)
     local new_word = adv_word_bucket[math.random(#adv_word_bucket)]
 
@@ -35,15 +35,17 @@ function disc.spawn()
     local start_pos = { x = 0, y = 0 }
     local top_bottom = math.random(2) -- 1 is top, 2 is bottom
     local left_right = math.random(2) -- 1 is left, 2 is right
-    if top_bottom == 1 then
-        start_pos.y = math.random(0, const.PIXEL_H / 2)
+
+    local corner_x = left_right == 1 and -const.TILE_WIDTH or const.PIXEL_W + const.TILE_WIDTH
+    local corner_y = top_bottom == 1 and -const.TILE_WIDTH or const.PIXEL_H + const.TILE_WIDTH
+
+    -- Randomly offset along one axis
+    if math.random(2) == 1 then
+        start_pos.x = corner_x
+        start_pos.y = math.random(0, const.PIXEL_H)
     else
-        start_pos.y = math.random(const.PIXEL_H / 2, const.PIXEL_H)
-    end
-    if left_right == 1 then
-        start_pos.x = math.random(0, const.PIXEL_W / 2)
-    else
-        start_pos.x = math.random(const.PIXEL_W / 2, const.PIXEL_W)
+        start_pos.x = math.random(0, const.PIXEL_W)
+        start_pos.y = corner_y
     end
 
     -- TK: is_top and is_right would be far easier to read
@@ -59,6 +61,7 @@ function disc.spawn()
     end
 
     -- Return a new disc (in case we have multiple some day)
+    -- TODO: Randomize disc speed
     local new_disc = {
         word = new_word,
         pos = start_pos, -- no deep copy needed
@@ -68,7 +71,10 @@ function disc.spawn()
             vx = math.cos(angle) * disc_speed,
             vy = math.sin(angle) * disc_speed,
         },
+        speed = 10,
     }
+
+    return new_disc
 end
 
 function disc.update(dt)
@@ -79,12 +85,17 @@ function disc.update(dt)
         end
     else
         -- Move our disc position accordingly
-        curr_disc.pos.x = curr_disc.pos.x + curr_disc.dir.vx * dt
-        curr_disc.pos.y = curr_disc.pos.y + curr_disc.dir.vy * dt
+        curr_disc.pos.x = curr_disc.pos.x + curr_disc.dir.vx * dt * curr_disc.speed
+        curr_disc.pos.y = curr_disc.pos.y + curr_disc.dir.vy * dt * curr_disc.speed
         if curr_disc.pos.x > const.PIXEL_W + const.TILE_WIDTH or curr_disc.pos.x < -1 * const.TILE_WIDTH
             or curr_disc.pos.y > const.PIXEL_H + const.TILE_WIDTH or curr_disc.pos.y < -1 * const.TILE_WIDTH then
                 curr_disc = nil
         end
+        util.add_debug_draw_call(function()
+            love.graphics.setColor(.5, .7, .2)
+            love.graphics.rectangle('line', curr_disc.pos.x, curr_disc.pos.y, const.TILE_WIDTH, const.TILE_WIDTH)
+            love.graphics.setColor(1, 1, 1)
+        end)
         -- TODO: Check if it's out of bounds and d e l e t e
     end
 
@@ -96,18 +107,23 @@ function disc.update(dt)
 end
 
 function disc.draw()
-    -- Iterate through the discs and draw them (with a word below)
+    -- Iterate through the discs and draw them (typing library handles word)
+    if curr_disc ~= nil then
+        love.graphics.draw(disc.tile, curr_disc.pos.x, curr_disc.pos.y, 0, 2)
+    end
 end
 
 -- Returns the current disc information for use in typing (typing -> discs, never discs -> typing)
 function disc.get_current_disc()
-    return current_disc
+    return curr_disc 
 end
 
 -- Called when word is finished or out of bounds
 -- The word is totally detached from the disc, this is just a sprite flying across the screen with a position and speed
-function disc.despawn_disk()
+function disc.despawn_disc()
     curr_disc = nil
+
+    -- TODO: Ensure that this resets the word in typing, either there or here
 end
 
 return disc 

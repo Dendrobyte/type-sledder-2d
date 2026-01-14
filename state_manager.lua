@@ -48,6 +48,7 @@ states.in_game = {
         slope.draw_map()
         entities.draw_entities()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
+        disc.draw()
         typing.draw_words()
         ui.draw_ui()
     end,
@@ -57,11 +58,11 @@ states.in_game = {
         typing.on_key_press(key)
 
         -- Reset game hotkey
-        if key == "r" and love.keyboard.isDown("lctrl") then
+        if love.keyboard.isDown("lctrl") and key == "r" then
             reset_game()
         end
 
-        if key == "p" then
+        if love.keyboard.isDown("lctrl") and key == "p" then
             slope.set_scroll_speed(0)
         end
     end,
@@ -121,8 +122,8 @@ function reset_game()
     entities.grid_create()
     typing.reset_words()
     sounds.start()
-    points.reset_points()
-    slope.points.reset_distance()
+    points.reset()
+    disc.despawn_disc()
 
     update_state("in_game")
 end

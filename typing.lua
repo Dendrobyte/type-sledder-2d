@@ -36,7 +36,7 @@ local word_right = {
 -- Used for typing, updated independently from what the left and right words being rendered are, but value for accessing it
 local active_words = {}
 
--- Stores the words for "left" and "right", updated independently from active words
+-- Stores the words for "left", "right", and "disc", updated independently from active words
 local rendered_words = {}
 
 local floating_messages = {} -- List of messages we can store...? Maybe multiple?
@@ -97,7 +97,6 @@ function typing.on_key_press(key)
 
         -- Trigger new word, etc. when we get the word correct
         if current_word.buffer == current_word.final then
-            typing.update_word(current_word.render_idx, current_word.final)
             sounds.play_ding()
             table.insert(floating_messages, {
                 text = "NICE!",
@@ -105,7 +104,17 @@ function typing.on_key_press(key)
                 x = char.x,
                 y = char.y-25,
             })
-            char.move(current_word.render_idx)
+            -- TODO: More robust movement here depending on curr direction, etc.
+            if current_word.render_idx == "left" or current_word.render_idx == "right" then
+                typing.update_word(current_word.render_idx, current_word.final)
+                char.move(current_word.render_idx)
+            elseif current_word.render_idx == "disc" then
+                -- TK: Reaaaallyy should have thought out the disc integration a bit more
+                -- TODO: Make a function within typing to properly clear up the disc word related stuff
+                active_words[curr_disc_info.word] = nil
+                disc.despawn_disc()
+                points.score_points(20) -- idk, something extra for the disc
+            end
             reset_current_word()
             -- TODO: Points for word type
             -- TODO: General game state of scroll speed
@@ -145,7 +154,9 @@ function typing.draw_words()
     love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
     love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
     if curr_disc_info ~= nil then
-        love.graphics.print(rendered_words.disc, curr_disc_info.x-10, curr_disc_info.y-10)
+        -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
+        --       Could calc based on word size if I wanted to be real specific I suppose
+        love.graphics.print(rendered_words.disc, curr_disc_info.pos.x-20, curr_disc_info.pos.y-30)
     end
     if current_word.final ~= nil then
         -- Draw the working word over its start
@@ -159,8 +170,10 @@ function typing.draw_words()
             curr_word_y = char.y+word_right.y
         else
             -- If/when we have multiple discs, this is going to need to change
-            curr_word_x = curr_disc_info.x-10
-            curr_word_y = curr_disc_info.y-10
+            if curr_disc_info ~= nil then -- TK: I should have thought this out a little more for the disc stuff...
+                curr_word_x = curr_disc_info.pos.x-20
+                curr_word_y = curr_disc_info.pos.y-30
+            end
         end
         love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
 
@@ -190,17 +203,15 @@ function typing.update_word(rendered_idx, replaced_word)
         new_word = word_bucket[math.random(#word_bucket)]
     end
     rendered_words[rendered_idx] = new_word
-    active_words[replaced_word] = nil -- if someone goes infinitely... is this a good idea??
+    active_words[replaced_word] = nil
     active_words[new_word] = rendered_idx
 end
 
 -- Check for active disc...?
-local curr_disc_info = nil
+curr_disc_info = nil
 function typing.disc_update_check(dt)
-    if curr_disc_info ~= nil then return end -- early return, idt we need update for anything else
     curr_disc_info = disc.get_current_disc()
     if curr_disc_info ~= nil then
-        print(curr_disc_info)
         rendered_words["disc"] = curr_disc_info.word
         active_words[curr_disc_info.word] = "disc"
     end
