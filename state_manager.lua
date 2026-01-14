@@ -6,6 +6,7 @@ local entities = require("environment.entities")
 local sounds = require("sounds")
 local ui = require("ui")
 local disc = require("disc")
+local points = require("points")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 
@@ -58,6 +59,10 @@ states.in_game = {
         -- Reset game hotkey
         if key == "r" and love.keyboard.isDown("lctrl") then
             reset_game()
+        end
+
+        if key == "p" then
+            slope.set_scroll_speed(0)
         end
     end,
 

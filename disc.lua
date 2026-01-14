@@ -1,4 +1,4 @@
-local const = require("constants")
+local const = require("environment.constants")
 
 local disc = {}
 

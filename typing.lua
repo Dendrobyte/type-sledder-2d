@@ -144,7 +144,9 @@ function typing.draw_words()
     -- Don't loop or anything, I think it's more readable this way
     love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
     love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
-    love.graphics.print(rendered_words.disc, curr_disc_info.x-10, curr_disc_info.y-10)
+    if curr_disc_info ~= nil then
+        love.graphics.print(rendered_words.disc, curr_disc_info.x-10, curr_disc_info.y-10)
+    end
     if current_word.final ~= nil then
         -- Draw the working word over its start
         love.graphics.setColor(0, .8, 1)
