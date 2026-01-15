@@ -84,6 +84,8 @@ function typing.update(dt)
 end
 
 function typing.on_key_press(key)
+    for word, idx in pairs(active_words) do print(word, ",", idx) end
+    print("----")
     -- If we're typing and we've assigned a word, match on that wor
     if  #current_word.buffer ~= 0 and current_word.final ~= nil then
         local next_buffer = current_word.buffer .. key
@@ -111,11 +113,12 @@ function typing.on_key_press(key)
             elseif current_word.render_idx == "disc" then
                 -- TK: Reaaaallyy should have thought out the disc integration a bit more
                 -- TODO: Make a function within typing to properly clear up the disc word related stuff
-                active_words[curr_disc_info.word] = nil
+                -- Effectively mimicing typing.update_word but relying on the disc's word list
+                typing.clear_disc_info()
                 disc.despawn_disc()
                 points.score_points(20) -- idk, something extra for the disc
             end
-            reset_current_word()
+            reset_current_word() -- resets the buffer, etc.
             -- TODO: Points for word type
             -- TODO: General game state of scroll speed
             points.score_points(slope.get_scroll_speed())
@@ -207,6 +210,17 @@ function typing.update_word(rendered_idx, replaced_word)
     active_words[new_word] = rendered_idx
 end
 
+-- Discs despawning and a different word list make it more complicated
+-- Clear ALL the disc stuff, rely on disc_update_check to add the new information on spawn
+-- That's also different, no immediate reset
+function typing.clear_disc_info()
+    curr_disc_word = rendered_words["disc"]
+    active_words[curr_disc_word] = nil
+    if current_word.render_idx == "disc" then
+        reset_current_word()
+    end
+end
+
 -- Check for active disc...?
 curr_disc_info = nil
 function typing.disc_update_check(dt)
@@ -214,6 +228,8 @@ function typing.disc_update_check(dt)
     if curr_disc_info ~= nil then
         rendered_words["disc"] = curr_disc_info.word
         active_words[curr_disc_info.word] = "disc"
+    else
+        typing.clear_disc_info()
     end
 end
 
