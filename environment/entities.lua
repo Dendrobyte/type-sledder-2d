@@ -80,7 +80,7 @@ function entities.new_row()
     -- Generate the new item
     new_row = {}
     for i = 1, rows do new_row[i] = const.EMPTY_SPACE end
-    if math.random(3) == 1 then
+    if math.random(4) == 1 then
         local snow_start, snow_end = slope.get_valid_obstacle_indices(grid_head)
         local obstacle_idx = math.random(snow_start, snow_end)
         new_row[obstacle_idx] = math.random(#grid_to_tile)
