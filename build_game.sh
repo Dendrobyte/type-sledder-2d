@@ -1,10 +1,18 @@
 #!/bin/bash
 set -e
 
+DO_UPLOAD=false
+while getopts "u" opt; do
+    case $opt in
+        u) DO_UPLOAD=true ;;
+    esac
+done
+
 GAME_NAME="TypeSkiier"
 VERSION="0.1"
 DIST_DIR="dist"
 LOVE_FILE="$DIST_DIR/$GAME_NAME.love"
+BUTLER="/Applications/butler/butler"
 
 # Create dist directory
 mkdir -p "$DIST_DIR"
@@ -20,7 +28,7 @@ zip -9 -r "$LOVE_FILE" . -x "dist/*" -x ".git/*" -x "*.sh" -x ".DS_Store" -x "*.
 
 # Web build
 echo "Building web version..."
-echo "$GAME_NAME v$VERSION" | npx love.js "$LOVE_FILE" "$DIST_DIR/${GAME_NAME}_web" -c
+echo "$GAME_NAME" | npx love.js "$LOVE_FILE" "$DIST_DIR/${GAME_NAME}_web" -c
 zip -r "$DIST_DIR/${GAME_NAME}_${VERSION}_web.zip" "$DIST_DIR/${GAME_NAME}_web"
 
 # macOS build
@@ -61,3 +69,21 @@ fi
 
 echo "Build complete! Output in $DIST_DIR/"
 ls -lh "$DIST_DIR"/*.zip 2>/dev/null || echo "No zip files created"
+
+# Upload to itch.io
+if [[ "$DO_UPLOAD" == true ]]; then
+    if [[ -x "$BUTLER" ]]; then
+        ITCH_USER="dendrobyte"
+        ITCH_GAME="typeskiier"
+
+        echo "Uploading to itch.io..."
+        "$BUTLER" push "$DIST_DIR/${GAME_NAME}_${VERSION}_web.zip" "$ITCH_USER/$ITCH_GAME:web"
+        "$BUTLER" push "$DIST_DIR/${GAME_NAME}_${VERSION}_macos.zip" "$ITCH_USER/$ITCH_GAME:osx-universal"
+        "$BUTLER" push "$DIST_DIR/${GAME_NAME}_${VERSION}_windows.zip" "$ITCH_USER/$ITCH_GAME:windows"
+        echo "Upload complete!"
+    else
+        echo "Error: butler not found at $BUTLER"
+        echo "Install from: https://itch.io/docs/butler/"
+        exit 1
+    fi
+fi
