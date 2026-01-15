@@ -43,3 +43,6 @@ luac.out
 love
 .DS_Store
 /dist
+
+# Re-download from love2d.org each time, for builds
+/love-win64
