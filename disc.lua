@@ -109,7 +109,7 @@ end
 function disc.draw()
     -- Iterate through the discs and draw them (typing library handles word)
     if curr_disc ~= nil then
-        love.graphics.draw(disc.tile, curr_disc.pos.x, curr_disc.pos.y, 0, 2)
+        love.graphics.draw(disc.tile, curr_disc.pos.x, curr_disc.pos.y, 0, 1.5)
     end
 end
 

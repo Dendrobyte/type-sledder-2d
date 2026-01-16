@@ -10,27 +10,80 @@ local typing = {}
 
 -- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
-local word_bucket = {
-  "hello","world","game","play","score","speed","track","level","start",
-  "finish","jump","slide","run","move","block","dodge","press","hold","tap",
-  "timer","point","bonus","combo","chain","power","boost","skill","focus",
-  "quick","sharp","clean","smooth","simple","ready","steady","fast","clear",
-  "bright","cool","calm","alert","logic","input","react","shift","enter",
-  "space","mouse","click","touch","screen","pixel","sprite","sound","music",
-  "beat","rhythm","tempo","flow","match","align","stack","drop","build",
-  "break","reset","retry","win","lose","draw","pause","resume","select",
-  "confirm","cancel","escape","finish","victory","perfect"
+-- local word_bucket = {
+--   "hello","world","game","play","score","speed","track","level","start",
+--   "finish","jump","slide","run","move","block","dodge","press","hold","tap",
+--   "timer","point","bonus","combo","chain","power","boost","skill","focus",
+--   "quick","sharp","clean","smooth","simple","ready","steady","fast","clear",
+--   "bright","cool","calm","alert","logic","input","react","shift","enter",
+--   "space","mouse","click","touch","screen","pixel","sprite","sound","music",
+--   "beat","rhythm","tempo","flow","match","align","stack","drop","build",
+--   "break","reset","retry","win","lose","draw","pause","resume","select",
+--   "confirm","cancel","escape","finish","victory","perfect"
+-- }
+local word_bucket = { -- Testing for the text width stuff
+    "hi",
+    "mark",
+    "how",
+    "nostradamus",
+    "application",
+    "word",
+    "eel",
+    "instantaneous",
+    "miscellaneous",
 }
 
--- Store offsets (may add more words later)
-local word_left = {
-    x = -65,
-    y = 25,
-}
-local word_right = {
+-- How far a left word should end and a right word should start from the player
+local word_player_offset = {
     x = 50,
-    y = 25,
+    y = 25
 }
+-- Store all the position data necessary for a word, updates upon reset
+-- TODO: Deprecate x,y once you've used the other information properly
+local word_pos = {
+    left = {
+        x = -65, -- deprecate
+        y = 25, -- deprecate
+        origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
+        width = nil, -- total width of word
+    },
+    right = {
+        x = 50, -- deprecate
+        y = 25, -- deprecate
+        origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
+        width = nil, -- total width of word
+    },
+}
+
+-- Gets the rectangle a word should be rendered in
+function calc_word_bounds(text, render_idx)
+    local padding = 10 -- Pixels??
+    local font = love.graphics.getFont()
+    local font_width = font:getWidth(text)
+    local ascent = font:getAscent() -- distance between the baseline and the top of the glyph that reaches farthest from the baseline
+
+    -- If it's the left word, we know where to end. If it's the right word, we know where to start
+    -- TK: Table of functions is another option here
+    local origin = {}
+    local width = font_width + 2*padding -- NOTE: We need width if we're going to combine left/right align, but height isn't important to store
+    if render_idx == "left" then
+        origin = {
+            x = char.x - word_player_offset.x - width,
+            y = char.y + word_player_offset.y - (ascent - 2*padding),
+        }
+    else -- render_idx == "right", we should never be seeing disc here (yet)
+        origin = {
+            x = char.x + word_player_offset.x,
+            y = char.y + word_player_offset.y - (ascent - 2*padding),
+        }
+    end
+
+    word_pos[render_idx] = {
+        origin = origin,
+        width = width,
+    }
+    print("Updating pos of ", render_idx)
+end
 
 -- Becomes a map of word -> render_idx so we can check for a word simply (but like... it's 4 words tops...)
 -- Used for typing, updated independently from what the left and right words being rendered are, but value for accessing it
@@ -153,9 +206,21 @@ function typing.draw_words()
     love.graphics.setFont(typing.default_font)
     love.graphics.setColor(0, 0, 0)
 
+    --[[
+        Drawing bounding boxes for words, eventually remove or make a debug call
+        Height is only really important for these bounding boxes but we can get it
+    ]]
+    local height = love.graphics.getFont():getAscent()
+    love.graphics.setColor(.2, .2, 1)
+    love.graphics.rectangle("fill", word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, height)
+    love.graphics.rectangle("fill", word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, height)
+    love.graphics.setColor(0, 0, 0)
+    
+
     -- Don't loop or anything, I think it's more readable this way
-    love.graphics.print(rendered_words.left, char.x+word_left.x, char.y+word_left.y)
-    love.graphics.print(rendered_words.right, char.x+word_right.x, char.y+word_right.y)
+    -- TODO: Redrawing with proper word_DIR limits
+    love.graphics.print(rendered_words.left, char.x+word_pos.left.origin.x, char.y+word_pos.left.origin.y)
+    love.graphics.print(rendered_words.right, char.x+word_pos.right.origin.x, char.y+word_pos.right.origin.y)
     if curr_disc_info ~= nil then
         -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
         --       Could calc based on word size if I wanted to be real specific I suppose
@@ -163,14 +228,15 @@ function typing.draw_words()
     end
     if current_word.final ~= nil then
         -- Draw the working word over its start
+        -- TODO: May need to reset all this!
         love.graphics.setColor(0, .8, 1)
         local curr_word_x, curr_word_y = -1, -1
         if current_word.render_idx == "left" then
-            curr_word_x = char.x+word_left.x
-            curr_word_y = char.y+word_left.y
+            curr_word_x = char.x+word_pos.left.x
+            curr_word_y = char.y+word_pos.left.y
         elseif current_word.render_idx == "right" then
-            curr_word_x = char.x+word_right.x
-            curr_word_y = char.y+word_right.y
+            curr_word_x = char.x+word_pos.right.x
+            curr_word_y = char.y+word_pos.right.y
         else
             -- If/when we have multiple discs, this is going to need to change
             if curr_disc_info ~= nil then -- TK: I should have thought this out a little more for the disc stuff...
@@ -208,6 +274,9 @@ function typing.update_word(rendered_idx, replaced_word)
     rendered_words[rendered_idx] = new_word
     active_words[replaced_word] = nil
     active_words[new_word] = rendered_idx
+
+    -- Calculate the position data for the word as we show it on screen
+    calc_word_bounds(new_word, rendered_idx)
 end
 
 -- Discs despawning and a different word list make it more complicated
