@@ -256,31 +256,6 @@ function typing.update_word(rendered_idx, replaced_word)
     calc_word_bounds(new_word, rendered_idx)
 end
 
--- Draw the currently typed word in 3 parts (typed, current, untyped)
---[[
-I think I effectively want to make sure I don't have to do any of this:
-
-        if current_word.final ~= nil then
-        -- Draw the working word over its start
-        -- TODO: May need to reset all this!
-        love.graphics.setColor(0, .8, 1)
-        local curr_word_x, curr_word_y = -1, -1
-        if current_word.render_idx == "left" then
-            curr_word_x = word_pos.left.origin.x
-            curr_word_y = word_pos.left.origin.y
-        elseif current_word.render_idx == "right" then
-            curr_word_x = word_pos.right.origin.x
-            curr_word_y = word_pos.right.origin.y
-        else
-            -- If/when we have multiple discs, this is going to need to change
-            if curr_disc_info ~= nil then -- TK: I should have thought this out a little more for the disc stuff...
-                curr_word_x = curr_disc_info.pos.x-20
-                curr_word_y = curr_disc_info.pos.y-30
-            end
-        end
-        love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
-
-]]
 function typing.draw_word_progress()
     local font = love.graphics.getFont()
     local curr_word_x = word_pos[current_word.render_idx].origin.x
