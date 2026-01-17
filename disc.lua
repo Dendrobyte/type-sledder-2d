@@ -92,9 +92,11 @@ function disc.update(dt)
                 curr_disc = nil
         end
         util.add_debug_draw_call(function()
-            love.graphics.setColor(.5, .7, .2)
-            love.graphics.rectangle('line', curr_disc.pos.x, curr_disc.pos.y, const.TILE_WIDTH, const.TILE_WIDTH)
-            love.graphics.setColor(1, 1, 1)
+            if curr_disc ~= nil then
+                love.graphics.setColor(.5, .7, .2)
+                love.graphics.rectangle('line', curr_disc.pos.x, curr_disc.pos.y, const.TILE_WIDTH, const.TILE_WIDTH)
+                love.graphics.setColor(1, 1, 1)
+            end
         end)
         -- TODO: Check if it's out of bounds and d e l e t e
     end

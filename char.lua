@@ -12,6 +12,7 @@ function char.load()
     char.sprite = char.move_two
 
     char.x, char.y = entities.cell_to_coord(char.start_position())
+    char.center = char.x + (const.TILE_WIDTH/2)
 end
 
 function char.start_position()
@@ -45,6 +46,7 @@ function char.update_sprite(dt)
     if move.is_moving == true then
         char.x = char.x + move.x_incr
         char.y = char.y + move.y_incr
+        char.center = char.x + (const.TILE_WIDTH/2)
         local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
         if curr_cell_c == move.dest_cell.c and curr_cell_r == move.dest_cell.r then
            reset_move_state()

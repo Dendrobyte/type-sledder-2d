@@ -35,21 +35,17 @@ local word_bucket = { -- Testing for the text width stuff
 
 -- How far a left word should end and a right word should start from the player
 local word_player_offset = {
-    x = 50,
+    x = 30,
     y = 25
 }
 -- Store all the position data necessary for a word, updates upon reset
 -- TODO: Deprecate x,y once you've used the other information properly
 local word_pos = {
     left = {
-        x = -65, -- deprecate
-        y = 25, -- deprecate
         origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
         width = nil, -- total width of word
     },
     right = {
-        x = 50, -- deprecate
-        y = 25, -- deprecate
         origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
         width = nil, -- total width of word
     },
@@ -57,24 +53,22 @@ local word_pos = {
 
 -- Gets the rectangle a word should be rendered in
 function calc_word_bounds(text, render_idx)
-    local padding = 10 -- Pixels??
     local font = love.graphics.getFont()
-    local font_width = font:getWidth(text)
+    local width = font:getWidth(text)
     local ascent = font:getAscent() -- distance between the baseline and the top of the glyph that reaches farthest from the baseline
 
     -- If it's the left word, we know where to end. If it's the right word, we know where to start
     -- TK: Table of functions is another option here
     local origin = {}
-    local width = font_width + 2*padding -- NOTE: We need width if we're going to combine left/right align, but height isn't important to store
     if render_idx == "left" then
         origin = {
-            x = char.x - word_player_offset.x - width,
-            y = char.y + word_player_offset.y - (ascent - 2*padding),
+            x = char.center - word_player_offset.x - width,
+            y = char.y + word_player_offset.y + ascent/2,
         }
     else -- render_idx == "right", we should never be seeing disc here (yet)
         origin = {
-            x = char.x + word_player_offset.x,
-            y = char.y + word_player_offset.y - (ascent - 2*padding),
+            x = char.center + word_player_offset.x,
+            y = char.y + word_player_offset.y + ascent/2,
         }
     end
 
@@ -82,7 +76,6 @@ function calc_word_bounds(text, render_idx)
         origin = origin,
         width = width,
     }
-    print("Updating pos of ", render_idx)
 end
 
 -- Becomes a map of word -> render_idx so we can check for a word simply (but like... it's 4 words tops...)
@@ -133,6 +126,10 @@ function typing.update(dt)
         end
     end
 
+    -- TK: I don't know how I feel about the way this function is written, versus one
+    --     meant to update the bounds (or moving on char move) but no game state so here we are
+    calc_word_bounds(rendered_words["left"], "left")
+    calc_word_bounds(rendered_words["right"], "right")
     typing.disc_update_check(dt)
 end
 
@@ -154,7 +151,7 @@ function typing.on_key_press(key)
         if current_word.buffer == current_word.final then
             sounds.play_ding()
             table.insert(floating_messages, {
-                text = "NICE!",
+                text = "NICE!", -- TODO: Randomize
                 age = 0,
                 x = char.x,
                 y = char.y-25,
@@ -206,46 +203,26 @@ function typing.draw_words()
     love.graphics.setFont(typing.default_font)
     love.graphics.setColor(0, 0, 0)
 
-    --[[
-        Drawing bounding boxes for words, eventually remove or make a debug call
-        Height is only really important for these bounding boxes but we can get it
-    ]]
-    local height = love.graphics.getFont():getAscent()
-    love.graphics.setColor(.2, .2, 1)
-    love.graphics.rectangle("fill", word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, height)
-    love.graphics.rectangle("fill", word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, height)
-    love.graphics.setColor(0, 0, 0)
-    
+    if util.get_debug() == true then
+        local height = love.graphics.getFont():getAscent()
+        love.graphics.setColor(.2, .2, .3, .2)
+        love.graphics.rectangle("fill", word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, height)
+        love.graphics.rectangle("fill", word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, height)
+        love.graphics.setColor(0, 0, 0)
+    end
 
     -- Don't loop or anything, I think it's more readable this way
     -- TODO: Redrawing with proper word_DIR limits
-    love.graphics.print(rendered_words.left, char.x+word_pos.left.origin.x, char.y+word_pos.left.origin.y)
-    love.graphics.print(rendered_words.right, char.x+word_pos.right.origin.x, char.y+word_pos.right.origin.y)
+    love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right")
+    love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left")
     if curr_disc_info ~= nil then
         -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
         --       Could calc based on word size if I wanted to be real specific I suppose
         love.graphics.print(rendered_words.disc, curr_disc_info.pos.x-20, curr_disc_info.pos.y-30)
     end
-    if current_word.final ~= nil then
-        -- Draw the working word over its start
-        -- TODO: May need to reset all this!
-        love.graphics.setColor(0, .8, 1)
-        local curr_word_x, curr_word_y = -1, -1
-        if current_word.render_idx == "left" then
-            curr_word_x = char.x+word_pos.left.x
-            curr_word_y = char.y+word_pos.left.y
-        elseif current_word.render_idx == "right" then
-            curr_word_x = char.x+word_pos.right.x
-            curr_word_y = char.y+word_pos.right.y
-        else
-            -- If/when we have multiple discs, this is going to need to change
-            if curr_disc_info ~= nil then -- TK: I should have thought this out a little more for the disc stuff...
-                curr_word_x = curr_disc_info.pos.x-20
-                curr_word_y = curr_disc_info.pos.y-30
-            end
-        end
-        love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
 
+    if current_word.final ~= nil then
+        typing.draw_word_progress(current_word.render_idx)
     end
 
     -- Draw a "NICE!" message if it's there
@@ -277,6 +254,76 @@ function typing.update_word(rendered_idx, replaced_word)
 
     -- Calculate the position data for the word as we show it on screen
     calc_word_bounds(new_word, rendered_idx)
+end
+
+-- Draw the currently typed word in 3 parts (typed, current, untyped)
+--[[
+I think I effectively want to make sure I don't have to do any of this:
+
+        if current_word.final ~= nil then
+        -- Draw the working word over its start
+        -- TODO: May need to reset all this!
+        love.graphics.setColor(0, .8, 1)
+        local curr_word_x, curr_word_y = -1, -1
+        if current_word.render_idx == "left" then
+            curr_word_x = word_pos.left.origin.x
+            curr_word_y = word_pos.left.origin.y
+        elseif current_word.render_idx == "right" then
+            curr_word_x = word_pos.right.origin.x
+            curr_word_y = word_pos.right.origin.y
+        else
+            -- If/when we have multiple discs, this is going to need to change
+            if curr_disc_info ~= nil then -- TK: I should have thought this out a little more for the disc stuff...
+                curr_word_x = curr_disc_info.pos.x-20
+                curr_word_y = curr_disc_info.pos.y-30
+            end
+        end
+        love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
+
+]]
+function typing.draw_word_progress()
+    local font = love.graphics.getFont()
+    local curr_word_x = word_pos[current_word.render_idx].origin.x
+    local curr_word_y = word_pos[current_word.render_idx].origin.y
+    local alignment = current_word.render_idx == "left" and "right" or "left" 
+    
+    -- TK: I should have thought this out a little more for the disc stuff...
+    if curr_disc_info ~= nil then
+        curr_word_x = curr_disc_info.pos.x-20
+        curr_word_y = curr_disc_info.pos.y-30
+    end
+
+    local final_word = current_word.final
+    local typed_len = #current_word.buffer
+    local curr_char = final_word:sub(typed_len+1, typed_len+2)
+    local remaining_word = final_word:sub(typed_len+2) -- BEWARE OOB!
+
+    local typed_width = font:getWidth(current_word.buffer)
+    local curr_width = font:getWidth(curr_char)
+    local char_height = font:getHeight()
+
+    -- Calculate positioning
+
+    -- Draw highlight box
+    if typed_len > 0 then
+        love.graphics.setColor(0, 1, 0)
+        love.graphics.rectangle("fill", curr_word_x + typed_width, curr_word_y, curr_width, char_height)
+    end
+    
+    -- Draw the different parts of the word
+    love.graphics.setColor(.9, .9, .9)
+    love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
+
+    love.graphics.setColor(.2, .2, .2)
+    love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
+
+    love.graphics.setColor(.5, .5, .5)
+    love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
+
+    love.graphics.setColor(0, 0, 0)
+
+
+
 end
 
 -- Discs despawning and a different word list make it more complicated
