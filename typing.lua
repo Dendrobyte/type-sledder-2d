@@ -10,28 +10,20 @@ local typing = {}
 
 -- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
--- local word_bucket = {
---   "hello","world","game","play","score","speed","track","level","start",
---   "finish","jump","slide","run","move","block","dodge","press","hold","tap",
---   "timer","point","bonus","combo","chain","power","boost","skill","focus",
---   "quick","sharp","clean","smooth","simple","ready","steady","fast","clear",
---   "bright","cool","calm","alert","logic","input","react","shift","enter",
---   "space","mouse","click","touch","screen","pixel","sprite","sound","music",
---   "beat","rhythm","tempo","flow","match","align","stack","drop","build",
---   "break","reset","retry","win","lose","draw","pause","resume","select",
---   "confirm","cancel","escape","finish","victory","perfect"
--- }
-local word_bucket = { -- Testing for the text width stuff
-    "hi",
-    "mark",
-    "how",
-    "nostradamus",
-    "application",
-    "word",
-    "eel",
-    "instantaneous",
-    "miscellaneous",
+local word_bucket = {
+  "hello","world","game","play","score","speed","track","level","start",
+  "finish","jump","slide","run","move","block","dodge","press","hold","tap",
+  "timer","point","bonus","combo","chain","power","boost","skill","focus",
+  "quick","sharp","clean","smooth","simple","ready","steady","fast","clear",
+  "bright","cool","calm","alert","logic","input","react","shift","enter",
+  "space","mouse","click","touch","screen","pixel","sprite","sound","music",
+  "beat","rhythm","tempo","flow","match","align","stack","drop","build",
+  "break","reset","retry","win","lose","draw","pause","resume","select",
+  "confirm","cancel","escape","finish","victory","perfect"
 }
+-- local word_bucket = { -- Testing for the text width stuff
+--     "hi", "mark", "how", "nostradamus", "application", "word", "eel", "instantaneous", "miscellaneous",
+-- }
 
 -- How far a left word should end and a right word should start from the player
 local word_player_offset = {
@@ -134,13 +126,12 @@ function typing.update(dt)
 end
 
 function typing.on_key_press(key)
-    for word, idx in pairs(active_words) do print(word, ",", idx) end
-    print("----")
     -- If we're typing and we've assigned a word, match on that wor
     if  #current_word.buffer ~= 0 and current_word.final ~= nil then
         local next_buffer = current_word.buffer .. key
         -- Match the substr by length with the typed word
         if current_word.final:sub(1, #next_buffer) == next_buffer then
+            sounds.play_click()
             current_word.buffer = next_buffer
         else
             -- Do nothing
@@ -184,6 +175,7 @@ function typing.on_key_press(key)
             if active_word:sub(1, #next_buffer) == next_buffer then
                 matches = matches + 1
                 matched_word = active_word
+                sounds.play_click()
             end
         end
 
@@ -212,10 +204,10 @@ function typing.draw_words()
     end
 
     -- Don't loop or anything, I think it's more readable this way
-    -- TODO: Redrawing with proper word_DIR limits
-    love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right")
-    love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left")
-    if curr_disc_info ~= nil then
+    -- Only render the word if it isn't currently being typed
+    if current_word.render_idx ~= "left" then love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right") end
+    if current_word.render_idx ~= "right" then love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left") end
+    if curr_disc_info ~= nil and current_word.render_idx ~= "disc" then
         -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
         --       Could calc based on word size if I wanted to be real specific I suppose
         love.graphics.print(rendered_words.disc, curr_disc_info.pos.x-20, curr_disc_info.pos.y-30)
@@ -263,15 +255,15 @@ function typing.draw_word_progress()
     local alignment = current_word.render_idx == "left" and "right" or "left" 
     
     -- TK: I should have thought this out a little more for the disc stuff...
-    if curr_disc_info ~= nil then
+    if current_word.render_idx == "disc" then
         curr_word_x = curr_disc_info.pos.x-20
         curr_word_y = curr_disc_info.pos.y-30
     end
 
     local final_word = current_word.final
     local typed_len = #current_word.buffer
-    local curr_char = final_word:sub(typed_len+1, typed_len+2)
-    local remaining_word = final_word:sub(typed_len+2) -- BEWARE OOB!
+    local curr_char = final_word:sub(typed_len+1, typed_len+1)
+    local remaining_word = final_word:sub(typed_len+2) -- BEWARE OOB...?
 
     local typed_width = font:getWidth(current_word.buffer)
     local curr_width = font:getWidth(curr_char)
@@ -280,23 +272,23 @@ function typing.draw_word_progress()
     -- Calculate positioning
 
     -- Draw highlight box
+    -- TODO: Color customization
     if typed_len > 0 then
-        love.graphics.setColor(0, 1, 0)
+        love.graphics.setColor(254/255, 214/255, 128/255)
         love.graphics.rectangle("fill", curr_word_x + typed_width, curr_word_y, curr_width, char_height)
     end
     
     -- Draw the different parts of the word
-    love.graphics.setColor(.9, .9, .9)
+    love.graphics.setColor(230/255, 137/255, 15/255)
     love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
 
     love.graphics.setColor(.2, .2, .2)
     love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
 
-    love.graphics.setColor(.5, .5, .5)
+    love.graphics.setColor(44/255, 14/255, 126/255)
     love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
 
-    love.graphics.setColor(0, 0, 0)
-
+    love.graphics.setColor(1, 1, 1)
 
 
 end
