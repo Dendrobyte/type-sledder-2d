@@ -16,6 +16,12 @@ function slope.load()
     tiles.snow = love.graphics.newImage(tilePath .. "tile_0000.png") -- 2
     tiles.snow_right = love.graphics.newImage(tilePath .. "tile_0001.png") -- 3
     tiles.snow_left = love.graphics.newImage(tilePath .. "tile_0004.png") -- 4
+    -- tiles.turn_left_1 = love.graphics.newImage(tilePath .. "tile_0060.png") -- 5
+    -- tiles.turn_left_2 = love.graphics.newImage(tilePath .. "tile_0061.png") -- 6 (->)
+    -- tiles.turn_left_1 = love.graphics.newImage(tilePath .. "tile_0076.png") -- 7
+    -- tiles.turn_left_2 = love.graphics.newImage(tilePath .. "tile_0077.png") -- 8 (<-)
+    -- tiles.turn_right_1 = love.graphics.newImage(tilePath .. "tile_0064.png") -- 9
+    -- tiles.turn_right_2 = love.graphics.newImage(tilePath .. "tile_0065.png") -- 10
     slope.grid_create()
 
     grid_to_tile = { -- indices are just starting from 1
@@ -23,6 +29,10 @@ function slope.load()
         tiles.snow,
         tiles.snow_left,
         tiles.snow_right,
+        tiles.turn_left_1,
+        tiles.turn_left_2,
+        tiles.turn_right_1,
+        tiles.turn_right_2,
     }
 end
 
@@ -112,14 +122,16 @@ function slope.grid_add_next_row()
     -- Replace the head row
     new_row = {}
     for i = 1, rows do -- row major, this shit confuses me
-        if i < left_edge or i > right_edge then
+        if i < left_edge or i > right_edge then -- edge
             new_row[i] = 1
-        elseif i == left_edge then
+        elseif i > left_edge or i < right_edge then -- snow
+            new_row[i] = 2
+        end
+        -- "overwrite" with proper edges and such
+        if i == left_edge then
             new_row[i] = 3
         elseif i == right_edge then
             new_row[i] = 4
-        else -- Snow is the implied case
-            new_row[i] = 2
         end
     end
     grid[grid_head] = new_row
