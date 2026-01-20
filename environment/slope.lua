@@ -16,12 +16,14 @@ function slope.load()
     tiles.snow = love.graphics.newImage(tilePath .. "tile_0000.png") -- 2
     tiles.snow_right = love.graphics.newImage(tilePath .. "tile_0001.png") -- 3
     tiles.snow_left = love.graphics.newImage(tilePath .. "tile_0004.png") -- 4
-    -- tiles.turn_left_1 = love.graphics.newImage(tilePath .. "tile_0060.png") -- 5
-    -- tiles.turn_left_2 = love.graphics.newImage(tilePath .. "tile_0061.png") -- 6 (->)
-    -- tiles.turn_left_1 = love.graphics.newImage(tilePath .. "tile_0076.png") -- 7
-    -- tiles.turn_left_2 = love.graphics.newImage(tilePath .. "tile_0077.png") -- 8 (<-)
-    -- tiles.turn_right_1 = love.graphics.newImage(tilePath .. "tile_0064.png") -- 9
-    -- tiles.turn_right_2 = love.graphics.newImage(tilePath .. "tile_0065.png") -- 10
+    tiles.sharp_turn_in_start_left = love.graphics.newImage(tilePath .. "tile_0064.png")
+    tiles.sharp_turn_in_end_left = love.graphics.newImage(tilePath .. "tile_0065.png")
+    tiles.sharp_turn_in_start_right = love.graphics.newImage(tilePath .. "tile_0061.png")
+    tiles.sharp_turn_in_end_right = love.graphics.newImage(tilePath .. "tile_0060.png")
+    tiles.sharp_turn_out_start_left = love.graphics.newImage(tilePath .. "tile_0077.png")
+    tiles.sharp_turn_out_end_left = love.graphics.newImage(tilePath .. "tile_0076.png")
+    tiles.sharp_turn_out_start_right = love.graphics.newImage(tilePath .. "tile_0072.png")
+    tiles.sharp_turn_out_end_right = love.graphics.newImage(tilePath .. "tile_0073.png")
     slope.grid_create()
 
     grid_to_tile = { -- indices are just starting from 1
@@ -29,10 +31,6 @@ function slope.load()
         tiles.snow,
         tiles.snow_left,
         tiles.snow_right,
-        tiles.turn_left_1,
-        tiles.turn_left_2,
-        tiles.turn_right_1,
-        tiles.turn_right_2,
     }
 end
 
@@ -73,8 +71,6 @@ local rows = pixel_w / tile_width
 local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 local grid = {}
 local grid_head = nil
-local left_edge = const.LEFT_EDGE
-local right_edge = const.RIGHT_EDGE
 function slope.grid_create()
     for i = 1, cols+3 do -- Adding arbitrary constant so we don't get the flickering absent row as the game scrolls
         row = {}
@@ -84,17 +80,17 @@ function slope.grid_create()
         grid[i] = row
     end
 
-    -- Set up path (can/should move above at some point)
-    -- TODO: Don't use fixed numbers but it works for now
+    -- Set up start path (can/should move above at some point)
     for i, row in ipairs(grid)  do
-        row[left_edge] = 3
-        for j = left_edge+1, right_edge-1 do
+        row[const.LEFT_EDGE] = 3
+        for j = const.LEFT_EDGE+1, const.RIGHT_EDGE-1 do
             row[j] = 2
         end
-        row[right_edge] = 4
+        row[const.RIGHT_EDGE] = 4
     end
 
     grid_head = 1
+    grid_tail = #grid-1
 
     if util.get_debug() == true and nil ~= nil then
         print("---- Start of slope grid ----")
@@ -105,38 +101,29 @@ function slope.grid_create()
 end
 
 -- Overwrite the row where the current head is, then step head up by 1
--- TODO: Randomize ("procedurally generate") path directional shift, but for now just go back and forth every 2
-local shifting = 0
 function slope.grid_add_next_row()
-    if shifting % 8 == 0 then -- shift
-        if shifting % 16 == 0 then -- shift right
-            left_edge = left_edge + 1
-            right_edge = right_edge + 1
-        else -- shift left
-            left_edge = left_edge - 1
-            right_edge = right_edge - 1
-        end
-    end -- else, we just add an identical row
-    shifting = shifting + 1
+    -- We use the previous row as our input to generate this row
+    -- NOTE: We'll generate chunks... later?
+    local prev_row = grid[get_grid_tail()]
+    local switch_dir = math.random(6) == 1 -- Determines whether we add a turn to our grid
 
     -- Replace the head row
     new_row = {}
     for i = 1, rows do -- row major, this shit confuses me
-        if i < left_edge or i > right_edge then -- edge
-            new_row[i] = 1
-        elseif i > left_edge or i < right_edge then -- snow
-            new_row[i] = 2
-        end
-        -- "overwrite" with proper edges and such
-        if i == left_edge then
-            new_row[i] = 3
-        elseif i == right_edge then
-            new_row[i] = 4
-        end
+        new_row[i] = prev_row[i]
     end
     grid[grid_head] = new_row
 
     if grid_head < #grid then grid_head = grid_head + 1 else grid_head = 1 end
+end
+
+function get_grid_tail()
+    local grid_tail = grid_head - 1
+    if grid_head == 1 then
+        grid_tail = #grid
+    end
+    return grid_tail
+
 end
 
 -- Currently used for slope collision
