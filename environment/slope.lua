@@ -1,6 +1,7 @@
 local util = require("util")
 local const = require("environment.constants")
 local points = require("points")
+local turns = require("environment.turns")
 
 local slope = {}
 -- TODOS
@@ -14,16 +15,16 @@ function slope.load()
     local tilePath = "ski_assets/Tiles/"
     tiles.edge = love.graphics.newImage(tilePath .. "tile_0003.png") -- 1
     tiles.snow = love.graphics.newImage(tilePath .. "tile_0000.png") -- 2
-    tiles.snow_right = love.graphics.newImage(tilePath .. "tile_0001.png") -- 3
-    tiles.snow_left = love.graphics.newImage(tilePath .. "tile_0004.png") -- 4
-    tiles.sharp_turn_in_start_left = love.graphics.newImage(tilePath .. "tile_0064.png")
-    tiles.sharp_turn_in_end_left = love.graphics.newImage(tilePath .. "tile_0065.png")
-    tiles.sharp_turn_in_start_right = love.graphics.newImage(tilePath .. "tile_0061.png")
-    tiles.sharp_turn_in_end_right = love.graphics.newImage(tilePath .. "tile_0060.png")
-    tiles.sharp_turn_out_start_left = love.graphics.newImage(tilePath .. "tile_0077.png")
-    tiles.sharp_turn_out_end_left = love.graphics.newImage(tilePath .. "tile_0076.png")
-    tiles.sharp_turn_out_start_right = love.graphics.newImage(tilePath .. "tile_0072.png")
-    tiles.sharp_turn_out_end_right = love.graphics.newImage(tilePath .. "tile_0073.png")
+    tiles.snow_right = love.graphics.newImage(tilePath .. "tile_0001.png") -- 3 (LEFT EDGE)
+    tiles.snow_left = love.graphics.newImage(tilePath .. "tile_0004.png") -- 4 (RIGHT EDGE)
+    tiles.sharp_turn_in_start_left = love.graphics.newImage(tilePath .. "tile_0064.png") -- 5
+    tiles.sharp_turn_in_end_left = love.graphics.newImage(tilePath .. "tile_0065.png") -- 6
+    tiles.sharp_turn_in_start_right = love.graphics.newImage(tilePath .. "tile_0061.png") -- 7
+    tiles.sharp_turn_in_end_right = love.graphics.newImage(tilePath .. "tile_0060.png") -- 8
+    tiles.sharp_turn_out_start_left = love.graphics.newImage(tilePath .. "tile_0077.png") -- 9
+    tiles.sharp_turn_out_end_left = love.graphics.newImage(tilePath .. "tile_0076.png") -- 10
+    tiles.sharp_turn_out_start_right = love.graphics.newImage(tilePath .. "tile_0072.png") -- 11
+    tiles.sharp_turn_out_end_right = love.graphics.newImage(tilePath .. "tile_0073.png") -- 12
     slope.grid_create()
 
     grid_to_tile = { -- indices are just starting from 1
@@ -31,6 +32,14 @@ function slope.load()
         tiles.snow,
         tiles.snow_left,
         tiles.snow_right,
+        tiles.sharp_turn_in_start_left,
+        tiles.sharp_turn_in_end_left,
+        tiles.sharp_turn_in_start_right,
+        tiles.sharp_turn_in_end_right,
+        tiles.sharp_turn_out_start_left,
+        tiles.sharp_turn_out_end_left,
+        tiles.sharp_turn_out_start_right,
+        tiles.sharp_turn_out_end_right,
     }
 end
 
@@ -100,18 +109,47 @@ function slope.grid_create()
 
 end
 
+-- We need to make sure we have some way to show the edge tiles if a prev tile is a turn
+local followed_by_ice = {[5] = true, [7] = true}
+local followed_by_snow = {[11] = true, [9] = true}
+local left_edge_pre = {[6] = true, [10] = true}
+local right_edge_pre = {[8] = true, [12] = true}
+local switched = false -- We don't want to turn twice consecutively
 -- Overwrite the row where the current head is, then step head up by 1
 function slope.grid_add_next_row()
     -- We use the previous row as our input to generate this row
     -- NOTE: We'll generate chunks... later?
     local prev_row = grid[get_grid_tail()]
-    local switch_dir = math.random(6) == 1 -- Determines whether we add a turn to our grid
+    local switch_dir = math.random(6) -- 1/3 chance to turn; 1 is left, 2 is right
+    -- TODO: If we're at the edge of our const bounds, force the direction to change
+
+    new_row = {}
+    if switch_dir < 3 and switched == false then
+        if switch_dir == 1 then
+            new_row = turns.sharp_turn_right(prev_row)
+        elseif switch_dir == 2 then
+            new_row = turns.sharp_turn_left(prev_row)
+        end
+        switched = true
+    else
+        -- Just duplicate prev row, but account for edge tiles
+        for i = 1, rows do -- row major, this shit confuses me
+            if left_edge_pre[prev_row[i]] == true then
+                new_row[i] = 3
+            elseif right_edge_pre[prev_row[i]] == true then
+                new_row[i] = 4
+            elseif followed_by_ice[prev_row[i]] == true then
+                new_row[i] = 1
+            elseif followed_by_snow[prev_row[i]] == true then
+                new_row[i] = 2
+            else
+                new_row[i] = prev_row[i]
+            end
+        end
+        switched = false
+    end
 
     -- Replace the head row
-    new_row = {}
-    for i = 1, rows do -- row major, this shit confuses me
-        new_row[i] = prev_row[i]
-    end
     grid[grid_head] = new_row
 
     if grid_head < #grid then grid_head = grid_head + 1 else grid_head = 1 end
