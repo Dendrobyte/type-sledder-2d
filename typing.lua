@@ -25,6 +25,14 @@ local word_bucket = {
 --     "hi", "mark", "how", "nostradamus", "application", "word", "eel", "instantaneous", "miscellaneous",
 -- }
 
+function typing.load()
+    typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
+    typing.right_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0075.png")
+    typing.left_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0076.png")
+
+    typing.reset_words()
+end
+
 -- How far a left word should end and a right word should start from the player
 local word_player_offset = {
     x = 30,
@@ -78,12 +86,6 @@ local active_words = {}
 local rendered_words = {}
 
 local floating_messages = {} -- List of messages we can store...? Maybe multiple?
-
-function typing.load()
-    typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
-
-    typing.reset_words()
-end
 
 -- Handle the active typing
 local current_word = {
@@ -224,12 +226,26 @@ function typing.draw_words()
         love.graphics.print(msg.text, msg.x, msg.y)
     end
 
+    love.graphics.setColor(1, 1, 1)
+
+    -- Draw direction indicators
+    if current_word.final == nil then
+        love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
+        love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
+    elseif current_word.render_idx == "left" then
+        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
+    elseif current_word.render_idx == "right" then
+        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
+    end
+
     if util.get_debug() == true then
         love.graphics.setColor(0, .5, 1)
         love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)
     end
 
-    love.graphics.setColor(1, 1, 1) -- font is always set, but color needs to be reset for general drawing it appears
+    love.graphics.setColor(1, 1, 1)
 
 end
 

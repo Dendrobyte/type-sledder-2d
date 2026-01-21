@@ -80,7 +80,7 @@ end
 function disc.update(dt)
     -- Random chance to spawn a disc if the current one is nil
     if curr_disc == nil then
-        if math.random(1) == 1 then
+        if math.random(100) == 1 then -- Probably better to have a timer run down
             curr_disc = disc.spawn()
         end
     else
