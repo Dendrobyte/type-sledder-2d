@@ -126,13 +126,13 @@ function slope.grid_add_next_row()
     new_row = {}
     if switch_dir < 3 and switched == false then
         if switch_dir == 1 then
-            if prev_row[3] ~= 3 then
+            if prev_row[2] ~= 3 then
                 new_row = turns.sharp_turn_left(prev_row)
             else
                 new_row = turns.sharp_turn_right(prev_row)
             end
         elseif switch_dir == 2 then
-            if prev_row[16] ~= 4 then
+            if prev_row[23] ~= 4 then
                 new_row = turns.sharp_turn_right(prev_row)
             else
                 new_row = turns.sharp_turn_left(prev_row)
