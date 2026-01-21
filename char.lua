@@ -11,8 +11,17 @@ function char.load()
     char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0079.png") -- 83 || 71
     char.sprite = char.move_two
 
+    char.reload()
+end
+
+function char.reload()
     char.x, char.y = entities.cell_to_coord(char.start_position())
     char.center = char.x + (const.TILE_WIDTH/2)
+    
+    move = {
+        counter_x = 0,
+        counter_y = 0,
+    }
 end
 
 function char.start_position()
@@ -80,13 +89,6 @@ function char.update_sprite(dt)
         count = -1
     end
     count = count + 1
-end
-
-function char.reset_movement()
-    move = {
-        counter_x = 0,
-        counter_y = 0,
-    }
 end
 
 -- Move the character based on some number of lanes

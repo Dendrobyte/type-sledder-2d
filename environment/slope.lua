@@ -125,7 +125,6 @@ function slope.grid_add_next_row()
 
     new_row = {}
     if switch_dir < 3 and switched == false then
-        print("Switch dir=", switch_dir)
         if switch_dir == 1 then
             if prev_row[3] ~= 3 then
                 new_row = turns.sharp_turn_left(prev_row)
