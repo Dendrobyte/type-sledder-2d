@@ -6,7 +6,6 @@ local const = require("environment.constants") -- ...? make it global? idk. cons
 local char = {}
 
 function char.load()
-    char.name = "Mark"
     char.move_one = love.graphics.newImage("ski_assets/Tiles/tile_0082.png") -- 82 || 70
     char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0083.png") -- 83 || 71
     if math.random(1000) == 1 then
