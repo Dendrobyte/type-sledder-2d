@@ -1,13 +1,12 @@
+print("LOADING entities.obstacles from:", debug.getinfo(1, "S").source)
+print("package.path:", package.path)
+
 local const = require("environment.constants")
 local util = require("util")
 local slope = require("environment.slope") -- NOTE: I don't love this dependency being here
 
 -- This is our grid system responsible for handling collision between player and edge, player and obstacle, etc.
 local obstacles = {}
-
-function obstacles.test()
-    print("hi")
-end
 
 -- Load assets, etc.
 -- TODO: Move all the tiles into its own loaded thing? Though if it's just two files, w/e
@@ -50,7 +49,7 @@ function obstacles.calc_grid_idx(logical_index)
 end
 
 -- Storing all obstacles and their positions for the draw function and collision
-obstacles = {}
+debris = {}
 local scroll_offset = 0
 function obstacles.update_grid(dt)
     scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
@@ -60,13 +59,13 @@ function obstacles.update_grid(dt)
     end
 
     -- Update obstacle coords for drawing based on coordinates to be used w collision
-    obstacles = {}
+    debris = {}
     for i = 1, #grid do
         idx = obstacles.calc_grid_idx(i)
         row = grid[idx]
         for j, val in ipairs(row) do
             if val ~= 0 then
-                table.insert(obstacles, {
+                table.insert(debris, {
                     tile_sprite = val,
                     x_orig = (j-1)*const.TILE_WIDTH,
                     y_orig = (i-1)*const.TILE_WIDTH-scroll_offset,
@@ -116,7 +115,7 @@ end
 
 -- Draw function that runs on top of the slope draw
 function obstacles.draw_obstacles()
-    for _, obst in ipairs(obstacles) do
+    for _, obst in ipairs(debris) do
         love.graphics.draw(grid_to_tile[obst.tile_sprite], obst.x_orig, obst.y_orig, 0, 2)
         if util.get_debug() == true then
             love.graphics.setColor(1, 0, 0)
@@ -130,7 +129,7 @@ end
 -- Check character coords with every obstacle coordinate
 -- NOTE: There's a possibility this is off by a pixel or so based on the order of the update calls?
 function obstacles.does_player_collide_with_entity(char_x, char_y, slope_cell)
-    for _, obst in ipairs(obstacles) do
+    for _, obst in ipairs(debris) do
         if check_collision(char_x, char_y, obst.x_orig, obst.y_orig) == true then
             return true
         end
