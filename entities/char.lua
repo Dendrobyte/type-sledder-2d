@@ -22,10 +22,7 @@ function char.reload()
     char.x, char.y = obstacles.cell_to_coord(char.start_position())
     char.center = char.x + (const.TILE_WIDTH/2)
     
-    move = {
-        counter_x = 0,
-        counter_y = 0,
-    }
+    reset_move_state()
 end
 
 function char.start_position()
