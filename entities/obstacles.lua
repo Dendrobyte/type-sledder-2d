@@ -149,8 +149,8 @@ function check_collision(cx_orig, cy_orig, ex_orig, ey_orig)
     return
         cx_orig + w > ex_orig and
         cx_orig < ex_orig + w and
-        cy_orig + w > ey_orig+w and
-        cy_orig < ey_orig+w + w
+        cy_orig + w > ey_orig and
+        cy_orig < ey_orig + w
 end
 
 return obstacles 

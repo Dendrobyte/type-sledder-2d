@@ -33,6 +33,8 @@ states.start_screen = {
             is_button_pressed = menu.is_button_pressed("start_button", x, y)
             -- TODO: obstacles.trigger_entity_spawning() or whatever
             if is_button_pressed then states.curr_state = "in_game" end
+
+            -- TODO: Move this into menu presses
             if menu.is_button_pressed("speed_decr", x, y) then
                 slope.set_init_scroll_speed(slope.get_scroll_speed() - 10)
             end
@@ -54,7 +56,8 @@ states.in_game = {
     end,
 
     keypressed = function(key)
-        -- TODO: Only send a-z in this, use ascii values
+        -- TODO: Only send a-z, esc, in this, use ascii values. What about the sentence function though...?
+        -- I guess I just want to avoid anything that's typed below, so only if no other key is down, send it
         typing.on_key_press(key)
 
         -- Reset game hotkey
@@ -62,6 +65,7 @@ states.in_game = {
             reset_game()
         end
 
+        -- Pause mode, will need to delete this. Resets speed.
         if love.keyboard.isDown("lctrl") and key == "p" then
             slope.set_scroll_speed(0)
         end
