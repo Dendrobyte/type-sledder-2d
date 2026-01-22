@@ -5,7 +5,7 @@ local states = require("state_manager")
 local menu = require("menu")
 local typing = require("typing")
 local sounds = require("sounds")
-local entities = require("environment.entities")
+local obstacles = require("entities.obstacles")
 
 -- Load default values
 function love.load()
@@ -17,7 +17,7 @@ function love.load()
 
     -- Set up the background and start it
     slope.load()
-    entities.load()
+    obstacles.load()
 
     -- Load "objects"
     -- TODO: Loading bar? It's kinda fast though

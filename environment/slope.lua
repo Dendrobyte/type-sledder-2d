@@ -45,7 +45,7 @@ end
 
 --[[
     SCROLL SPEED VARIABLE!
-    Adjusting these speeds up the whole game. These are accessed in entities and char.
+    Adjusting these speeds up the whole game. These are accessed in obstacles and char.
 ]]
 local scroll_speed = 100
 local starting_scroll_speed = 100

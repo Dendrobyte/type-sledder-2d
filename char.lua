@@ -1,6 +1,6 @@
 
 local slope = require("environment.slope")
-local entities = require("environment.entities")
+local obstacles = require("entities.obstacles")
 local const = require("environment.constants") -- ...? make it global? idk. consts will evolve.
 
 local char = {}
@@ -19,7 +19,7 @@ function char.load()
 end
 
 function char.reload()
-    char.x, char.y = entities.cell_to_coord(char.start_position())
+    char.x, char.y = obstacles.cell_to_coord(char.start_position())
     char.center = char.x + (const.TILE_WIDTH/2)
     
     move = {
@@ -78,7 +78,7 @@ function char.update_sprite(dt)
         return true
     end
     is_off_slope = slope.does_player_go_off_slope(char.x, char.y)
-    is_collision = entities.does_player_collide_with_entity(char.x, char.y)
+    is_collision = obstacles.does_player_collide_with_entity(char.x, char.y)
     if is_off_slope == true or is_collision == true then
         return true
     end

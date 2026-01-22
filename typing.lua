@@ -4,7 +4,7 @@ local util = require("util")
 local slope = require("environment.slope")
 local const = require("constants")
 local points = require("points")
-local disc = require("disc")
+local disc = require("entities.disc")
 
 local typing = {}
 

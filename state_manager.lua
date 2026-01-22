@@ -2,10 +2,10 @@ local char = require("char")
 local slope = require("environment.slope")
 local menu = require("menu")
 local typing = require("typing")
-local entities = require("environment.entities")
+local obstacles = require("entities.obstacles")
 local sounds = require("sounds")
 local ui = require("ui")
-local disc = require("disc")
+local disc = require("entities.disc")
 local points = require("points")
 -- Attempt at state management by having the callback call state functions
 local states = {}
@@ -31,7 +31,7 @@ states.start_screen = {
     mousepressed = function(x, y, button, _istouch, _presses)
         if button == 1 then
             is_button_pressed = menu.is_button_pressed("start_button", x, y)
-            -- TODO: entities.trigger_entity_spawning() or whatever
+            -- TODO: obstacles.trigger_entity_spawning() or whatever
             if is_button_pressed then states.curr_state = "in_game" end
             if menu.is_button_pressed("speed_decr", x, y) then
                 slope.set_init_scroll_speed(slope.get_scroll_speed() - 10)
@@ -46,7 +46,7 @@ states.start_screen = {
 states.in_game = {
     draw = function()
         slope.draw_map()
-        entities.draw_entities()
+        obstacles.draw_obstacles()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         disc.draw()
         typing.draw_words()
@@ -69,7 +69,7 @@ states.in_game = {
 
     update = function(dt)
         slope.update_grid(dt)
-        entities.update_grid(dt)
+        obstacles.update_grid(dt)
         typing.update(dt)
         collided = char.update_sprite(dt)
         ui.update_ui(dt)
@@ -86,7 +86,7 @@ states.in_game = {
 states.end_game = {
     draw = function()
         slope.draw_map()
-        entities.draw_entities()
+        obstacles.draw_obstacles()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         menu.end_game.draw_screen()
     end,
@@ -118,7 +118,7 @@ function reset_game()
     slope.grid_create()
     slope.reset_scroll_speed()
     char.reload()
-    entities.grid_create()
+    obstacles.grid_create()
     typing.reset_words()
     sounds.start()
     points.reset()
