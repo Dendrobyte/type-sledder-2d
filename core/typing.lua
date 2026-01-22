@@ -1,9 +1,9 @@
-local char = require("char")
-local sounds = require("sounds")
-local util = require("util")
+local char = require("entities.char")
+local sounds = require("core.sounds")
+local util = require("core.util")
 local slope = require("environment.slope")
 local const = require("constants")
-local points = require("points")
+local points = require("core.points")
 local disc = require("entities.disc")
 
 local typing = {}

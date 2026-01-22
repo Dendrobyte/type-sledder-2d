@@ -1,12 +1,12 @@
-local char = require("char")
+local char = require("entities.char")
 local slope = require("environment.slope")
-local menu = require("menu")
-local typing = require("typing")
+local menu = require("ui.menu")
+local typing = require("core.typing")
 local obstacles = require("entities.obstacles")
-local sounds = require("sounds")
-local ui = require("ui")
+local sounds = require("core.sounds")
+local ui = require("ui.ui")
 local disc = require("entities.disc")
-local points = require("points")
+local points = require("core.points")
 -- Attempt at state management by having the callback call state functions
 local states = {}
 

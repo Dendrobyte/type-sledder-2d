@@ -1,10 +1,10 @@
-local char = require("char")
+local char = require("entities.char")
 local slope = require("environment.slope")
-local util = require("util")
-local states = require("state_manager")
-local menu = require("menu")
-local typing = require("typing")
-local sounds = require("sounds")
+local util = require("core.util")
+local states = require("core.state_manager")
+local menu = require("ui.menu")
+local typing = require("core.typing")
+local sounds = require("core.sounds")
 local obstacles = require("entities.obstacles")
 
 -- Load default values

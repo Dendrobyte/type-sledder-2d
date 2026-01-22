@@ -1,7 +1,7 @@
-local util = require("util")
+local util = require("core.util")
 local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
-local typing = require("typing") -- Global state would be real nice
-local points = require("points") -- Points are a good example of a general state
+local typing = require("core.typing") -- Global state would be real nice
+local points = require("core.points") -- Points are a good example of a general state
 
 local menu = {}
 menu.pre_game = {}

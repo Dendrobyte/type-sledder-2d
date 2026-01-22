@@ -1,6 +1,6 @@
-local util = require("util")
+local util = require("core.util")
 local const = require("environment.constants")
-local points = require("points")
+local points = require("core.points")
 local turns = require("environment.turns")
 
 local slope = {}

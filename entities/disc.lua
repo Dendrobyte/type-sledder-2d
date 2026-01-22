@@ -1,5 +1,5 @@
 local const = require("environment.constants")
-local util = require("util")
+local util = require("core.util")
 
 local disc = {}
 

@@ -2,7 +2,7 @@ print("LOADING entities.obstacles from:", debug.getinfo(1, "S").source)
 print("package.path:", package.path)
 
 local const = require("environment.constants")
-local util = require("util")
+local util = require("core.util")
 local slope = require("environment.slope") -- NOTE: I don't love this dependency being here
 
 -- This is our grid system responsible for handling collision between player and edge, player and obstacle, etc.

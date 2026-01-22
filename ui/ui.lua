@@ -1,4 +1,4 @@
-local points = require("points")
+local points = require("core.points")
 
 -- The UI should never be accessed elsewhere, but instead access state from within
 local ui = {}
