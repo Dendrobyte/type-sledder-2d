@@ -1,7 +1,8 @@
 local callouts = {}
 
 callouts.colors = {
-    green = {0, 1, 0}
+    green = {0, 1, 0},
+    purple = {.5, 0, .5},
 }
 
 local floating_messages = {}

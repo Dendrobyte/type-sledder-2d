@@ -2,6 +2,8 @@
 local slope = require("environment.slope")
 local obstacles = require("entities.obstacles")
 local const = require("environment.constants") -- ...? make it global? idk. consts will evolve.
+local points = require("core.points")
+local callouts = require("ui.callouts")
 
 local char = {}
 
@@ -82,11 +84,13 @@ function char.update_sprite(dt)
     end
 
     -- We know collision is false at this point so we have to be outside of it now
+    -- Give them the close call when they leave so we don't do it on collision
     is_near_miss = obstacles.does_player_nearly_miss_entity(char.x, char.y)
     if is_near_miss and in_near_miss_box == false then
-
+        in_near_miss_box = true
     elseif is_near_miss == false and in_near_miss_box == true then
-        -- Reset this when they "leave" the box
+        callouts.add_callout("CLOSE CALL!", char.x, char.y-25, callouts.colors.purple)
+        points.score_points(20)
         in_near_miss_box = false
     end
 

@@ -76,9 +76,9 @@ function obstacles.update_grid(dt)
                     y_collision = y_orig + 4,
                     w_collision = const.TILE_WIDTH - 4*2,
                     -- Near miss box will be a little bigger
-                    x_nearmiss = x_orig - 2,
-                    y_nearmiss = y_orig - 2,
-                    w_nearmiss = const.TILE_WIDTH + 2*2,
+                    x_nearmiss = x_orig - 20,
+                    y_nearmiss = y_orig - 20,
+                    w_nearmiss = const.TILE_WIDTH + 20*2,
                 })
             end
         end
@@ -149,20 +149,11 @@ end
 
 function obstacles.does_player_nearly_miss_entity(char_x, char_y, slope_cell)
     for _, obst in ipairs(hazard) do
-        util.add_debug_draw_call(function()
-            love.graphics.setColor(.6, 0, .6)
-            love.graphics.rectangle('line', obst.x_nearmiss, obst.y_nearmiss, obst.w_nearmiss, obst.w_nearmiss)
-            love.graphics.setColor(1, 1, 1)
-        end)
-        if check_collision(char_x, char_y, obst.x_collision, obst.y_collision, obst.w_collision) == true then
+        if check_collision(char_x, char_y, obst.x_nearmiss, obst.y_nearmiss, obst.w_nearmiss) == true then
             return true
         end
     end
-    util.add_debug_draw_call(function()
-        love.graphics.setColor(.8, .5, 0)
-        love.graphics.rectangle('line', char_x, char_y, const.TILE_WIDTH, const.TILE_WIDTH)
-        love.graphics.setColor(1, 1, 1)
-    end)
+    return false
 end
 
 -- TK: oh maybe I don't need the x/y_end vars in the obstacles? the width is always the same, don't fuck with tile size
