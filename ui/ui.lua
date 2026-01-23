@@ -1,4 +1,5 @@
 local points = require("core.points")
+local callouts = require("ui.callouts")
 
 -- The UI should never be accessed elsewhere, but instead access state from within
 local ui = {}
@@ -17,9 +18,15 @@ ui.loc = {
 function ui.update_ui(dt)
     ui.current_points = points.get_points()
     ui.current_distance = points.get_distance()
+
+    callouts.update(dt)
 end
 
 function ui.draw_ui()
+    -- Draw callouts
+    callouts.draw_callouts()
+
+    -- Background box for stats
     love.graphics.setColor(.2, .2, .4)
     love.graphics.rectangle("fill", ui.loc.x-5, ui.loc.y-2, 80, 80)
     -- Draw distance

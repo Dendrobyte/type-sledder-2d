@@ -5,6 +5,7 @@ local slope = require("environment.slope")
 local const = require("constants")
 local points = require("core.points")
 local disc = require("entities.disc")
+local callouts = require("ui.callouts")
 
 local typing = {}
 
@@ -85,8 +86,6 @@ local active_words = {}
 -- Stores the words for "left", "right", and "disc", updated independently from active words
 local rendered_words = {}
 
-local floating_messages = {} -- List of messages we can store...? Maybe multiple?
-
 -- Handle the active typing
 local current_word = {
     final = nil, -- This comes from active_words when we register the first unique keypress
@@ -105,21 +104,9 @@ function typing.reset_words()
     typing.update_word("right", "")
     typing.update_word("disc", "")
     reset_current_word()
-
-    floating_messages = {}
 end
 
 function typing.update(dt)
-    -- Show the floating messages
-    for i = #floating_messages, 1, -1 do
-        local msg = floating_messages[i]
-        msg.age = msg.age + dt
-        msg.y = msg.y - 10*dt
-        if msg.age > 2 then
-            table.remove(floating_messages, i)
-        end
-    end
-
     -- TK: I don't know how I feel about the way this function is written, versus one
     --     meant to update the bounds (or moving on char move) but no game state so here we are
     calc_word_bounds(rendered_words["left"], "left")
@@ -143,12 +130,7 @@ function typing.on_key_press(key)
         -- Trigger new word, etc. when we get the word correct
         if current_word.buffer == current_word.final then
             sounds.play_ding()
-            table.insert(floating_messages, {
-                text = "NICE!", -- TODO: Randomize
-                age = 0,
-                x = char.x,
-                y = char.y-25,
-            })
+            callouts.add_callout("NICE!", char.x, char.y-25, callouts.colors.green)
             -- TODO: More robust movement here depending on curr direction, etc.
             if current_word.render_idx == "left" or current_word.render_idx == "right" then
                 typing.update_word(current_word.render_idx, current_word.final)
@@ -217,13 +199,6 @@ function typing.draw_words()
 
     if current_word.final ~= nil then
         typing.draw_word_progress(current_word.render_idx)
-    end
-
-    -- Draw a "NICE!" message if it's there
-    for _, msg in ipairs(floating_messages) do
-        local alpha = 1 - (msg.age / 2) -- 2 is the same elsewhere, could do msg.lifetime
-        love.graphics.setColor(0, 1, 0, alpha)
-        love.graphics.print(msg.text, msg.x, msg.y)
     end
 
     love.graphics.setColor(1, 1, 1)

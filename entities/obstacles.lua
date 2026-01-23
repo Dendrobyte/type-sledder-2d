@@ -76,8 +76,8 @@ function obstacles.update_grid(dt)
                     y_collision = y_orig + 4,
                     w_collision = const.TILE_WIDTH - 4*2,
                     -- Near miss box will be a little bigger
-                    x_nearmiss = x_orig + 2,
-                    y_nearmiss = y_orig + 2,
+                    x_nearmiss = x_orig - 2,
+                    y_nearmiss = y_orig - 2,
                     w_nearmiss = const.TILE_WIDTH + 2*2,
                 })
             end
@@ -125,18 +125,35 @@ end
 function obstacles.draw_obstacles()
     for _, obst in ipairs(hazard) do
         love.graphics.draw(grid_to_tile[obst.tile_sprite], obst.x_orig, obst.y_orig, 0, 2)
-        if util.get_debug() == true then
-            love.graphics.setColor(1, 0, 0)
-            love.graphics.rectangle('line', obst.x_collision, obst.y_collision, obst.w_collision, obst.w_collision)
-            love.graphics.setColor(1, 1, 1)
-        end
     end
 end
 
 -- Check character coords with every obstacle coordinate
--- NOTE: There's a possibility this is off by a pixel or so based on the order of the update calls?
 function obstacles.does_player_collide_with_entity(char_x, char_y, slope_cell)
     for _, obst in ipairs(hazard) do
+        util.add_debug_draw_call(function()
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.rectangle('line', obst.x_collision, obst.y_collision, obst.w_collision, obst.w_collision)
+            love.graphics.setColor(1, 1, 1)
+        end)
+        if check_collision(char_x, char_y, obst.x_collision, obst.y_collision, obst.w_collision) == true then
+            return true
+        end
+    end
+    util.add_debug_draw_call(function()
+        love.graphics.setColor(.8, .5, 0)
+        love.graphics.rectangle('line', char_x, char_y, const.TILE_WIDTH, const.TILE_WIDTH)
+        love.graphics.setColor(1, 1, 1)
+    end)
+end
+
+function obstacles.does_player_nearly_miss_entity(char_x, char_y, slope_cell)
+    for _, obst in ipairs(hazard) do
+        util.add_debug_draw_call(function()
+            love.graphics.setColor(.6, 0, .6)
+            love.graphics.rectangle('line', obst.x_nearmiss, obst.y_nearmiss, obst.w_nearmiss, obst.w_nearmiss)
+            love.graphics.setColor(1, 1, 1)
+        end)
         if check_collision(char_x, char_y, obst.x_collision, obst.y_collision, obst.w_collision) == true then
             return true
         end

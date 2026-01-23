@@ -51,6 +51,7 @@ function reset_move_state()
     }
 end
 
+local in_near_miss_box = false
 function char.update_sprite(dt)
     -- Update character based on move state
     if move.is_moving == true then
@@ -78,6 +79,15 @@ function char.update_sprite(dt)
     is_collision = obstacles.does_player_collide_with_entity(char.x, char.y)
     if is_off_slope == true or is_collision == true then
         return true
+    end
+
+    -- We know collision is false at this point so we have to be outside of it now
+    is_near_miss = obstacles.does_player_nearly_miss_entity(char.x, char.y)
+    if is_near_miss and in_near_miss_box == false then
+
+    elseif is_near_miss == false and in_near_miss_box == true then
+        -- Reset this when they "leave" the box
+        in_near_miss_box = false
     end
 
     -- Swap sprites back and forth to simulate skiing motions

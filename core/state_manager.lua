@@ -7,7 +7,8 @@ local sounds = require("core.sounds")
 local ui = require("ui.ui")
 local disc = require("entities.disc")
 local points = require("core.points")
--- Attempt at state management by having the callback call state functions
+local callouts = require("ui.callouts")
+
 local states = {}
 
 states.curr_state = "start_screen"
@@ -127,6 +128,7 @@ function reset_game()
     sounds.start()
     points.reset()
     disc.despawn_disc()
+    callouts.reset_callouts()
 
     update_state("in_game")
 end
