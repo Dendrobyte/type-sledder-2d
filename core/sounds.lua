@@ -4,6 +4,8 @@ function sounds.load()
     sounds.bg_skiing = love.audio.newSource("ski_assets/sound/bg_skiing.mp3", "stream")
     sounds.ding_sound_data = love.audio.newSource("ski_assets/sound/word_complete.mp3", "static")
     sounds.ding_sound_data:setVolume(0.4)
+    sounds.whoosh_sound_data = love.audio.newSource("ski_assets/sound/whoosh.mp3", "static")
+    sounds.whoosh_sound_data:setVolume(0.4)
 
     -- Does not get played! We pull this one apart
     sounds.keyboard_clicks = love.sound.newSoundData("ski_assets/sound/keyboard_clicks.mp3")
@@ -27,6 +29,10 @@ function sounds.play_ding()
     -- Alternative, if you want multiple of this sound, is to make a pool of sounds...? This feels fine for now
     sounds.ding_sound_data:stop()
     sounds.ding_sound_data:play()
+end
+
+function sounds.play_whoosh()
+    sounds.whoosh_sound_data:play()
 end
 
 function sounds.play_click()
