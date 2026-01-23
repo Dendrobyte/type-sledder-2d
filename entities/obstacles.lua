@@ -49,7 +49,7 @@ function obstacles.calc_grid_idx(logical_index)
 end
 
 -- Storing all obstacles and their positions for the draw function and collision
-debris = {}
+hazard = {}
 local scroll_offset = 0
 function obstacles.update_grid(dt)
     scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
@@ -59,18 +59,26 @@ function obstacles.update_grid(dt)
     end
 
     -- Update obstacle coords for drawing based on coordinates to be used w collision
-    debris = {}
+    hazard = {}
     for i = 1, #grid do
         idx = obstacles.calc_grid_idx(i)
         row = grid[idx]
         for j, val in ipairs(row) do
             if val ~= 0 then
-                table.insert(debris, {
+                local x_orig = (j-1)*const.TILE_WIDTH
+                local y_orig = (i-1)*const.TILE_WIDTH-scroll_offset
+                table.insert(hazard, {
                     tile_sprite = val,
-                    x_orig = (j-1)*const.TILE_WIDTH,
-                    y_orig = (i-1)*const.TILE_WIDTH-scroll_offset,
-                    x_end = (j-1)*const.TILE_WIDTH+const.TILE_WIDTH,
-                    y_end = (i-1)*const.TILE_WIDTH-scroll_offset+const.TILE_WIDTH,
+                    x_orig = x_orig,
+                    y_orig = y_orig,
+                    -- Collision box will be a little smaller
+                    x_collision = x_orig + 4,
+                    y_collision = y_orig + 4,
+                    w_collision = const.TILE_WIDTH - 4*2,
+                    -- Near miss box will be a little bigger
+                    x_nearmiss = x_orig + 2,
+                    y_nearmiss = y_orig + 2,
+                    w_nearmiss = const.TILE_WIDTH + 2*2,
                 })
             end
         end
@@ -115,22 +123,21 @@ end
 
 -- Draw function that runs on top of the slope draw
 function obstacles.draw_obstacles()
-    for _, obst in ipairs(debris) do
+    for _, obst in ipairs(hazard) do
         love.graphics.draw(grid_to_tile[obst.tile_sprite], obst.x_orig, obst.y_orig, 0, 2)
         if util.get_debug() == true then
             love.graphics.setColor(1, 0, 0)
-            love.graphics.rectangle('line', obst.x_orig, obst.y_orig, const.TILE_WIDTH, const.TILE_WIDTH)
+            love.graphics.rectangle('line', obst.x_collision, obst.y_collision, obst.w_collision, obst.w_collision)
             love.graphics.setColor(1, 1, 1)
         end
     end
-
 end
 
 -- Check character coords with every obstacle coordinate
 -- NOTE: There's a possibility this is off by a pixel or so based on the order of the update calls?
 function obstacles.does_player_collide_with_entity(char_x, char_y, slope_cell)
-    for _, obst in ipairs(debris) do
-        if check_collision(char_x, char_y, obst.x_orig, obst.y_orig) == true then
+    for _, obst in ipairs(hazard) do
+        if check_collision(char_x, char_y, obst.x_collision, obst.y_collision, obst.w_collision) == true then
             return true
         end
     end
@@ -143,8 +150,8 @@ end
 
 -- TK: oh maybe I don't need the x/y_end vars in the obstacles? the width is always the same, don't fuck with tile size
 -- TODO: Change collision to be just bottom half of sprite
-function check_collision(cx_orig, cy_orig, ex_orig, ey_orig)
-    w = const.TILE_WIDTH
+function check_collision(cx_orig, cy_orig, ex_orig, ey_orig, w)
+    w = w or const.TILE_WIDTH
     -- Logic here is to effectively invert a check if the rectangles overlap. If they don't not overlap, we have a collision
     return
         cx_orig + w > ex_orig and
