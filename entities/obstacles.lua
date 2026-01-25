@@ -1,6 +1,3 @@
-print("LOADING entities.obstacles from:", debug.getinfo(1, "S").source)
-print("package.path:", package.path)
-
 local const = require("environment.constants")
 local util = require("core.util")
 local slope = require("environment.slope") -- NOTE: I don't love this dependency being here
@@ -113,8 +110,6 @@ end
 function obstacles.cell_to_coord(r, c)
     return r*const.TILE_WIDTH, c*const.TILE_WIDTH
 end
-
-
 
 -- Given a number of lines, return that in pixels
 function obstacles.cell_to_pixels(cells)

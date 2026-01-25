@@ -6,7 +6,7 @@ return {
     TILE_WIDTH = 32,
     PIXEL_W = pixel_w,
     PIXEL_H = pixel_h,
-    LEFT_EDGE = 4, -- pxlWidth / 8 -- 1/8th from the left
-    RIGHT_EDGE = 20, -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
+    LEFT_EDGE = 5, -- pxlWidth / 8 -- 1/8th from the left
+    RIGHT_EDGE = 21, -- pxlWidth - (pxlWidth / 8) -- 1/8th from the right
     EMPTY_SPACE = 0,
 }

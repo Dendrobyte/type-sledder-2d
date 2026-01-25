@@ -8,6 +8,7 @@ local ui = require("ui.ui")
 local disc = require("entities.disc")
 local points = require("core.points")
 local callouts = require("ui.callouts")
+local deco = require("environment.deco")
 
 local states = {}
 
@@ -20,6 +21,8 @@ end
 
 states.start_screen = {
     draw = function()
+        slope.draw_map()
+        deco.draw_deco()
         menu.pre_game.draw_screen()
     end,
 
@@ -50,6 +53,7 @@ states.in_game = {
     draw = function()
         slope.draw_map()
         obstacles.draw_obstacles()
+        deco.draw_deco()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         disc.draw()
         typing.draw_words()

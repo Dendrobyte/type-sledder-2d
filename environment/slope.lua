@@ -25,7 +25,12 @@ function slope.load()
     tiles.sharp_turn_out_end_left = love.graphics.newImage(tilePath .. "tile_0076.png") -- 10
     tiles.sharp_turn_out_start_right = love.graphics.newImage(tilePath .. "tile_0072.png") -- 11
     tiles.sharp_turn_out_end_right = love.graphics.newImage(tilePath .. "tile_0073.png") -- 12
-    slope.grid_create()
+    tiles.diagonal_up_left = love.graphics.newImage(tilePath .. "tile_0028.png") -- 13
+    tiles.turn_into_diagonal_up_left = love.graphics.newImage(tilePath .. "tile_0017.png") -- 14
+    tiles.turn_outof_diagonal_up_left = love.graphics.newImage(tilePath .. "tile_0015.png") -- 15
+    tiles.diagonal_up_right = love.graphics.newImage(tilePath .. "tile_0025.png") -- 16
+    tiles.turn_into_diagonal_up_right = love.graphics.newImage(tilePath .. "tile_0012.png") -- 17
+    tiles.turn_outof_diagonal_up_right = love.graphics.newImage(tilePath .. "tile_0014.png") -- 18
 
     grid_to_tile = { -- indices are just starting from 1
         tiles.edge,
@@ -40,7 +45,15 @@ function slope.load()
         tiles.sharp_turn_out_end_left,
         tiles.sharp_turn_out_start_right,
         tiles.sharp_turn_out_end_right,
+        tiles.diagonal_up_left,
+        tiles.turn_into_diagonal_up_left,
+        tiles.turn_outof_diagonal_up_left,
+        tiles.diagonal_up_right,
+        tiles.turn_into_diagonal_up_right,
+        tiles.turn_outof_diagonal_up_right,
     }
+
+    slope.grid_create()
 end
 
 --[[
@@ -98,15 +111,17 @@ function slope.grid_create()
         row[const.RIGHT_EDGE] = 4
     end
 
+    -- Hard code initial slope grid
+    -- grid[1] is off screen apparently, lol
+    grid[2] = {15, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 18,}
+    grid[3] = {1, 13, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 16, 1,}
+    grid[4] = {1, 1, 13, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 16, 1, 1,}
+    grid[5] = {1, 1, 1, 13, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 16, 1, 1, 1,}
+    grid[6] = {1, 1, 1, 1, 14, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 17, 1, 1, 1, 1,}
+    grid[7] = {1, 1, 1, 1, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 1, 1, 1, 1,}
+
     grid_head = 1
     grid_tail = #grid-1
-
-    if util.get_debug() == true and nil ~= nil then
-        print("---- Start of slope grid ----")
-        util.print_matrix(grid)
-        print("---- End of slope grid ----")
-    end
-
 end
 
 -- We need to make sure we have some way to show the edge tiles if a prev tile is a turn
@@ -212,6 +227,10 @@ function slope.update_grid(dt)
         scroll_offset = scroll_offset - const.TILE_WIDTH
         points.incr_distance()
     end
+end
+
+function slope.get_scroll_offset()
+    return scroll_offset
 end
 
 function slope.draw_map()

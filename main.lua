@@ -6,6 +6,7 @@ local menu = require("ui.menu")
 local typing = require("core.typing")
 local sounds = require("core.sounds")
 local obstacles = require("entities.obstacles")
+local deco = require("environment.deco")
 
 -- Load default values
 function love.load()
@@ -18,6 +19,7 @@ function love.load()
     -- Set up the background and start it
     slope.load()
     obstacles.load()
+    deco.load()
 
     -- Load "objects"
     -- TODO: Loading bar? It's kinda fast though
