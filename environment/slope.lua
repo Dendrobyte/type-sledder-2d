@@ -233,6 +233,13 @@ function slope.get_scroll_offset()
     return scroll_offset
 end
 
+-- TODO: REMOVE THIS! It's just temporarily so the deco grid doesn't keep redrawing?
+-- I like the fact there's one grid_head being manipulated, so yea. Maybe obstacles is the same...
+function slope.get_grid_head()
+    return grid_head
+end
+-- end of "remove this"
+
 function slope.draw_map()
     -- Draw the map based on the grid
     -- [i,j] serves as our grid coordinate, we just need to mult by 16. Rendering here looks a little backwards but cols are x values in this case
