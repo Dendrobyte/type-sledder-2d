@@ -1,4 +1,5 @@
 local util = require("core.util")
+local const = require("constants")
 local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
 local typing = require("core.typing") -- Global state would be real nice
 local points = require("core.points") -- Points are a good example of a general state
@@ -11,7 +12,9 @@ function menu.load()
     menu.default_font = love.graphics.newFont(16)
     menu.title_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Bold.ttf", 48)
     menu.subtitle_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 32)
+    menu.big_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 24)
     menu.small_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 16)
+    menu.start_speed = 5
     menu.start_button = {
         x = 200,
         y = 300,
@@ -19,17 +22,20 @@ function menu.load()
         h = 40,
     }
     menu.speed_decr = {
-        x = 300,
-        y = 450,
-        w = 40,
-        h = 40,
+        x = 400,
+        y = 350,
+        w = const.TILE_WIDTH,
+        h = const.TILE_WIDTH,
     }
     menu.speed_incr = {
-        x = 450,
-        y = 450,
-        w = 40,
-        h = 40,
+        x = 475,
+        y = 350,
+        w = const.TILE_WIDTH,
+        h = const.TILE_WIDTH,
     }
+
+    menu.plus = love.graphics.newImage("ski_assets/Tiles/tile_0126.png")
+    menu.minus = love.graphics.newImage("ski_assets/Tiles/tile_0127.png")
 end
 
 -- We leave it to the caller to change the graphics
@@ -48,34 +54,23 @@ function menu_button(text, x, y, width)
 end
 
 function menu.pre_game.draw_screen()
-    -- TODO: Draw basic set of tiles, change this to black text too
+    love.graphics.setColor(0, 0, 0)
     love.graphics.setFont(menu.title_font)
-    love.graphics.printf("TYPE SLEDDER", 0, 200, 800, 'center')
+    love.graphics.printf("TYPE SKIIER", 0, 230, 800, 'center')
+    util.reset_color()
 
     menu_button("Start Game", 200, 300, 400)
 
-    -- (Temporary) speed buttons and notes. Replace when we do settings page.
-    -- Then again, ideally the whole menu gets a task
-    love.graphics.rectangle("fill",
-        menu.speed_decr.x,
-        menu.speed_decr.y,
-        menu.speed_decr.w,
-        menu.speed_decr.h
-    )
-    love.graphics.rectangle("fill",
-        menu.speed_incr.x,
-        menu.speed_incr.y,
-        menu.speed_incr.w,
-        menu.speed_incr.h
-    )
+    love.graphics.draw(menu.minus, menu.speed_decr.x, menu.speed_decr.y, 0, 2)
+    love.graphics.draw(menu.plus, menu.speed_incr.x, menu.speed_incr.y, 0, 2)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.printf("+", menu.speed_incr.x, menu.speed_incr.y, 40, 'center')
-    love.graphics.printf("-", menu.speed_decr.x, menu.speed_decr.y, 40, 'center')
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Set your starting speed", 175, 400)
-    love.graphics.print(slope.get_scroll_speed(), (menu.speed_incr.x + menu.speed_decr.x) / 2 - 10, menu.speed_incr.y)
+    love.graphics.setFont(menu.big_font)
+    -- TODO: Consider using printf with some bounding box...?
+    love.graphics.print("Start Speed:", 200, 350)
+
+    love.graphics.print(menu.start_speed, 450, 350) -- TODO: Definitely use the font images for this part
     love.graphics.setFont(menu.default_font)
-    love.graphics.printf("- Press ENTER or click 'start game' to start\n- Every successful word increases speed by 5\n- Points scored increase the higher your speed goes \n- I would love to hear what your starting speed is and points you end up with. That way I can tune difficulties later on :)", 100, 500, 700, 'left')
+    love.graphics.printf("Please check out the game description / dev logs on Itch IO for info.\nJust below this game if you're in the web browser", 100, 500, 700, 'left')
 
     util.reset_color()
 end
@@ -97,7 +92,6 @@ end
 
 -- Where 'button_type' is a string, e.g. for now menu[button_type] is chill
 function menu.is_button_pressed(button_type, x, y)
-    -- Check if it is within button area, and start game if so
     button_x = menu[button_type].x
     button_y = menu[button_type].y
     button_w = menu[button_type].w
@@ -107,6 +101,30 @@ function menu.is_button_pressed(button_type, x, y)
     else
         return false
     end
+end
+
+-- Update menu speed num and the scroll speed accordingly
+local speed_conversion = {
+    -- This is sorta temporary, but menu start speed to scroll speed. And no, it's not linear
+    [1] = 70,
+    [2] = 80,
+    [3] = 100,
+    [4] = 120,
+    [5] = 150,
+    [6] = 180,
+    [7] = 200,
+    [8] = 250,
+    [9] = 275,
+    [10] = 300,
+}
+function menu.speed_change(dir)
+    if dir == "incr" then
+        menu.start_speed = math.max(1, math.min(menu.start_speed + 1, 10))
+    elseif dir == "decr" then
+        menu.start_speed = math.max(1, math.min(menu.start_speed - 1, 10))
+    end
+
+    slope.set_scroll_speed(speed_conversion[menu.start_speed])
 end
 
 return menu

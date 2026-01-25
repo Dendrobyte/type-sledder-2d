@@ -1,9 +1,9 @@
+local global_const = require("constants")
 -- CONSTANTS FOR GRIDS AND ENVIRONMENTS
-
 local pixel_w, pixel_h = love.graphics.getPixelDimensions()
 
 return {
-    TILE_WIDTH = 32,
+    TILE_WIDTH = global_const.TILE_WIDTH,
     PIXEL_W = pixel_w,
     PIXEL_H = pixel_h,
     LEFT_EDGE = 5, -- pxlWidth / 8 -- 1/8th from the left

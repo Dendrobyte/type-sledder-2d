@@ -29,7 +29,7 @@ function char.reload()
 end
 
 function char.start_position()
-    return 10, 8
+    return 12, 6
 end
 
 local count = 0

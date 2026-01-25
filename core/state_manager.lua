@@ -22,6 +22,7 @@ end
 states.start_screen = {
     draw = function()
         slope.draw_map()
+        love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
         deco.draw_deco()
         menu.pre_game.draw_screen()
     end,
@@ -38,12 +39,11 @@ states.start_screen = {
             -- TODO: obstacles.trigger_entity_spawning() or whatever
             if is_button_pressed then states.curr_state = "in_game" end
 
-            -- TODO: Move this into menu presses
-            if menu.is_button_pressed("speed_decr", x, y) then
-                slope.set_init_scroll_speed(slope.get_scroll_speed() - 10)
-            end
             if menu.is_button_pressed("speed_incr", x, y) then
-                slope.set_init_scroll_speed(slope.get_scroll_speed() + 10)
+                menu.speed_change("incr")
+            end
+            if menu.is_button_pressed("speed_decr", x, y) then
+                menu.speed_change("decr")
             end
         end
     end
@@ -53,8 +53,8 @@ states.in_game = {
     draw = function()
         slope.draw_map()
         obstacles.draw_obstacles()
-        deco.draw_deco()
         love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
+        deco.draw_deco()
         disc.draw()
         typing.draw_words()
         ui.draw_ui()

@@ -1,3 +1,5 @@
+local const = require("constants")
+
 local util = {}
 
 -- Set in love.load()
@@ -74,7 +76,7 @@ function util.draw_debug_calls()
 end
 
 function util.reset_color()
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(unpack(const.DEFAULT_COLOR))
 end
 
 return util
