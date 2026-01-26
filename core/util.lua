@@ -1,4 +1,4 @@
-local const = require("constants")
+local const = require("core.constants")
 
 local util = {}
 

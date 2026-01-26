@@ -58,7 +58,7 @@ function deco.grid_create()
     grid[4] = {1, 6, 1, 2, 8, 0, 2, 8, 0, 0, 8, 0, 6, 0, 8, 0, 0, 8, 2, 0, 8, 0, 6, 1, 1,}
     grid[5] = {1, 7, 1, 3, 0, 0, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 3, 1, 0, 0, 7, 1, 1,}
 
-    util.print_matrix(grid)
+    -- util.print_matrix(grid)
 end
 
 -- NOTE: This is to avoid redrawing the grid, which we don't want for now

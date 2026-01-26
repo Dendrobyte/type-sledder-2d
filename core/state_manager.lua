@@ -9,12 +9,19 @@ local disc = require("entities.disc")
 local points = require("core.points")
 local callouts = require("ui.callouts")
 local deco = require("environment.deco")
+local sentence = require("wpm_test.sentence")
 
 local states = {}
 
 states.curr_state = "start_screen"
 
--- TODO: List of valid states to prevent typos, or just consts
+states.valid_states = {
+    "start_screen",
+    "wpm_test",
+    "options",
+    "in_game",
+    "end_game",
+}
 function update_state(new_state)
     states.curr_state = new_state
 end
@@ -35,9 +42,9 @@ states.start_screen = {
 
     mousepressed = function(x, y, button, _istouch, _presses)
         if button == 1 then
-            is_button_pressed = menu.is_button_pressed("start_button", x, y)
-            -- TODO: obstacles.trigger_entity_spawning() or whatever
-            if is_button_pressed then states.curr_state = "in_game" end
+            if menu.is_button_pressed("start_button", x, y) then
+                states.curr_state = "in_game"
+            end
 
             if menu.is_button_pressed("speed_incr", x, y) then
                 menu.speed_change("incr")
@@ -45,8 +52,29 @@ states.start_screen = {
             if menu.is_button_pressed("speed_decr", x, y) then
                 menu.speed_change("decr")
             end
+            if menu.is_button_pressed("wpm_test_button", x, y) then
+                states.curr_state = "wpm_test"
+            end
         end
     end
+}
+
+states.wpm_test = {
+    draw = function()
+        sentence.draw_sentence()
+    end,
+
+    update = function(dt)
+
+    end,
+
+    keypressed = function(key, isrepeat)
+
+    end,
+
+    mousepressed = function(x, y, button, _istouch, _presses)
+
+    end,
 }
 
 states.in_game = {

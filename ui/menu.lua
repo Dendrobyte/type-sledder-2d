@@ -1,5 +1,5 @@
 local util = require("core.util")
-local const = require("constants")
+local const = require("core.constants")
 local slope = require("environment.slope") -- Another instance where some global access for these fields would be good
 local typing = require("core.typing") -- Global state would be real nice
 local points = require("core.points") -- Points are a good example of a general state
@@ -33,23 +33,30 @@ function menu.load()
         w = const.TILE_WIDTH,
         h = const.TILE_WIDTH,
     }
+    menu.wpm_test_button = {
+        x = 300,
+        y = 400,
+        w = 200,
+        h = 40,
+    }
 
     menu.plus = love.graphics.newImage("ski_assets/Tiles/tile_0126.png")
     menu.minus = love.graphics.newImage("ski_assets/Tiles/tile_0127.png")
 end
 
 -- We leave it to the caller to change the graphics
-function menu_button(text, x, y, width)
+function menu_button(button_type, text, font)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle("fill",
-        menu.start_button.x,
-        menu.start_button.y,
-        menu.start_button.w,
-        menu.start_button.h
+        menu[button_type].x,
+        menu[button_type].y,
+        menu[button_type].w,
+        menu[button_type].h
     )
 
-    love.graphics.setFont(menu.subtitle_font)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.printf(text, 200, 300, 400, 'center')
+    love.graphics.setFont(font)
+    love.graphics.printf(text, menu[button_type].x, menu[button_type].y, menu[button_type].w, 'center')
     util.reset_color()
 end
 
@@ -59,16 +66,24 @@ function menu.pre_game.draw_screen()
     love.graphics.printf("TYPE SKIIER", 0, 230, 800, 'center')
     util.reset_color()
 
-    menu_button("Start Game", 200, 300, 400)
+    menu_button("start_button", "Start Game", menu.subtitle_font)
 
     love.graphics.draw(menu.minus, menu.speed_decr.x, menu.speed_decr.y, 0, 2)
     love.graphics.draw(menu.plus, menu.speed_incr.x, menu.speed_incr.y, 0, 2)
     love.graphics.setColor(0, 0, 0)
     love.graphics.setFont(menu.big_font)
-    -- TODO: Consider using printf with some bounding box...?
+    -- TODO: Consider using printf with some bounding box... See "don't know your speed?"
     love.graphics.print("Start Speed:", 200, 350)
 
     love.graphics.print(menu.start_speed, 450, 350) -- TODO: Definitely use the font images for this part
+    love.graphics.setFont(menu.default_font)
+
+    menu_button("wpm_test_button", "Speed Test", menu.big_font)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.setFont(menu.default_font)
+    love.graphics.printf("Don't know your typing speed?", 200, 450, 400, 'center')
+    util.reset_color()
+
     love.graphics.setFont(menu.default_font)
     love.graphics.printf("Please check out the game description / dev logs on Itch IO for info.\nJust below this game if you're in the web browser", 100, 500, 700, 'left')
 
@@ -86,8 +101,8 @@ function menu.end_game.draw_screen()
     love.graphics.printf("Distance: " .. points.get_distance(), 200, 370, 800, 'left')
     love.graphics.printf("Final Score: " .. points.get_points() + points.get_distance(), 200, 390, 800, 'left')
     util.reset_color()
-    -- The x/y don't... do anything rn...
-    menu_button("Try Again?", 200, 800, 400)
+    -- Uses the same position and functionality as the start button
+    menu_button("start_button", "Try Again?", menu.subtitle_font)
 end
 
 -- Where 'button_type' is a string, e.g. for now menu[button_type] is chill
@@ -124,7 +139,7 @@ function menu.speed_change(dir)
         menu.start_speed = math.max(1, math.min(menu.start_speed - 1, 10))
     end
 
-    slope.set_scroll_speed(speed_conversion[menu.start_speed])
+    slope.set_init_scroll_speed(speed_conversion[menu.start_speed])
 end
 
 return menu

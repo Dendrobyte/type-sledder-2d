@@ -7,6 +7,7 @@ local typing = require("core.typing")
 local sounds = require("core.sounds")
 local obstacles = require("entities.obstacles")
 local deco = require("environment.deco")
+local sentence = require("wpm_test.sentence")
 
 -- Load default values
 function love.load()
@@ -15,6 +16,9 @@ function love.load()
     love.window.setTitle("Type Sledder")
     math.randomseed(love.timer.getTime())
     util.set_debug(false)
+
+    -- Menu stuff
+    sentence.load()
 
     -- Set up the background and start it
     slope.load()
