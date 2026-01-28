@@ -1,33 +1,33 @@
 local const = require("core.constants")
 local util = require("core.util")
+local sounds = require("core.sounds")
 
 local sentence = {}
 
 -- I want a variety so people don't try to game it
 local test_sentences = {
     -- Medium
-    "the coffee shop on the corner makes the best espresso in town",
-    "bright stars filled the night sky as we sat around the campfire",
-    "the garden was full of colorful flowers buzzing with bees",
-    "he forgot his umbrella and got caught in the afternoon rain",
-    "the train arrived late but we still made it to the concert on time",
-    "her painting captured the sunset perfectly with warm golden hues",
-    "the dog chased the ball across the yard and into the bushes",
-    "we found a quiet spot by the river and watched the water flow past",
-    "the smell of fresh cookies drifted through the entire house",
-    "after the long hike we rested at the summit and enjoyed the view",
-
+    "the coffee shop on the corner makes the best espresso in town and every morning there is a line out the door",
+    "bright stars filled the night sky as we sat around the campfire telling stories and roasting marshmallows until midnight",
+    "the garden was full of colorful flowers buzzing with bees and the sweet scent of roses drifted through the open window",
+    "he forgot his umbrella and got caught in the afternoon rain so he ducked into a bookstore and stayed for hours",
+    "the train arrived late but we still made it to the concert on time and found our seats just as the lights dimmed",
+    "her painting captured the sunset perfectly with warm golden hues that seemed to glow even in the dim gallery light",
+    "the dog chased the ball across the yard and into the bushes then emerged covered in leaves looking very proud",
+    "we found a quiet spot by the river and watched the water flow past while the sun slowly set behind the hills",
+    "the smell of fresh cookies drifted through the entire house and everyone gathered in the kitchen hoping for a taste",
+    "after the long hike we rested at the summit and enjoyed the view then unpacked our lunch and watched the clouds roll by",
     -- Ski themed
-    "fresh powder covered the slopes overnight making for perfect conditions",
-    "the chairlift carried us above the trees as the valley spread out below",
-    "moguls demand quick reflexes and strong legs to navigate smoothly",
-    "the ski lodge was warm and cozy after a long day on the mountain",
-    "icy patches on the trail kept everyone alert and cautious",
-    "goggles fogged up as the temperature dropped near the summit",
-    "the rental shop fitted us with boots and poles before our first lesson",
-    "snow sprayed behind each turn as the racer flew down the course",
-    "hot chocolate tastes best after spending hours in the freezing cold",
-    "the bunny hill was crowded with beginners learning to stop and turn",
+    "fresh powder covered the slopes overnight making for perfect conditions and the first tracks down the mountain were absolutely flawless",
+    "the chairlift carried us above the trees as the valley spread out below and we spotted tiny skiers carving their way down",
+    "moguls demand quick reflexes and strong legs to navigate smoothly and by the end of the run my thighs were burning",
+    "the ski lodge was warm and cozy after a long day on the mountain and we gathered by the fire to share stories of our runs",
+    "icy patches on the trail kept everyone alert and cautious so we slowed down and picked our lines carefully through the shade",
+    "goggles fogged up as the temperature dropped near the summit forcing a quick stop to wipe them clear before continuing down",
+    "the rental shop fitted us with boots and poles before our first lesson and the instructor showed us how to snowplow to a stop",
+    "snow sprayed behind each turn as the racer flew down the course crossing the finish line in record time to cheers from the crowd",
+    "hot chocolate tastes best after spending hours in the freezing cold especially when you add extra whipped cream on top",
+    "the bunny hill was crowded with beginners learning to stop and turn while more experienced skiers zoomed past on the trails above",
 }
 
 -- We effectively have this one state if testing or not, and we can let them keep trying
@@ -61,7 +61,7 @@ function sentence.load()
 
     -- This is used for the mouse hitbox too, but I will probably need one for each button
     buttons.start.x = bounds.start_x+(bounds.width/4)
-    buttons.start.y = bounds.start_y+120 -- no vert offset bc we need to use these vals for collision
+    buttons.start.y = bounds.start_y+192 -- no vert offset bc we need to use these vals for collision
     buttons.start.w = bounds.width/2
     buttons.start.h = 80
 end
@@ -88,6 +88,9 @@ function sentence.draw_sentence()
         love.graphics.setFont(sentence.text_font)
         love.graphics.printf("Once you press start (or the \"ENTER\" key), type the sentence as fast as you can. You will get a WPM (Words Per Minute) score and a speed recommendation based on that.",
             bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
+        vert_offset = vert_offset + 24*3 -- Above text is 2 lines tall
+        love.graphics.printf("Due to issues I don't want to fix right now, a word might not wrap onto the next line as you type it.",
+            bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
         vert_offset = vert_offset + 24*2 -- Above text is 2 lines tall
 
         love.graphics.setColor(.5, .6, .8)
@@ -96,19 +99,28 @@ function sentence.draw_sentence()
         love.graphics.setFont(sentence.title_font)
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf("START", bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset+16, bounds.width/2, "center")
+        vert_offset = vert_offset + 48 + 48
 
         if show_score == true then
             -- TODO: Show score and speed rec based on function
+            love.graphics.printf("FINAL WPM: " .. sentence.wpm_score, bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
         end
     else
         -- Typing test
         love.graphics.setColor(.6, .6, .6, .8)
         love.graphics.setFont(sentence.test_info)
-        love.graphics.printf("The test starts on first keypress", bounds.start_x, bounds.start_y+vert_offset, bounds.width, "center")
+        if sentence.buffer == "" then
+            love.graphics.printf("The test starts on first keypress", bounds.start_x, bounds.start_y+vert_offset, bounds.width, "center")
+        else
+            love.graphics.setColor(0, .8, 0)
+            love.graphics.printf("TEST STARTED", bounds.start_x, bounds.start_y+vert_offset, bounds.width, "center")
+        end
         vert_offset = vert_offset + 36
         love.graphics.setColor(1, 1, 1) 
         love.graphics.setFont(sentence.test_font)
         love.graphics.printf(sentence.rand_sentence, bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
+        love.graphics.setColor(0, 1, 0) 
+        love.graphics.printf(sentence.buffer, bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
     end
 
     util.reset_color()
@@ -118,6 +130,28 @@ function sentence.keypressed(key, isrepeat)
     if is_testing == false then
         if key == "return" then
             start_test()
+        end
+    else
+        -- I'm not sure where ELSE this would go?? Feels wrong for some reason
+        if #sentence.buffer == 0 then sentence.start_time = love.timer.getTime() end
+        -- This does not concern with casing, e.g. SHIFT, so... yea :)
+        if key == "space" then key = " " end
+        local next_buffer = sentence.buffer .. key
+        if sentence.rand_sentence:sub(1, #next_buffer) == next_buffer then
+            sounds.play_click()
+            sentence.buffer = next_buffer
+        else
+            -- TODO: Show red or the mis-typed input? Maybe a short sound for feedback that it's wrong
+        end
+
+        if #next_buffer == #sentence.rand_sentence then
+            local time_elapsed = love.timer.getTime() - sentence.start_time
+            is_testing = false
+            show_score = true
+
+            -- Measure WPM by 5 chars per second
+            local wpm_float = (#sentence.rand_sentence / 5) / (time_elapsed / 60)
+            sentence.wpm_score = math.floor(wpm_float + 0.5) -- Add .5 to round up
         end
     end
 end
@@ -136,10 +170,14 @@ end
 
 sentence.rand_sentence = nil
 sentence.start_time = nil
+sentence.buffer = "" -- Stores what has currently been typed
+sentence.wpm_score = nil
 function start_test()
     is_testing = true
+    show_score = false
     sentence.rand_sentence = test_sentences[math.random(#test_sentences)]
-    sentence.start_time = 0
+    sentence.start_time = nil
+    sentence.buffer = ""
 end
 
 -- Yea, this is copied. Could make it a util button tbh
@@ -148,12 +186,9 @@ function sentence.is_button_pressed(button_type, x, y)
     button_y = buttons[button_type].y
     button_w = buttons[button_type].w
     button_h = buttons[button_type].h
-    print(button_x, button_y, button_w, button_h)
-    print(x, y)
     if x > button_x and x < button_x + button_w and y > button_y and y < button_y + button_h then
         return true
     else
-        print("false")
         return false
     end
 end
