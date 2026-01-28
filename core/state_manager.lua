@@ -13,7 +13,7 @@ local sentence = require("wpm_test.sentence")
 
 local states = {}
 
-states.curr_state = "start_screen"
+states.curr_state = "wpm_test" -- "start_screen"
 
 states.valid_states = {
     "start_screen",
@@ -70,10 +70,20 @@ states.wpm_test = {
 
     keypressed = function(key, isrepeat)
         sentence.keypressed(key, isrepeat)
+        if sentence.is_testing() == false and key == "escape" then
+            update_state("start_screen")
+        end
     end,
 
     mousepressed = function(x, y, button, _istouch, _presses)
-        sentence.mousepressed(x, y, button, _istouch, _presses)
+        -- In some world, I think we return 0, 1, 2, etc. for actions
+        -- But for now, if we press the back button, we'll return 0
+        -- And I don't hate that, over some wild tree of dependencies lol
+        local go_back = sentence.mousepressed(x, y, button, _istouch, _presses)
+        if go_back == 0 then
+            update_state("start_screen")
+        end
+
     end,
 }
 

@@ -33,12 +33,14 @@ local test_sentences = {
 -- We effectively have this one state if testing or not, and we can let them keep trying
 -- But just show score and function to map speed rec below start button
 local is_testing = false
+function sentence.is_testing() return is_testing end
 local show_score = false
 
 -- General bounding box
 local bounds = {}
 local buttons = {
-    start = {}
+    start = {},
+    back = {},
 }
 -- When we write text, always increase this by the font size? Just testing
 local vert_offset = 0 
@@ -64,6 +66,11 @@ function sentence.load()
     buttons.start.y = bounds.start_y+192 -- no vert offset bc we need to use these vals for collision
     buttons.start.w = bounds.width/2
     buttons.start.h = 80
+
+    buttons.back.x = bounds.start_x+(bounds.width/4)
+    buttons.back.y = bounds.start_y+392 -- no vert offset bc we need to use these vals for collision
+    buttons.back.w = bounds.width/2
+    buttons.back.h = 80
 end
 
 function sentence.draw_sentence()
@@ -93,7 +100,7 @@ function sentence.draw_sentence()
             bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
         vert_offset = vert_offset + 24*2 -- Above text is 2 lines tall
 
-        love.graphics.setColor(.5, .6, .8)
+        love.graphics.setColor(.5, .8, .6)
         vert_offset = vert_offset + 24
         love.graphics.rectangle("fill", buttons.start.x, buttons.start.y, buttons.start.w, buttons.start.h)
         love.graphics.setFont(sentence.title_font)
@@ -106,6 +113,12 @@ function sentence.draw_sentence()
             vert_offset = vert_offset + 48
             love.graphics.printf("SPEED REC: " .. wpm_to_speed_rec(sentence.wpm_score), bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
         end
+
+        love.graphics.setColor(.8, .6, .5)
+        love.graphics.rectangle("fill", buttons.back.x, buttons.back.y, buttons.back.w, buttons.back.h)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(sentence.title_font)
+        love.graphics.printf("Back to Start (ESC)", bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset+124, buttons.back.w, "center")
     else
         -- Typing test
         love.graphics.setColor(.6, .6, .6, .8)
@@ -163,8 +176,16 @@ function sentence.mousepressed(x, y, button, _istouch, _presses)
         -- some "substate" that holds what buttons are being drawn.
         -- On each draw instruction, we iterate over those buttons. And then here we check for those buttons too.
         -- But not now :)
-        if sentence.is_button_pressed("start", x, y) then -- Vert offset is 120 by the time start is rendered I think
+        if sentence.is_button_pressed("start", x, y) then
             start_test()
+        end
+        if sentence.is_button_pressed("back", x, y) then
+            -- Repeated, but reset stuff in case they come back
+            sentence.rand_sentence = nil
+            sentence.start_time = nil
+            sentence.buffer = ""
+            sentence.wpm_score = nil
+            return 0
         end
     end
 end
