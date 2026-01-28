@@ -102,8 +102,9 @@ function sentence.draw_sentence()
         vert_offset = vert_offset + 48 + 48
 
         if show_score == true then
-            -- TODO: Show score and speed rec based on function
             love.graphics.printf("FINAL WPM: " .. sentence.wpm_score, bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
+            vert_offset = vert_offset + 48
+            love.graphics.printf("SPEED REC: " .. wpm_to_speed_rec(sentence.wpm_score), bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
         end
     else
         -- Typing test
@@ -178,6 +179,15 @@ function start_test()
     sentence.rand_sentence = test_sentences[math.random(#test_sentences)]
     sentence.start_time = nil
     sentence.buffer = ""
+end
+
+-- Takes wpm and returns the speed rec based on the speeds defined in menu.lua
+function wpm_to_speed_rec(wpm)
+        local thresholds = {25, 35, 45, 55, 70, 85, 105, 130, 155}
+    for i, threshold in ipairs(thresholds) do
+        if wpm < threshold then return i end
+    end
+    return 10
 end
 
 -- Yea, this is copied. Could make it a util button tbh

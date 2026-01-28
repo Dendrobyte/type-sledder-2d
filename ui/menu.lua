@@ -119,18 +119,18 @@ function menu.is_button_pressed(button_type, x, y)
 end
 
 -- Update menu speed num and the scroll speed accordingly
+-- Used AI to generate this range with some vague input, feels fine
 local speed_conversion = {
-    -- This is sorta temporary, but menu start speed to scroll speed. And no, it's not linear
-    [1] = 70,
-    [2] = 80,
-    [3] = 100,
-    [4] = 120,
-    [5] = 150,
-    [6] = 180,
-    [7] = 200,
-    [8] = 250,
-    [9] = 275,
-    [10] = 300,
+    [1] = 40,   -- beginner, hunt-and-peck
+    [2] = 55,
+    [3] = 70,   -- average typist (~40 wpm)
+    [4] = 90,
+    [5] = 115,  -- above average (~60-70 wpm)
+    [6] = 145,
+    [7] = 180,  -- fast typist (~100 wpm)
+    [8] = 220,
+    [9] = 280,  -- very fast (~130-140 wpm)
+    [10] = 350, -- for you and other speed demons
 }
 function menu.speed_change(dir)
     if dir == "incr" then
