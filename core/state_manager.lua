@@ -13,7 +13,7 @@ local sentence = require("wpm_test.sentence")
 
 local states = {}
 
-states.curr_state = "wpm_test" -- "start_screen"
+states.curr_state = "start_screen"
 
 states.valid_states = {
     "start_screen",

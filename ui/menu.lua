@@ -84,9 +84,6 @@ function menu.pre_game.draw_screen()
     love.graphics.printf("Don't know your typing speed?", 200, 450, 400, 'center')
     util.reset_color()
 
-    love.graphics.setFont(menu.default_font)
-    love.graphics.printf("Please check out the game description / dev logs on Itch IO for info.\nJust below this game if you're in the web browser", 100, 500, 700, 'left')
-
     util.reset_color()
 end
 

@@ -110,8 +110,7 @@ function sentence.draw_sentence()
 
         if show_score == true then
             love.graphics.printf("FINAL WPM: " .. sentence.wpm_score, bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
-            vert_offset = vert_offset + 48
-            love.graphics.printf("SPEED REC: " .. wpm_to_speed_rec(sentence.wpm_score), bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset, bounds.width/2, "center")
+            love.graphics.printf("SPEED REC: " .. wpm_to_speed_rec(sentence.wpm_score), bounds.start_x+(bounds.width/4), bounds.start_y+vert_offset+48, bounds.width/2, "center")
         end
 
         love.graphics.setColor(.8, .6, .5)
