@@ -89,11 +89,12 @@ function menu.pre_game.draw_screen()
     love.graphics.print(menu.start_speed, 450, 350) -- TODO: Definitely use the font images for this part
     love.graphics.setFont(menu.default_font)
 
+    love.graphics.setColor(1, 1, 1)
     menu_button("wpm_test_button", "Speed Test", menu.big_font)
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.setFont(menu.default_font)
-    love.graphics.printf("Don't know your typing speed?", 200, 450, 400, 'center')
-    util.reset_color()
+    -- NOTE: I wonder if it's better to just not have this?
+    -- love.graphics.setColor(0, 0, 0)
+    -- love.graphics.setFont(menu.default_font)
+    -- love.graphics.printf("Don't know your typing speed?", 200, 450, 400, 'center')
 
     util.reset_color()
 end
