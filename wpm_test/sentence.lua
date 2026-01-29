@@ -154,7 +154,7 @@ function sentence.keypressed(key, isrepeat)
             sounds.play_click()
             sentence.buffer = next_buffer
         else
-            -- TODO: Show red or the mis-typed input? Maybe a short sound for feedback that it's wrong
+            -- TODO: Show red on the letter it should be, not the one that was typed
         end
 
         if #next_buffer == #sentence.rand_sentence then

@@ -13,7 +13,7 @@ local sentence = require("wpm_test.sentence")
 
 local states = {}
 
-states.curr_state = "start_screen"
+states.curr_state = "end_game" -- "start_screen"
 
 states.valid_states = {
     "start_screen",
@@ -132,9 +132,10 @@ states.in_game = {
 
 states.end_game = {
     draw = function()
+        -- TODO: Trigger an animation so we slide into the end screen like when you crash in Alto
         slope.draw_map()
         obstacles.draw_obstacles()
-        love.graphics.draw(char.sprite, char.x, char.y, 0, 2)
+        love.graphics.draw(char.sprite, char.x, char.y, math.pi/2, 2)
         menu.end_game.draw_screen()
     end,
 
@@ -150,7 +151,7 @@ states.end_game = {
     
     mousepressed = function(x, y, button, _istouch, _presses)
         if button == 1 then
-            is_button_pressed = menu.is_button_pressed("start_button", x, y)
+            is_button_pressed = menu.is_button_pressed("try_again_button", x, y)
             -- TODO: entities.trigger_entity_spawning() or whatever
             if is_button_pressed then
                 reset_game()
@@ -171,6 +172,7 @@ function reset_game()
     points.reset()
     disc.despawn_disc()
     callouts.reset_callouts()
+    deco.grid_create()
 
     update_state("in_game")
 end

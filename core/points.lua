@@ -32,17 +32,34 @@ function points.get_distance()
     return current_distance
 end
 
-function points.reset_distance()
-    current_distance = 0
-end
-
 -- 1 "meter" per tile? Tweak this over time for sure
 function points.incr_distance()
     current_distance = current_distance + 1
 end
 
+local close_calls = 0
+function points.get_close_calls()
+    return close_calls
+end
+
+function points.incr_close_calls()
+    close_calls = close_calls + 1
+end
+
+local close_calls_mult = 30
+function points.close_calls_mult()
+    return close_calls_mult
+end
+
+-- TODO: Slalom points
+
+function points.calc_total_score()
+    return current_points + current_distance + close_calls*close_calls_mult
+end
+
 function points.reset()
     current_points = 0
     current_distance = 0
+    close_calls = 0
 end
 return points

@@ -10,10 +10,10 @@ menu.end_game = {}
 
 function menu.load()
     menu.default_font = love.graphics.newFont(16)
-    menu.title_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Bold.ttf", 48)
-    menu.subtitle_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 32)
-    menu.big_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 24)
-    menu.small_font = love.graphics.newFont("ski_assets/simply_mono/SimplyMono-Book.ttf", 16)
+    menu.title_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 48)
+    menu.subtitle_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 32)
+    menu.big_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
+    menu.small_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 16)
     menu.start_speed = 5
     menu.start_button = {
         x = 200,
@@ -39,14 +39,25 @@ function menu.load()
         w = 200,
         h = 40,
     }
+    menu.try_again_button = {
+        x = 300,
+        y = 530,
+        w = 200,
+        h = 36,
+    }
 
     menu.plus = love.graphics.newImage("ski_assets/Tiles/tile_0126.png")
     menu.minus = love.graphics.newImage("ski_assets/Tiles/tile_0127.png")
+    menu.snowman = love.graphics.newImage("ski_assets/Tiles/tile_0069.png")
+    menu.ski_trail = love.graphics.newImage("ski_assets/Tiles/tile_0058.png")
+    menu.flag = love.graphics.newImage("ski_assets/Tiles/tile_0009.png")
+    menu.rock = love.graphics.newImage("ski_assets/Tiles/tile_0081.png")
+    menu.yeti = love.graphics.newImage("ski_assets/Tiles/tile_0080.png")
+
 end
 
 -- We leave it to the caller to change the graphics
 function menu_button(button_type, text, font)
-    love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle("fill",
         menu[button_type].x,
         menu[button_type].y,
@@ -88,18 +99,56 @@ function menu.pre_game.draw_screen()
 end
 
 function menu.end_game.draw_screen()
-    love.graphics.setColor(0, .8, 1, .8)
-    love.graphics.rectangle("fill", 100, 100, 600, 400)
+    -- Background box
+    local y_offset = 100
+
     love.graphics.setFont(menu.title_font)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.printf("GAME OVER", 0, 200, 800, 'center')
-    love.graphics.setFont(menu.small_font)
-    love.graphics.printf("Points: " .. points.get_points(), 200, 350, 800, 'left')
-    love.graphics.printf("Distance: " .. points.get_distance(), 200, 370, 800, 'left')
-    love.graphics.printf("Final Score: " .. points.get_points() + points.get_distance(), 200, 390, 800, 'left')
-    util.reset_color()
+    love.graphics.printf("Your Score", 0, 40, const.PIXEL_W, 'center')
+    -- TODO: Custom messages based on what happens
+    -- love.graphics.printf("You crashed! Hopefully no ACTL tear...")
+
+    love.graphics.setFont(menu.title_font)
+    menu.end_game.draw_bar(menu.snowman, "Points", points.get_points(), y_offset, 1)
+    y_offset = y_offset + menu.end_game.bar.h
+    menu.end_game.draw_bar(menu.ski_trail, "Distance", points.get_distance(), y_offset, 2, "m")
+    y_offset = y_offset + menu.end_game.bar.h
+    menu.end_game.draw_bar(menu.flag, "Slaloms", "soon", y_offset, 1, " maybe :)")
+    y_offset = y_offset + menu.end_game.bar.h
+    menu.end_game.draw_bar(menu.rock, "Close Calls", points.get_close_calls(), y_offset, 2, " x " .. points.close_calls_mult())
+    y_offset = y_offset + menu.end_game.bar.h
+    menu.end_game.draw_bar(menu.yeti, "Total Points", points.calc_total_score(), y_offset, 2)
+    y_offset = y_offset + menu.end_game.bar.h
+    
     -- Uses the same position and functionality as the start button
-    menu_button("start_button", "Try Again?", menu.subtitle_font)
+    love.graphics.setColor(.4, .7, .9)
+    menu_button("try_again_button", "Try Again?", menu.subtitle_font)
+
+    util.reset_color()
+end
+
+menu.end_game.bar = {
+    start_x = const.PIXEL_W / 8,
+    w = const.PIXEL_W - (const.PIXEL_W / 4),
+    h = 80,
+    color = {
+        [1] = {.2, .8, 1},
+        [2] = {.6, .8, 1},
+    },
+}
+function menu.end_game.draw_bar(icon, title, count, y_offset, color_num, addtl_str)
+    local addtl_str = addtl_str or ""
+
+    love.graphics.setColor(unpack(menu.end_game.bar.color[color_num]))
+    
+    love.graphics.rectangle("fill", menu.end_game.bar.start_x, y_offset, menu.end_game.bar.w, menu.end_game.bar.h)
+
+    local padding = 15
+    love.graphics.setColor(.5, .5, .9, .6)
+    love.graphics.draw(icon, menu.end_game.bar.start_x+padding, y_offset+padding*1.5, 0, 2)
+    love.graphics.setColor(.05, .05, .6, .6)
+    love.graphics.printf(title, menu.end_game.bar.start_x+padding+const.TILE_WIDTH*1.5, y_offset+padding, menu.end_game.bar.w, "left")
+    love.graphics.printf(count .. addtl_str, menu.end_game.bar.start_x, y_offset+padding, menu.end_game.bar.w-padding, "right")
 end
 
 -- Where 'button_type' is a string, e.g. for now menu[button_type] is chill
