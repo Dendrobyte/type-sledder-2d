@@ -10,11 +10,15 @@ menu.end_game = {}
 
 function menu.load()
     menu.default_font = love.graphics.newFont(16)
-    menu.title_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 48)
+    menu.title_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 52)
     menu.subtitle_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 32)
     menu.big_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
     menu.small_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 16)
-    menu.start_speed = 5
+    menu.title_color = {.4, .6, 1}
+    menu.drop_shadow_color = {.1, .1, .4}
+    menu.start_speed = 3
+
+    -- Start screen buttons
     menu.start_button = {
         x = 200,
         y = 300,
@@ -39,6 +43,14 @@ function menu.load()
         w = 200,
         h = 40,
     }
+    menu.info_button = {
+        x = 300,
+        y = 450,
+        w = 200,
+        h = 36,
+    }
+
+    -- End screen
     menu.try_again_button = {
         x = 300,
         y = 530,
@@ -57,44 +69,60 @@ function menu.load()
 end
 
 -- We leave it to the caller to change the graphics
-function menu_button(button_type, text, font)
+-- NOTE: I hate this function lol
+function menu_button(button_type, text, font, font_y_offset)
+    local button = menu[button_type]
+    
+    -- Drop shadow
+    love.graphics.setColor(unpack(menu.drop_shadow_color))
     love.graphics.rectangle("fill",
-        menu[button_type].x,
-        menu[button_type].y,
-        menu[button_type].w,
-        menu[button_type].h
+        button.x - 4,
+        button.y + 4,
+        button.w,
+        button.h 
     )
+
+    -- Button body
+    love.graphics.setColor(unpack(menu.title_color))
+    love.graphics.rectangle("fill",
+        button.x,
+        button.y,
+        button.w,
+        button.h
+    )
+
 
     love.graphics.setColor(0, 0, 0)
     love.graphics.setFont(font)
-    love.graphics.printf(text, menu[button_type].x, menu[button_type].y, menu[button_type].w, 'center')
+    love.graphics.printf(text, button.x, button.y+font_y_offset, button.w, 'center')
     util.reset_color()
 end
 
 function menu.pre_game.draw_screen()
-    love.graphics.setColor(0, 0, 0)
+    love.graphics.setColor(unpack(menu.drop_shadow_color))
     love.graphics.setFont(menu.title_font)
+    love.graphics.printf("TYPE SKIIER", -1, 230+1, 800, 'center')
+
+    love.graphics.setColor(unpack(menu.title_color))
     love.graphics.printf("TYPE SKIIER", 0, 230, 800, 'center')
     util.reset_color()
 
-    menu_button("start_button", "Start Game", menu.subtitle_font)
+    menu_button("start_button", "Start Game", menu.subtitle_font, 4)
 
     love.graphics.draw(menu.minus, menu.speed_decr.x, menu.speed_decr.y, 0, 2)
     love.graphics.draw(menu.plus, menu.speed_incr.x, menu.speed_incr.y, 0, 2)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.setFont(menu.big_font)
+    love.graphics.setFont(menu.subtitle_font)
     -- TODO: Consider using printf with some bounding box... See "don't know your speed?"
-    love.graphics.print("Start Speed:", 200, 350)
+    love.graphics.print("Start Speed:", 250, 350)
 
     love.graphics.print(menu.start_speed, 450, 350) -- TODO: Definitely use the font images for this part
     love.graphics.setFont(menu.default_font)
 
     love.graphics.setColor(1, 1, 1)
-    menu_button("wpm_test_button", "Speed Test", menu.big_font)
-    -- NOTE: I wonder if it's better to just not have this?
-    -- love.graphics.setColor(0, 0, 0)
-    -- love.graphics.setFont(menu.default_font)
-    -- love.graphics.printf("Don't know your typing speed?", 200, 450, 400, 'center')
+    -- NOTE: I wonder if good feedback around "speed test" button having a blurb or not
+    menu_button("wpm_test_button", "Speed Test", menu.big_font, 8)
+    menu_button("info_button", "How to Play & Credits", menu.big_font, 8)
 
     util.reset_color()
 end
@@ -118,12 +146,12 @@ function menu.end_game.draw_screen()
     y_offset = y_offset + menu.end_game.bar.h
     menu.end_game.draw_bar(menu.rock, "Close Calls", points.get_close_calls(), y_offset, 2, " x " .. points.close_calls_mult())
     y_offset = y_offset + menu.end_game.bar.h
-    menu.end_game.draw_bar(menu.yeti, "Total Points", points.calc_total_score(), y_offset, 2)
+    menu.end_game.draw_bar(menu.yeti, "Total Points", points.calc_total_score(), y_offset, 3)
     y_offset = y_offset + menu.end_game.bar.h
     
     -- Uses the same position and functionality as the start button
     love.graphics.setColor(.4, .7, .9)
-    menu_button("try_again_button", "Try Again?", menu.subtitle_font)
+    menu_button("try_again_button", "Try Again?", menu.subtitle_font, 2)
 
     util.reset_color()
 end
@@ -133,8 +161,9 @@ menu.end_game.bar = {
     w = const.PIXEL_W - (const.PIXEL_W / 4),
     h = 80,
     color = {
-        [1] = {.2, .8, 1},
-        [2] = {.6, .8, 1},
+        [1] = {.2, .6, .8, .8},
+        [2] = {.6, .8, 1, .8},
+        [3] = {.2, .8, 1, .8},
     },
 }
 function menu.end_game.draw_bar(icon, title, count, y_offset, color_num, addtl_str)

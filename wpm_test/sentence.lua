@@ -89,7 +89,7 @@ function sentence.draw_sentence()
     vert_offset = vert_offset + 48
 
 
-    -- TODO: This is going to be a beeg function. But I think I'm okay with that?
+    -- A beeg function. But I think I'm okay with that?
     if is_testing == false then
         love.graphics.setColor(.9, .8, 0)
         love.graphics.setFont(sentence.text_font)

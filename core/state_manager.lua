@@ -10,6 +10,7 @@ local points = require("core.points")
 local callouts = require("ui.callouts")
 local deco = require("environment.deco")
 local sentence = require("wpm_test.sentence")
+local info = require("wpm_test.info")
 
 local states = {}
 
@@ -21,8 +22,10 @@ states.valid_states = {
     "options",
     "in_game",
     "end_game",
+    "info_screen",
 }
 function update_state(new_state)
+    -- Technically this should call reset as well...?
     states.curr_state = new_state
 end
 
@@ -55,6 +58,9 @@ states.start_screen = {
             if menu.is_button_pressed("wpm_test_button", x, y) then
                 states.curr_state = "wpm_test"
             end
+            if menu.is_button_pressed("info_button", x, y) then
+                states.curr_state = "info_screen"
+            end
         end
     end
 }
@@ -64,9 +70,7 @@ states.wpm_test = {
         sentence.draw_sentence()
     end,
 
-    update = function(dt)
-
-    end,
+    -- All updates are done in response to keypress/mousepress, for better or for worse
 
     keypressed = function(key, isrepeat)
         sentence.keypressed(key, isrepeat)
@@ -83,7 +87,6 @@ states.wpm_test = {
         if go_back == 0 then
             update_state("start_screen")
         end
-
     end,
 }
 
@@ -157,6 +160,22 @@ states.end_game = {
                 reset_game()
             end
         end
+    end
+}
+
+states.info_screen = {
+    draw = function()
+        info.draw_info()
+    end,
+
+    -- All updates are done in response to keypress/mousepress, for better or for worse
+
+    keypressed = function(key, isrepeat)
+        update_state("start_screen")
+    end,
+
+    mousepressed = function(x, y, button, _istouch, _presses)
+        update_state("start_screen")
     end
 }
 

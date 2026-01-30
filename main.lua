@@ -8,6 +8,7 @@ local sounds = require("core.sounds")
 local obstacles = require("entities.obstacles")
 local deco = require("environment.deco")
 local sentence = require("wpm_test.sentence")
+local info = require("wpm_test.info")
 
 -- Load default values
 function love.load()
@@ -19,6 +20,7 @@ function love.load()
 
     -- Menu stuff
     sentence.load()
+    info.load()
 
     -- Set up the background and start it
     slope.load()
