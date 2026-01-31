@@ -81,6 +81,7 @@ function char.update_sprite(dt)
     is_off_slope = slope.does_player_go_off_slope(char.x, char.y)
     is_collision = obstacles.does_player_collide_with_entity(char.x, char.y)
     if is_off_slope == true or is_collision == true then
+        in_near_miss_box = false
         return true
     end
 
