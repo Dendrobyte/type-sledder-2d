@@ -50,6 +50,9 @@ local word_pos = {
         origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
         width = nil, -- total width of word
     },
+    center = {
+        -- TODO
+    },
 }
 
 -- Gets the rectangle a word should be rendered in
@@ -66,11 +69,13 @@ function calc_word_bounds(text, render_idx)
             x = char.center - word_player_offset.x - width,
             y = char.y + word_player_offset.y + ascent/2,
         }
-    else -- render_idx == "right", we should never be seeing disc here (yet)
+    elseif render_idx == "right" then
         origin = {
             x = char.center + word_player_offset.x,
             y = char.y + word_player_offset.y + ascent/2,
         }
+    elseif render_idx == "center" then
+        -- TODO
     end
 
     word_pos[render_idx] = {

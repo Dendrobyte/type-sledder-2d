@@ -40,7 +40,9 @@ local move = {
     dest_cell = {
         c = nil,
         r = nil,
-    }
+    },
+    curr_dir = "center",
+    boost_decay = 0,
 }
 function reset_move_state()
     move = {
@@ -62,15 +64,28 @@ function char.update_sprite(dt)
         char.y = char.y + move.y_incr
         char.center = char.x + (const.TILE_WIDTH/2)
         local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
-        if curr_cell_c == move.dest_cell.c and curr_cell_r == move.dest_cell.r then
-           reset_move_state()
+        -- print("curr_c=", curr_cell_c, "curr_r=", curr_cell_r)
+        -- print("dest_c=", move.dest_cell.c, "dest_r=", move.dest_cell.r)
+        -- NOTE: We can get rid of this check, I prefer not having it end I think
+        --       Happy accident
+        -- if curr_cell_c == move.dest_cell.c and curr_cell_r == move.dest_cell.r then
+        --    reset_move_state()
+        -- end
+        if move.boost_decay > 0 then
+            move.boost_decay = move.boost_decay - 1
+        else
+            char.move(move.curr_dir, true)
         end
     else
+        -- TODO: Bounding box
+        -- TODO: Make better (dynamic)
+        -- NOTE: This isn't tweened, so we should update the move variable I think with a new field
+        --       I believe that's why it's jittery right now
+        -- We also want to ensure that if they're at the top, this is smaller
+        -- Don't forget we need a counter so they have a chance to come back
+        -- Each word boost? Anyway
         -- If we're not moving, slowly approach the top, but slightly slower than scroll
-        -- Disabled for now until I make the bounding box
-        -- if count % 4 == 0 then
-        --     char.y = char.y - 1
-        -- end
+        -- char.y = char.y - .5
     end
 
     -- Collision and bounds checks
@@ -99,10 +114,10 @@ function char.update_sprite(dt)
 
     -- Swap sprites back and forth to simulate skiing motions
     -- TODO: Adjust based on scroll speed... maybe count is scroll speed?
-    if count == 40 then
+    if count == 20 then
         char.sprite = char.move_one
     end
-    if count == 80 then
+    if count == 30 then
         char.sprite = char.move_two
         count = -1
     end
@@ -111,8 +126,15 @@ end
 
 -- Move the character based on some number of lanes
 -- We calculate the increments to move along each axis and then update function moves until we hit our target
-function char.move(dir)
-    local dir_num = dir == "left" and -1 or 1 -- "and" apparently returns second value if first one is truthy??
+local dir_to_num = {
+    left = -1,
+    right = 1,
+    center = 0,
+}
+function char.move(dir, reset)
+    -- dir = "center" -- somehow, this immediately ends the game???? lol
+    local dir_num = dir_to_num[dir]
+    local is_boost = move.curr_dir ~= dir and not reset
     local new_move_state = {
         is_moving = true,
         x_incr = 0,
@@ -120,25 +142,39 @@ function char.move(dir)
         dest_cell = {
             c = nil,
             r = nil,
-        }
+        },
+        curr_dir = dir,
+        boost_decay = 0,
     }
 
-    -- Represents how many cells over from the current position. Tweak these as necessary.
-    local x_move = 3 * dir_num
-    local y_move = 0
-    slope.incr_scroll_speed()
+    slope.incr_scroll_speed() -- ?? why is this here
+    --[[
+        If the direction is the same, we give a short horizontal boost before returning to prev move
+        Otherwise, just change their direction in the respective direction based on dir_num
+    ]]
+
+    -- TODO: Handle the center case
+    local x_move = dir_num -- Determines x dir for movement vector
+    local y_move = is_boost and -3 or 0 -- Horizontal (looking) boost if direction matches
+    
+    -- Movement vector
     local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
     local dest_c = curr_c + x_move
     local dest_r = curr_r + y_move
-
-    -- Effectively getting the movement vectory
     local dx = dest_c - curr_c
     local dy = dest_r - curr_r
     local dist = math.sqrt(dx*dx + dy*dy)
     new_move_state.x_incr = (dx/dist)
     new_move_state.y_incr = (dy/dist)
 
+    if is_boost then
+        new_move_state.x_incr = new_move_state.x_incr * 8 -- arbitrary mult for the horizontal speed
+        new_move_state.boost_decay = 20
+    end
+
     -- Set the dest cell
+    -- NOTE: Didn't end up using destination cells, so we could refactor this
+    --       to just use the vectors and not bother with distance. Until that's certain, it stays?
     new_move_state.dest_cell.c = dest_c
     new_move_state.dest_cell.r = dest_r
 
