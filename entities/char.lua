@@ -93,7 +93,7 @@ function char.update_sprite(dt)
     elseif is_near_miss == false and in_near_miss_box == true then
         callouts.add_callout("CLOSE CALL!", char.x, char.y-25, callouts.colors.purple)
         sounds.play_whoosh()
-        points.score_points(20)
+        points.incr_close_calls()
         in_near_miss_box = false
     end
 
