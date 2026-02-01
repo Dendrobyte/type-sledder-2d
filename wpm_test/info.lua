@@ -35,9 +35,9 @@ function info.draw_info()
     love.graphics.printf("Ski down the mountain and score as many points as possible!",
         bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
     vert_offset = vert_offset + 30 
-    love.graphics.printf("Your keyboard is your controller. Type the words to your left and right in order to move in that direction.",
+    love.graphics.printf("Your keyboard is your controller. Type the words to your left and right in order to move in that direction and progress down the mountain. Typing words in the same direction will give you a dash! Make sure not to hit the top of the screen.",
         bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
-    vert_offset = vert_offset + 30*2 
+    vert_offset = vert_offset + 28*4 
     love.graphics.printf("Avoid obstacles at all costs! You get extra points at the end for close calls and slaloms.",
         bounds.start_x, bounds.start_y+vert_offset, bounds.width, "left")
     vert_offset = vert_offset + 30*2

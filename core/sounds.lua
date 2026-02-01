@@ -1,11 +1,14 @@
 local sounds = {}
 
 function sounds.load()
-    sounds.bg_skiing = love.audio.newSource("ski_assets/sound/bg_skiing.mp3", "stream")
+    sounds.bg_skiing = love.audio.newSource("ski_assets/sound/bg_winter_wind.mp3", "stream")
+    sounds.bg_skiing:setVolume(0.2)
     sounds.ding_sound_data = love.audio.newSource("ski_assets/sound/word_complete.mp3", "static")
     sounds.ding_sound_data:setVolume(0.4)
     sounds.whoosh_sound_data = love.audio.newSource("ski_assets/sound/whoosh.mp3", "static")
-    sounds.whoosh_sound_data:setVolume(0.4)
+    sounds.whoosh_sound_data:setVolume(0.1)
+    sounds.dash_sound_data = love.audio.newSource("ski_assets/sound/dash.mp3", "static")
+    sounds.dash_sound_data:setVolume(0.4)
 
     -- Does not get played! We pull this one apart
     sounds.keyboard_clicks = love.sound.newSoundData("ski_assets/sound/keyboard_clicks.mp3")
@@ -16,7 +19,7 @@ end
 
 function sounds.start()
     -- Start background track... this current sound is harsh as hell though
-    local enabled = false -- to be replaced with a setting some day
+    local enabled = true -- to be replaced with a setting some day
     sounds.bg_skiing:setLooping(true)
     if enabled then sounds.bg_skiing:play() end
 end
@@ -33,6 +36,10 @@ end
 
 function sounds.play_whoosh()
     sounds.whoosh_sound_data:play()
+end
+
+function sounds.play_dash()
+    sounds.dash_sound_data:play()
 end
 
 function sounds.play_click()

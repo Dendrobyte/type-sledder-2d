@@ -64,27 +64,29 @@ function char.update_sprite(dt)
         char.y = char.y + move.y_incr
         char.center = char.x + (const.TILE_WIDTH/2)
         local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
-        -- print("curr_c=", curr_cell_c, "curr_r=", curr_cell_r)
-        -- print("dest_c=", move.dest_cell.c, "dest_r=", move.dest_cell.r)
-        -- NOTE: We can get rid of this check, I prefer not having it end I think
-        --       Happy accident
-        -- if curr_cell_c == move.dest_cell.c and curr_cell_r == move.dest_cell.r then
-        --    reset_move_state()
-        -- end
-        if move.boost_decay > 0 then
-            move.boost_decay = move.boost_decay - 1
-            print("decay=", move.boost_decay)
+
+        -- Timer for our dash
+        if move.boost_decay then
+            if move.boost_decay > 0 then
+                move.boost_decay = move.boost_decay - 1
+            else
+                char.move(move.curr_dir, true)
+            end
+        end
+
+        -- Timer for moving down the slope
+        -- NOTE: This is effectively to give space for dashes, right now there's no other slide up
+        --       so people can just never dash and that's fine? Intentional for now.
+        if move.speed_decay then
+            if move.speed_decay > 0 then
+                move.speed_decay = move.speed_decay - 1
+            else
+                char.move(move.curr_dir, true)
+            end
         end
     else
-        -- TODO: Bounding box
-        -- TODO: Make better (dynamic)
-        -- NOTE: This isn't tweened, so we should update the move variable I think with a new field
-        --       I believe that's why it's jittery right now
-        -- We also want to ensure that if they're at the top, this is smaller
-        -- Don't forget we need a counter so they have a chance to come back
-        -- Each word boost? Anyway
-        -- If we're not moving, slowly approach the top, but slightly slower than scroll
-        -- char.y = char.y - .5
+        -- If we're not moving at the start of the game, slowly approach the top
+        char.y = char.y - .5
     end
 
     -- Collision and bounds checks
@@ -143,10 +145,10 @@ function char.move(dir, reset)
             r = nil,
         },
         curr_dir = dir,
-        boost_decay = 0,
+        boost_decay = nil, -- The horizontal dash (dash instead of boost?)
+        speed_decay = nil, -- The decay for a player to move down the slope in the bounding box
     }
 
-    slope.incr_scroll_speed()
     --[[
         If the direction is the same, we give a short horizontal boost before returning to prev move
         Otherwise, just change their direction in the respective direction based on dir_num
@@ -166,9 +168,20 @@ function char.move(dir, reset)
     new_move_state.x_incr = (dx/dist)
     new_move_state.y_incr = (dy/dist)
 
-    if is_boost then
-        new_move_state.x_incr = new_move_state.x_incr * 8 -- arbitrary mult for the horizontal speed
-        new_move_state.boost_decay = 20
+    -- I... kinda like this system... surprise! Nested if because I feel like it's just more readable
+    if not reset then
+        if is_boost then
+            new_move_state.x_incr = new_move_state.x_incr * 6 -- arbitrary mult for the horizontal speed
+            new_move_state.boost_decay = 20
+            sounds.play_dash()
+        else
+            -- Calculate the y increment based on current player position and some bottom bound (first fourth?)
+            local decay_frames = 80
+            local dist_to_cover = const.PIXEL_H / 4 - char.y
+
+            new_move_state.y_incr = new_move_state.y_incr + dist_to_cover / decay_frames
+            new_move_state.speed_decay = decay_frames
+        end
     end
 
     -- Set the dest cell
