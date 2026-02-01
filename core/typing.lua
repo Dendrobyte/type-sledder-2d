@@ -139,7 +139,7 @@ function typing.on_key_press(key)
             -- TODO: More robust movement here depending on curr direction, etc.
             if current_word.render_idx == "left" or current_word.render_idx == "right" then
                 typing.update_word(current_word.render_idx, current_word.final)
-                char.move(current_word.render_idx)
+                char.move(current_word.render_idx, false)
             elseif current_word.render_idx == "disc" then
                 -- TK: Reaaaallyy should have thought out the disc integration a bit more
                 -- TODO: Make a function within typing to properly clear up the disc word related stuff

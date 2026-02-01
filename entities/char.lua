@@ -73,8 +73,7 @@ function char.update_sprite(dt)
         -- end
         if move.boost_decay > 0 then
             move.boost_decay = move.boost_decay - 1
-        else
-            char.move(move.curr_dir, true)
+            print("decay=", move.boost_decay)
         end
     else
         -- TODO: Bounding box
@@ -124,7 +123,7 @@ function char.update_sprite(dt)
     count = count + 1
 end
 
--- Move the character based on some number of lanes
+-- Update the character's movement object when a word is typed
 -- We calculate the increments to move along each axis and then update function moves until we hit our target
 local dir_to_num = {
     left = -1,
@@ -134,7 +133,7 @@ local dir_to_num = {
 function char.move(dir, reset)
     -- dir = "center" -- somehow, this immediately ends the game???? lol
     local dir_num = dir_to_num[dir]
-    local is_boost = move.curr_dir ~= dir and not reset
+    local is_boost = move.curr_dir == dir and not reset
     local new_move_state = {
         is_moving = true,
         x_incr = 0,
@@ -147,7 +146,7 @@ function char.move(dir, reset)
         boost_decay = 0,
     }
 
-    slope.incr_scroll_speed() -- ?? why is this here
+    slope.incr_scroll_speed()
     --[[
         If the direction is the same, we give a short horizontal boost before returning to prev move
         Otherwise, just change their direction in the respective direction based on dir_num
