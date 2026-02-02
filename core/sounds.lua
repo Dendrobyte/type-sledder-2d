@@ -39,6 +39,7 @@ function sounds.play_whoosh()
 end
 
 function sounds.play_dash()
+    sounds.dash_sound_data:stop()
     sounds.dash_sound_data:play()
 end
 

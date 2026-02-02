@@ -63,7 +63,7 @@ function char.update_sprite(dt)
         char.x = char.x + move.x_incr
         char.y = char.y + move.y_incr
         char.center = char.x + (const.TILE_WIDTH/2)
-        local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
+        -- local curr_cell_c, curr_cell_r = slope.coord_to_cell(char.x, char.y)
 
         -- Timer for our dash
         if move.boost_decay then
@@ -154,24 +154,26 @@ function char.move(dir, reset)
         Otherwise, just change their direction in the respective direction based on dir_num
     ]]
 
-    -- TODO: Handle the center case
-    local x_move = dir_num -- Determines x dir for movement vector
-    local y_move = is_boost and -3 or 0 -- Horizontal (looking) boost if direction matches
-    
     -- Movement vector
-    local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
-    local dest_c = curr_c + x_move
-    local dest_r = curr_r + y_move
-    local dx = dest_c - curr_c
-    local dy = dest_r - curr_r
-    local dist = math.sqrt(dx*dx + dy*dy)
-    new_move_state.x_incr = (dx/dist)
-    new_move_state.y_incr = (dy/dist)
+    local x_move = dir_num -- Determines x dir for movement vector
+    local y_move = is_boost and dir ~= "center" and -2 or 0 -- Horizontal (looking) boost if direction matches
+    new_move_state.x_incr = x_move 
+    new_move_state.y_incr = y_move
+    
+    -- Stop at destination cell, calc new vector, etc. Didn't really use it but keeping it ig
+    -- local curr_c, curr_r = slope.coord_to_cell(char.x, char.y)
+    -- local dest_c = curr_c + x_move
+    -- local dest_r = curr_r + y_move
+    -- local dx = dest_c - curr_c
+    -- local dy = dest_r - curr_r
+    -- local dist = math.sqrt(dx*dx + dy*dy)
+    -- new_move_state.x_incr = (dx/dist)
+    -- new_move_state.y_incr = (dy/dist)
 
     -- I... kinda like this system... surprise! Nested if because I feel like it's just more readable
     if not reset then
         if is_boost then
-            new_move_state.x_incr = new_move_state.x_incr * 6 -- arbitrary mult for the horizontal speed
+            new_move_state.x_incr = new_move_state.x_incr * 2 -- arbitrary mult for the horizontal speed
             new_move_state.boost_decay = 20
             sounds.play_dash()
         else
@@ -179,7 +181,8 @@ function char.move(dir, reset)
             local decay_frames = 80
             local dist_to_cover = const.PIXEL_H / 4 - char.y
 
-            new_move_state.y_incr = new_move_state.y_incr + dist_to_cover / decay_frames
+            -- TODO: This is something to tweak for sure
+            new_move_state.y_incr = new_move_state.y_incr + math.min(.8, dist_to_cover / decay_frames)
             new_move_state.speed_decay = decay_frames
         end
     end
@@ -187,9 +190,17 @@ function char.move(dir, reset)
     -- Set the dest cell
     -- NOTE: Didn't end up using destination cells, so we could refactor this
     --       to just use the vectors and not bother with distance. Until that's certain, it stays?
-    new_move_state.dest_cell.c = dest_c
-    new_move_state.dest_cell.r = dest_r
+    -- new_move_state.dest_cell.c = dest_c
+    -- new_move_state.dest_cell.r = dest_r
 
+    -- If they are already going down, make it riskier to keep typing straight 
+    if dir == "center" and not reset then
+        -- TODO: Chain different messages here and keep increasing speed?
+        local incr_by = is_boost and 6 or 4
+        local speed_text = is_boost and "NYOOOOM!" or "SPEED UP!"
+        slope.incr_scroll_speed(incr_by)
+        callouts.add_callout(speed_text, char.x-20, char.y-30, callouts.colors.red)
+    end
     move = new_move_state
 end
 

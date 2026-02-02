@@ -72,8 +72,9 @@ function slope.set_scroll_speed(new_scroll_speed)
 end
 
 -- Increase the speed on each successful word
-function slope.incr_scroll_speed()
-    slope.set_scroll_speed(scroll_speed + scroll_speed_incr)
+function slope.incr_scroll_speed(scroll_speed_mult)
+    scroll_speed_mult = scroll_speed_mult or 1
+    slope.set_scroll_speed(scroll_speed + scroll_speed_incr*scroll_speed_mult)
 end
 
 function slope.reset_scroll_speed()

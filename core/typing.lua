@@ -12,15 +12,25 @@ local typing = {}
 -- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
 local word_bucket = {
-  "hello","world","game","play","score","speed","track","level","start",
-  "finish","jump","slide","run","move","block","dodge","press","hold","tap",
-  "timer","point","bonus","combo","chain","power","boost","skill","focus",
-  "quick","sharp","clean","smooth","simple","ready","steady","fast","clear",
-  "bright","cool","calm","alert","logic","input","react","shift","enter",
-  "space","mouse","click","touch","screen","pixel","sprite","sound","music",
-  "beat","rhythm","tempo","flow","match","align","stack","drop","build",
-  "break","reset","retry","win","lose","draw","pause","resume","select",
-  "confirm","cancel","escape","finish","victory","perfect"
+    -- Ski/winter themed
+    "ski", "ice", "snow", "hill", "cold", "wind", "tree", "pole", "turn",
+    "peak", "trail", "edge", "grip", "chill", "frost", "sled", "base", "lift",
+    "slope", "mogul", "lodge", "cabin", "carve", "steep", "boots", "gloves",
+    "helmet", "freeze", "flurry", "crisp", "fresh", "chair", "resort", "winter",
+    "cocoa", "icicle", "flake", "polar", "frozen", "shiver", "cozy", "warm",
+    
+    -- Action words
+    "dodge", "weave", "sprint", "brake", "launch", "soar", "coast", "drift",
+    "race", "chase", "push", "pull", "lean", "crouch", "tuck", "shift",
+    "jump", "land", "glide", "run", "zip", "fast", "slow", "left", "right",
+    
+    -- General game words
+    "score", "speed", "track", "level", "start", "finish", "move", "block",
+    "press", "hold", "tap", "point", "bonus", "combo", "chain", "power",
+    "boost", "skill", "focus", "quick", "sharp", "clean", "smooth", "ready",
+    "steady", "clear", "bright", "cool", "calm", "alert", "react", "flow",
+    "match", "stack", "drop", "build", "break", "reset", "retry", "win",
+    "lose", "pause", "resume", "select", "perfect",
 }
 -- local word_bucket = { -- Testing for the text width stuff
 --     "hi", "mark", "how", "nostradamus", "application", "word", "eel", "instantaneous", "miscellaneous",
@@ -30,6 +40,7 @@ function typing.load()
     typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
     typing.right_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0075.png")
     typing.left_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0076.png")
+    typing.down_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0071.png")
 
     typing.reset_words()
 end
@@ -40,18 +51,18 @@ local word_player_offset = {
     y = 25
 }
 -- Store all the position data necessary for a word, updates upon reset
--- TODO: Deprecate x,y once you've used the other information properly
 local word_pos = {
     left = {
-        origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
-        width = nil, -- total width of word
+        origin = { x = nil, y = nil },
+        width = nil,
     },
     right = {
         origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
         width = nil, -- total width of word
     },
     center = {
-        -- TODO
+        origin = { x = nil, y = nil }, -- top left corner of bounding rectangle
+        width = nil, -- total width of word
     },
 }
 
@@ -75,7 +86,10 @@ function calc_word_bounds(text, render_idx)
             y = char.y + word_player_offset.y + ascent/2,
         }
     elseif render_idx == "center" then
-        -- TODO
+        origin = {
+            x = char.center - word_player_offset.x + 8,
+            y = char.y + word_player_offset.y + 36,
+        }
     end
 
     word_pos[render_idx] = {
@@ -107,6 +121,7 @@ function typing.reset_words()
     active_words = {}
     typing.update_word("left", "")
     typing.update_word("right", "")
+    typing.update_word("center", "")
     typing.update_word("disc", "")
     reset_current_word()
 end
@@ -116,6 +131,7 @@ function typing.update(dt)
     --     meant to update the bounds (or moving on char move) but no game state so here we are
     calc_word_bounds(rendered_words["left"], "left")
     calc_word_bounds(rendered_words["right"], "right")
+    calc_word_bounds(rendered_words["center"], "center")
     typing.disc_update_check(dt)
 end
 
@@ -135,12 +151,17 @@ function typing.on_key_press(key)
         -- Trigger new word, etc. when we get the word correct
         if current_word.buffer == current_word.final then
             sounds.play_ding()
-            callouts.add_callout("NICE!", char.x, char.y-25, callouts.colors.green)
+            if current_word.render_idx ~= "center" then
+                -- TODO: Randomize positioning just a little bit, also randomize word?
+                callouts.add_callout("NICE!", char.x-10, char.y-25, callouts.colors.green)
+            end
+
             -- TODO: More robust movement here depending on curr direction, etc.
-            if current_word.render_idx == "left" or current_word.render_idx == "right" then
+            if current_word.render_idx == "left" or
+               current_word.render_idx == "right" or
+               current_word.render_idx == "center" then
                 typing.update_word(current_word.render_idx, current_word.final)
                 char.move(current_word.render_idx, false)
-                slope.incr_scroll_speed() -- TODO: This feels out of place here too
             elseif current_word.render_idx == "disc" then
                 -- TK: Reaaaallyy should have thought out the disc integration a bit more
                 -- TODO: Make a function within typing to properly clear up the disc word related stuff
@@ -190,13 +211,20 @@ function typing.draw_words()
         love.graphics.setColor(.2, .2, .3, .2)
         love.graphics.rectangle("fill", word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, height)
         love.graphics.rectangle("fill", word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, height)
+        love.graphics.rectangle("fill", word_pos.center.origin.x, word_pos.center.origin.y, word_pos.center.width, height)
         love.graphics.setColor(0, 0, 0)
     end
 
-    -- Don't loop or anything, I think it's more readable this way
     -- Only render the word if it isn't currently being typed
-    if current_word.render_idx ~= "left" then love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right") end
-    if current_word.render_idx ~= "right" then love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left") end
+    -- TODO: I thought we were doing a thing here, but just call the three draws if not. No need for the table.
+    local render_dirs = {
+        left = function() love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right") end,
+        right = function() love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left") end,
+        center = function() love.graphics.printf(rendered_words.center, word_pos.center.origin.x, word_pos.center.origin.y, word_pos.center.width, "left") end,
+    }
+    render_dirs["left"]()
+    render_dirs["right"]()
+    render_dirs["center"]()
     if curr_disc_info ~= nil and current_word.render_idx ~= "disc" then
         -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
         --       Could calc based on word size if I wanted to be real specific I suppose
@@ -213,12 +241,16 @@ function typing.draw_words()
     if current_word.final == nil then
         love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
         love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
+        love.graphics.draw(typing.down_arrow, char.center - 8, char.y + 90, 0, 1)
     elseif current_word.render_idx == "left" then
         love.graphics.setColor(254/255, 214/255, 128/255)
         love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
     elseif current_word.render_idx == "right" then
         love.graphics.setColor(254/255, 214/255, 128/255)
         love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
+    elseif current_word.render_idx == "center" then
+        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.draw(typing.down_arrow, char.center - 8, char.y + 90, 0, 1)
     end
 
     if util.get_debug() == true then
@@ -227,7 +259,6 @@ function typing.draw_words()
     end
 
     love.graphics.setColor(1, 1, 1)
-
 end
 
 -- Given the index in the rendered word list, change it
