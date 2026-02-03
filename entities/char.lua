@@ -91,12 +91,10 @@ function char.update_sprite(dt)
 
     -- Collision and bounds checks
     in_bounds = char.x >= 0 and char.x < const.PIXEL_W and char.y >= 0 and char.y < const.PIXEL_H
-    if not in_bounds then
-        return true
-    end
     is_off_slope = slope.does_player_go_off_slope(char.x, char.y)
     is_collision = obstacles.does_player_collide_with_entity(char.x, char.y)
-    if is_off_slope == true or is_collision == true then
+    if not in_bounds or is_off_slope == true or is_collision == true then
+        sounds.play_crash()
         in_near_miss_box = false
         return true
     end

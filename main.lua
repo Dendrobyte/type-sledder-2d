@@ -33,6 +33,8 @@ function love.load()
     menu.load()
     typing.load()
     sounds.load()
+
+    states.game_loaded()
 end
 
 function love.update(dt)

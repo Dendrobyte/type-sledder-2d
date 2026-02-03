@@ -17,6 +17,7 @@ local states = {}
 states.curr_state = "start_screen"
 
 states.valid_states = {
+    "loading",
     "start_screen",
     "wpm_test",
     "options",
@@ -28,6 +29,15 @@ function update_state(new_state)
     -- Technically this should call reset as well...?
     states.curr_state = new_state
 end
+
+states.loading = {
+    draw = function()
+        love.graphics.setFont(love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 52))
+        love.graphics.setBackgroundColor(1, 1, 1)
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.printf("LOADING SLOPES", -1, 230+1, 800, 'center')
+    end,
+}
 
 states.start_screen = {
     draw = function()
@@ -195,4 +205,10 @@ function reset_game()
 
     update_state("in_game")
 end
+
+-- Called ONLY from main!
+function states.game_loaded()
+    update_state("start_screen")
+end
+
 return states 

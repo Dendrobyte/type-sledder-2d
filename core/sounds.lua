@@ -9,6 +9,8 @@ function sounds.load()
     sounds.whoosh_sound_data:setVolume(0.1)
     sounds.dash_sound_data = love.audio.newSource("ski_assets/sound/dash.mp3", "static")
     sounds.dash_sound_data:setVolume(0.4)
+    sounds.crash_sound_data = love.audio.newSource("ski_assets/sound/crash.mp3", "static")
+    sounds.crash_sound_data:setVolume(0.6)
 
     -- Does not get played! We pull this one apart
     sounds.keyboard_clicks = love.sound.newSoundData("ski_assets/sound/keyboard_clicks.mp3")
@@ -40,6 +42,10 @@ end
 
 function sounds.play_dash()
     sounds.dash_sound_data:stop()
+    sounds.dash_sound_data:play()
+end
+
+function sounds.play_crash()
     sounds.dash_sound_data:play()
 end
 
