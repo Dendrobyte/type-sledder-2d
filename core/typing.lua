@@ -22,7 +22,7 @@ local word_bucket = {
     -- Action words
     "dodge", "weave", "sprint", "brake", "launch", "soar", "coast", "drift",
     "race", "chase", "push", "pull", "lean", "crouch", "tuck", "shift",
-    "jump", "land", "glide", "run", "zip", "fast", "slow", "left", "right",
+    "jump", "land", "glide", "run", "zip", "fast", "slow", "prowl", "roll",
     
     -- General game words
     "score", "speed", "track", "level", "start", "finish", "move", "block",
