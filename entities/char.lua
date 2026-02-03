@@ -56,6 +56,10 @@ function reset_move_state()
     }
 end
 
+function char.get_move_state()
+    return move
+end
+
 local in_near_miss_box = false
 function char.update_sprite(dt)
     -- Update character based on move state
@@ -154,7 +158,7 @@ function char.move(dir, reset)
 
     -- Movement vector
     local x_move = dir_num -- Determines x dir for movement vector
-    local y_move = is_boost and dir ~= "center" and -2 or 0 -- Horizontal (looking) boost if direction matches
+    local y_move = is_boost and dir ~= "center" and -1 or 0 -- Horizontal (looking) boost if direction matches
     new_move_state.x_incr = x_move 
     new_move_state.y_incr = y_move
     
@@ -171,12 +175,12 @@ function char.move(dir, reset)
     -- I... kinda like this system... surprise! Nested if because I feel like it's just more readable
     if not reset then
         if is_boost then
-            new_move_state.x_incr = new_move_state.x_incr * 2 -- arbitrary mult for the horizontal speed
-            new_move_state.boost_decay = 20
+            new_move_state.x_incr = new_move_state.x_incr * 3 -- arbitrary mult for the horizontal speed
+            new_move_state.boost_decay = 16
             sounds.play_dash()
         else
             -- Calculate the y increment based on current player position and some bottom bound (first fourth?)
-            local decay_frames = 80
+            local decay_frames = 60
             local dist_to_cover = const.PIXEL_H / 4 - char.y
 
             -- TODO: This is something to tweak for sure
@@ -194,7 +198,7 @@ function char.move(dir, reset)
     -- If they are already going down, make it riskier to keep typing straight 
     if dir == "center" and not reset then
         -- TODO: Chain different messages here and keep increasing speed?
-        local incr_by = is_boost and 6 or 4
+        local incr_by = is_boost and 4 or 2
         local speed_text = is_boost and "NYOOOOM!" or "SPEED UP!"
         slope.incr_scroll_speed(incr_by)
         callouts.add_callout(speed_text, char.x-20, char.y-30, callouts.colors.red)

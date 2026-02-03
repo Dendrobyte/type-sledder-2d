@@ -9,28 +9,28 @@ local callouts = require("ui.callouts")
 
 local typing = {}
 
--- TODO: Load a list of a bunch of words
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
+-- For now, using 5 letter words to avoid spacing looking like ass
 local word_bucket = {
     -- Ski/winter themed
-    "ski", "ice", "snow", "hill", "cold", "wind", "tree", "pole", "turn",
-    "peak", "trail", "edge", "grip", "chill", "frost", "sled", "base", "lift",
-    "slope", "mogul", "lodge", "cabin", "carve", "steep", "boots", "gloves",
-    "helmet", "freeze", "flurry", "crisp", "fresh", "chair", "resort", "winter",
-    "cocoa", "icicle", "flake", "polar", "frozen", "shiver", "cozy", "warm",
+    "skier", "icing", "snowy", "hills", "colds", "windy", "trees", "poles", "turns",
+    "peaks", "trail", "edges", "grips", "chill", "frost", "sleds", "based", "lifts",
+    "slope", "mogul", "lodge", "cabin", "carve", "steep", "boots", "glove",
+    "strap", "froze", "flurr", "crisp", "fresh", "chair", "piste", "polar",
+    "cocoa", "flake", "froze", "shive", "cozie", "thaws",
     
     -- Action words
-    "dodge", "weave", "sprint", "brake", "launch", "soar", "coast", "drift",
-    "race", "chase", "push", "pull", "lean", "crouch", "tuck", "shift",
-    "jump", "land", "glide", "run", "zip", "fast", "slow", "prowl", "roll",
+    "dodge", "weave", "sprint", "brake", "leaps", "soars", "coast", "drift",
+    "races", "chase", "shove", "pulls", "leans", "ducks", "tucks", "shift",
+    "jumps", "lands", "glide", "runs", "zesty", "fasts", "slows", "prowl", "rolls",
     
     -- General game words
-    "score", "speed", "track", "level", "start", "finish", "move", "block",
-    "press", "hold", "tap", "point", "bonus", "combo", "chain", "power",
-    "boost", "skill", "focus", "quick", "sharp", "clean", "smooth", "ready",
-    "steady", "clear", "bright", "cool", "calm", "alert", "react", "flow",
-    "match", "stack", "drop", "build", "break", "reset", "retry", "win",
-    "lose", "pause", "resume", "select", "perfect",
+    "score", "speed", "track", "level", "start", "ended", "moves", "block",
+    "press", "holds", "stops", "point", "bonus", "combo", "chain", "power",
+    "boost", "skill", "focus", "quick", "sharp", "glows", "sleek", "ready",
+    "stead", "clear", "brisk", "cools", "calms", "alert", "react", "flows",
+    "match", "stack", "drops", "build", "break", "reset", "retry", "wins",
+    "loses", "pause", "renew", "chose", "ideal",
 }
 -- local word_bucket = { -- Testing for the text width stuff
 --     "hi", "mark", "how", "nostradamus", "application", "word", "eel", "instantaneous", "miscellaneous",
@@ -38,9 +38,11 @@ local word_bucket = {
 
 function typing.load()
     typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
-    typing.right_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0075.png")
-    typing.left_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0076.png")
+    typing.down_right_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0075.png")
+    typing.down_left_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0076.png")
     typing.down_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0071.png")
+    typing.right_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0072.png")
+    typing.left_arrow = love.graphics.newImage("ski_assets/UI_Tiles/tile_0073.png")
 
     typing.reset_words()
 end
@@ -202,6 +204,13 @@ function typing.on_key_press(key)
     end
 end
 
+local arrow_offsets = {
+    left_x = -50,
+    right_x = 66,
+    left_right_y = 60,
+    center_x = -8,
+    center_y = 90,
+}
 function typing.draw_words()
     love.graphics.setFont(typing.default_font)
     love.graphics.setColor(0, 0, 0)
@@ -238,27 +247,49 @@ function typing.draw_words()
     love.graphics.setColor(1, 1, 1)
 
     -- Draw direction indicators
+    local left_arrow = which_arrow("left")
+    local right_arrow = which_arrow("right")
     if current_word.final == nil then
-        love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
-        love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
-        love.graphics.draw(typing.down_arrow, char.center - 8, char.y + 90, 0, 1)
+        love.graphics.draw(left_arrow, char.x + arrow_offsets.left_x, char.y + arrow_offsets.left_right_y, 0, 1)
+        love.graphics.draw(right_arrow, char.x + arrow_offsets.right_x, char.y + arrow_offsets.left_right_y, 0, 1)
+        love.graphics.draw(typing.down_arrow, char.center + arrow_offsets.center_x, char.y + arrow_offsets.center_y, 0, 1)
     elseif current_word.render_idx == "left" then
         love.graphics.setColor(254/255, 214/255, 128/255)
-        love.graphics.draw(typing.left_arrow, char.x - 40, char.y + 10, 0, 1)
+        love.graphics.draw(left_arrow, char.x + arrow_offsets.left_x, char.y + arrow_offsets.left_right_y, 0, 1)
     elseif current_word.render_idx == "right" then
         love.graphics.setColor(254/255, 214/255, 128/255)
-        love.graphics.draw(typing.right_arrow, char.x + 56, char.y + 10, 0, 1)
+        love.graphics.draw(right_arrow, char.x + arrow_offsets.right_x, char.y + arrow_offsets.left_right_y, 0, 1)
     elseif current_word.render_idx == "center" then
         love.graphics.setColor(254/255, 214/255, 128/255)
-        love.graphics.draw(typing.down_arrow, char.center - 8, char.y + 90, 0, 1)
+        love.graphics.draw(typing.down_arrow, char.center + arrow_offsets.center_x, char.y + arrow_offsets.center_y, 0, 1)
     end
 
     if util.get_debug() == true then
         love.graphics.setColor(0, .5, 1)
-        love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y+50)
+        love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y-50)
     end
 
     love.graphics.setColor(1, 1, 1)
+end
+
+-- Either the directional arrow or slanted directional arrow for the given direction
+function which_arrow(given_dir)
+    -- NOTE: I'm sure I could make this one if statement if I made a chain of tables and keys
+    --       But that's overkill
+    local move_state = char.get_move_state()
+    if given_dir == "right" then
+        if move_state.curr_dir == "right" then
+            return typing.right_arrow
+        else
+            return typing.down_right_arrow
+        end
+    elseif given_dir == "left" then
+        if move_state.curr_dir == "left" then
+            return typing.left_arrow
+        else
+            return typing.down_left_arrow
+        end
+    end
 end
 
 -- Given the index in the rendered word list, change it
