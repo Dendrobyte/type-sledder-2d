@@ -33,42 +33,57 @@ function deco.load()
         tiles.lift_wire_chair_top,
     }
 
-    deco.grid_create()
+    deco.grid_create(true)
 end
 
 -- Just gonna have the first grid for now
--- Repeated... once final time????
+-- Repeated... one final time????
 local pixel_w, pixel_h = const.PIXEL_W, const.PIXEL_H
 local tile_width = const.TILE_WIDTH
 local rows = pixel_w / tile_width
 local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for now drawing an extra half tile
 local grid = {} -- Grid head matches slope
-function deco.grid_create()
-    for i = 1, cols+3 do -- Needs to match slope grid
-        row = {}
-        for j = 1, rows do
-            row[j] = const.EMPTY_SPACE
+function deco.grid_create(is_start)
+    if is_start then
+        -- Set up the manual start setup
+        for i = 1, cols+3 do -- Needs to match slope grid
+            row = {}
+            for j = 1, rows do
+                row[j] = const.EMPTY_SPACE
+            end
+            grid[i] = row
         end
-        grid[i] = row
+        -- Presumably, grid[1] also doesn't show up here
+        grid[3] = {9, 5, 9, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 9,}
+        grid[4] = {1, 6, 1, 2, 8, 0, 2, 8, 0, 0, 8, 0, 6, 0, 8, 0, 0, 8, 2, 0, 8, 0, 6, 1, 1,}
+        grid[5] = {1, 7, 1, 3, 0, 0, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 3, 1, 0, 0, 7, 1, 1,}
+    else
+        -- This is where we would handle the new chunk and have "two chunks" ongoing
+        -- NOTE: For when I do this procgen, is it a lot to do the whole chunk in one frame?
+        -- Doubtful, I'm just... still getting my mind blown by computers lol
+        -- Also, remember that this won't work. You'll need to always have two grids going
+        -- Kind of like needing to move the stone you placed behind you to go ahead and then that ad infinitum
+        -- Because of how we're drawing based on the other grid
+        -- Append to current grid, adjust for the other grid head, remove the first half of the
+        -- grid... etc. etc.
+        deco.new_chunk()
     end
-
-    -- Set up the manual start setup
-    -- Presumably, grid[1] also doesn't show up here
-    grid[3] = {9, 5, 9, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 9,}
-    grid[4] = {1, 6, 1, 2, 8, 0, 2, 8, 0, 0, 8, 0, 6, 0, 8, 0, 0, 8, 2, 0, 8, 0, 6, 1, 1,}
-    grid[5] = {1, 7, 1, 3, 0, 0, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 3, 1, 0, 0, 7, 1, 1,}
-    -- util.print_matrix(grid)
-
-    draw_deco_grid = true
 end
 
--- NOTE: This is to avoid redrawing the grid, which we don't want for now
--- The deco grid is probably the first think that will render in "chunks"
-local draw_deco_grid = true
-function deco.draw_deco()
-    if draw_deco_grid == false then
-        return
+-- For the moment, we want to make sure that we just constantly add new rows to this that are 0s
+-- Thus when the game is reset we can reliably call create to restart it and let the (later) proc gen kick in
+function deco.update_grid(dt)
+    local scroll_offset = slope.get_scroll_offset()
+    -- We're doing 5 for now since that's when the manual grid slides off screen
+    -- If we generate two grids to start then we should do when grid head is at the end or whatever
+    -- I need to "map" out the grid sizes and stuff a little better...
+    if slope.get_grid_head() == 5 then
+        deco.new_chunk()
+        scroll_offset = scroll_offset - const.TILE_WIDTH
     end
+end
+
+function deco.draw_deco()
     local scroll_offset = slope.get_scroll_offset()
     for i = 1, #grid do
         idx = slope.calc_grid_idx(i)
@@ -79,13 +94,20 @@ function deco.draw_deco()
             end
         end
     end
-
-    -- This... should not be in the draw function... :I
-    if slope.get_grid_head() == 5 then
-        draw_deco_grid = false
-    end
 end
 
 -- TODO: Spawn some random deco here and there
+-- The deco grid is the first thing that we will render in "chunks"
+function deco.new_chunk()
+    -- This is just resetting for now, but here is where we would want to spawn
+    -- different deco sprites and group them together, etc. as the rows go
+    for i = 1, cols+3 do -- Needs to match slope grid
+        row = {}
+        for j = 1, rows do
+            row[j] = const.EMPTY_SPACE
+        end
+        grid[i] = row
+    end
+end
 
 return deco

@@ -130,6 +130,7 @@ states.in_game = {
     update = function(dt)
         slope.update_grid(dt)
         obstacles.update_grid(dt)
+        deco.update_grid(dt)
         typing.update(dt)
         collided = char.update_sprite(dt)
         ui.update_ui(dt)
@@ -201,7 +202,7 @@ function reset_game()
     points.reset()
     disc.despawn_disc()
     callouts.reset_callouts()
-    deco.grid_create()
+    deco.grid_create(true)
 
     update_state("in_game")
 end

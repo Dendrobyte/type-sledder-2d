@@ -200,6 +200,7 @@ function typing.on_key_press(key)
             current_word.render_idx = active_words[matched_word]
         elseif matches > 1 then
             current_word.buffer = next_buffer
+            -- TODO (This PR): Pass in the color to the cursor function and highlight both words in yellow or something non-orange
         end
     end
 end
