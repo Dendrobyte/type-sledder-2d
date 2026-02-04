@@ -32,9 +32,12 @@ function points.get_distance()
     return current_distance
 end
 
--- 1 "meter" per tile? Tweak this over time for sure
-function points.incr_distance()
-    current_distance = current_distance + 1
+-- I want to jitter the distance increase and not be constant so we'll adjust based on scroll offset
+-- And if the player is going 2x the speed at some point, they should be going 2x the distance
+function points.incr_distance(scroll_offset, scroll_speed)
+    local base_dist = math.floor(math.max(2, 3*scroll_offset))
+    local speed_mult = math.floor(scroll_speed / 100)
+    current_distance = current_distance + (base_dist*speed_mult)
 end
 
 local close_calls = 0

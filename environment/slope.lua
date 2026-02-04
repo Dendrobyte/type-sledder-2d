@@ -226,7 +226,7 @@ function slope.update_grid(dt)
     if scroll_offset > const.TILE_WIDTH then
         slope.grid_add_next_row()
         scroll_offset = scroll_offset - const.TILE_WIDTH
-        points.incr_distance()
+        points.incr_distance(scroll_offset, scroll_speed)
     end
 end
 

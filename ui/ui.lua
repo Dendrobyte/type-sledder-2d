@@ -1,5 +1,7 @@
 local points = require("core.points")
 local callouts = require("ui.callouts")
+local menu = require("ui.menu") -- Colors
+local const = require("core.constants")
 
 -- The UI should never be accessed elsewhere, but instead access state from within
 local ui = {}
@@ -8,10 +10,16 @@ local ui = {}
 ui.font_24 = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
 ui.font_36 = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 36)
 ui.loc = {
-    x = 50,
-    y = 50,
-    align = 'left',
+    x = const.PIXEL_W - 25 - 120, -- subtract width
+    y = 25,
+    width = 120,
+    height = 72,
+    align = 'right',
 }
+ui.text_color = {
+    pale_cyan = {0.95, 1, 1},
+    dark_navy = {0.1, 0.15, 0.3},
+}    
 
 -- Update fields from state
 -- TODO: Most convincing argument to have a global game state file right here
@@ -27,17 +35,17 @@ function ui.draw_ui()
     callouts.draw_callouts()
 
     -- Background box for stats
-    love.graphics.setColor(.2, .2, .4)
-    love.graphics.rectangle("fill", ui.loc.x-5, ui.loc.y-2, 80, 80)
+    love.graphics.setColor(unpack(menu.end_game.bar.color[1]))
+    love.graphics.rectangle("fill", ui.loc.x, ui.loc.y-2, ui.loc.width, ui.loc.height, math.pi*2, math.pi*2)
     -- Draw distance
-    love.graphics.setColor(250/255, 233/255, 88/255)
+    love.graphics.setColor(unpack(ui.text_color.pale_cyan))
     love.graphics.setFont(ui.font_36)
-    love.graphics.print(ui.current_distance, ui.loc.x, ui.loc.y)
+    love.graphics.printf(ui.current_distance .. "m", ui.loc.x-10, ui.loc.y, ui.loc.width, ui.loc.align)
 
     -- Draw points
     love.graphics.setFont(ui.font_24)
-    love.graphics.setColor(250/255, 233/255, 88/255)
-    love.graphics.print(ui.current_points, ui.loc.x, ui.loc.y+40)
+    love.graphics.setColor(unpack(ui.text_color.dark_navy))
+    love.graphics.printf(ui.current_points, ui.loc.x-10, ui.loc.y+40, ui.loc.width, ui.loc.align)
     love.graphics.setColor(1, 1, 1)
 end
 

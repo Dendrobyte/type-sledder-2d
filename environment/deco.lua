@@ -76,7 +76,7 @@ function deco.update_grid(dt)
     local scroll_offset = slope.get_scroll_offset()
     -- We're doing 5 for now since that's when the manual grid slides off screen
     -- If we generate two grids to start then we should do when grid head is at the end or whatever
-    -- I need to "map" out the grid sizes and stuff a little better...
+    -- I need to "map" out the grid sizes and stuff a little better... 5 is not ideal to work with...
     if slope.get_grid_head() == 5 then
         deco.new_chunk()
         scroll_offset = scroll_offset - const.TILE_WIDTH
