@@ -113,10 +113,15 @@ local current_word = {
     buffer = "", -- This is the word they are typing as they type it
     render_idx = "", -- This is the word we end up selecting for them
 }
+-- Sometimes we can match on multiple words, so we need to know what to render for draw_word_progress
+-- The current_word.buffer is the only buffer we need though
+-- a_matched_word = { final = nil, render_idx = "", }
+local current_matched_words = {}
 local function reset_current_word()
     current_word.final = nil
     current_word.buffer = ""
     current_word.render_idx = ""
+    current_matched_words = {}
 end
 
 function typing.reset_words()
@@ -182,25 +187,39 @@ function typing.on_key_press(key)
     else
         -- So the current "buffer" is effectively our prefix, the list is so small
         local next_buffer = current_word.buffer .. key
-        local matches = 0
-        local matched_word = "" -- It's only ever 1 word when we care about this
+        local matched_words = {} -- Eventually is just 1 word
         for active_word, _ in pairs(active_words) do
             if active_word:sub(1, #next_buffer) == next_buffer then
-                matches = matches + 1
-                matched_word = active_word
+                table.insert(matched_words, active_word)
                 sounds.play_click()
             end
         end
 
         -- If we find one match, we have our final word
         -- If we have mult matches, keep building the buffer. Otherwise, don't append to buffer
-        if matches == 1 then
+        if #matched_words == 1 then
+            local matched_word = matched_words[1]
             current_word.buffer = next_buffer
-            current_word.final = matched_word 
+            current_word.final = matched_word
             current_word.render_idx = active_words[matched_word]
-        elseif matches > 1 then
+            current_matched_words = {current_word} -- Reset these
+
+            -- In the case of very similar words, e.g. "chain" and "chair", we don't want an extra keypress to be necessary
+            -- And yes, I'm just forcing an extra keypress to trigger the check above. Because why not.
+            if current_word.buffer == current_word.final then
+                typing.on_key_press("enter")
+            end
+        elseif #matched_words > 1 then
+            current_matched_words = {} -- Clear prev matches in case
             current_word.buffer = next_buffer
-            -- TODO (This PR): Pass in the color to the cursor function and highlight both words in yellow or something non-orange
+            -- We want to highlight all the words, so we'll make some second list to render it OK
+            -- instead of multiple "current words" because I don't like that anyway
+            for _, single_matched_word in ipairs(matched_words) do
+                table.insert(current_matched_words, {
+                    final = single_matched_word,
+                    render_idx = active_words[single_matched_word], 
+                })
+            end
         end
     end
 end
@@ -241,8 +260,8 @@ function typing.draw_words()
         love.graphics.print(rendered_words.disc, curr_disc_info.pos.x-20, curr_disc_info.pos.y-30)
     end
 
-    if current_word.final ~= nil then
-        typing.draw_word_progress(current_word.render_idx)
+    if #current_matched_words > 0 then
+        typing.draw_word_progress()
     end
 
     love.graphics.setColor(1, 1, 1)
@@ -255,13 +274,13 @@ function typing.draw_words()
         love.graphics.draw(right_arrow, char.x + arrow_offsets.right_x, char.y + arrow_offsets.left_right_y, 0, 1)
         love.graphics.draw(typing.down_arrow, char.center + arrow_offsets.center_x, char.y + arrow_offsets.center_y, 0, 1)
     elseif current_word.render_idx == "left" then
-        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.setColor(unpack(single_word_color.cursor_box))
         love.graphics.draw(left_arrow, char.x + arrow_offsets.left_x, char.y + arrow_offsets.left_right_y, 0, 1)
     elseif current_word.render_idx == "right" then
-        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.setColor(unpack(single_word_color.cursor_box))
         love.graphics.draw(right_arrow, char.x + arrow_offsets.right_x, char.y + arrow_offsets.left_right_y, 0, 1)
     elseif current_word.render_idx == "center" then
-        love.graphics.setColor(254/255, 214/255, 128/255)
+        love.graphics.setColor(unpack(single_word_color.cursor_box))
         love.graphics.draw(typing.down_arrow, char.center + arrow_offsets.center_x, char.y + arrow_offsets.center_y, 0, 1)
     end
 
@@ -270,7 +289,7 @@ function typing.draw_words()
         love.graphics.print("DEBUG: " .. current_word.buffer, char.x, char.y-50)
     end
 
-    love.graphics.setColor(1, 1, 1)
+    util.reset_color()
 end
 
 -- Either the directional arrow or slanted directional arrow for the given direction
@@ -308,47 +327,70 @@ function typing.update_word(rendered_idx, replaced_word)
     calc_word_bounds(new_word, rendered_idx)
 end
 
+-- Draw all words that are potentially being typed
+single_word_color = {
+    cursor_box = {150/255, 230/255, 160/255},
+    buffer = {100/255, 220/255, 120/255},
+    char_to_be_typed = {.2, .2, .2},
+    remaining = {20/255, 80/255, 35/255},
+}
+mult_words_color = {
+    cursor_box = {254/255, 214/255, 128/255},
+    buffer = {230/255, 137/255, 15/255},
+    char_to_be_typed = {.2, .2, .2},
+    remaining = {44/255, 14/255, 126/255},
+}
+pink_variant = {
+    cursor_box = {255/255, 180/255, 200/255},
+    buffer = {255/255, 150/255, 180/255},
+    char_to_be_typed = {.2, .2, .2},
+    remaining = {120/255, 40/255, 80/255},
+}
 function typing.draw_word_progress()
     local font = love.graphics.getFont()
-    local curr_word_x = word_pos[current_word.render_idx].origin.x
-    local curr_word_y = word_pos[current_word.render_idx].origin.y
-    local alignment = current_word.render_idx == "left" and "right" or "left" 
-    
-    -- TK: I should have thought this out a little more for the disc stuff...
-    if current_word.render_idx == "disc" then
-        curr_word_x = curr_disc_info.pos.x-20
-        curr_word_y = curr_disc_info.pos.y-30
+
+    local chosen_color = #current_matched_words == 1 and single_word_color or pink_variant
+    for _, matched_word in ipairs(current_matched_words) do
+        local curr_word_x = word_pos[matched_word.render_idx].origin.x
+        local curr_word_y = word_pos[matched_word.render_idx].origin.y
+        -- TODO (this pr?): should all be centered I think, since they're small enough
+        local alignment = matched_word.render_idx == "left" and "right" or "left" 
+        
+        -- TK: I should have thought this out a little more for the disc stuff...
+        if matched_word.render_idx == "disc" and curr_disc_info ~= nil then
+            curr_word_x = curr_disc_info.pos.x-20
+            curr_word_y = curr_disc_info.pos.y-30
+        end
+
+        local final_word = matched_word.final
+        local typed_len = #current_word.buffer
+        local curr_char = final_word:sub(typed_len+1, typed_len+1)
+        local remaining_word = final_word:sub(typed_len+2) -- BEWARE OOB...?
+
+        local typed_width = font:getWidth(current_word.buffer)
+        local curr_width = font:getWidth(curr_char)
+        local char_height = font:getHeight()
+
+        -- Calculate positioning
+
+        -- Draw highlight box
+        if typed_len > 0 then
+            love.graphics.setColor(unpack(chosen_color.cursor_box))
+            love.graphics.rectangle("fill", curr_word_x + typed_width, curr_word_y, curr_width, char_height)
+        end
+        
+        -- Draw the different parts of the word
+        love.graphics.setColor(unpack(chosen_color.buffer))
+        love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
+
+        love.graphics.setColor(unpack(chosen_color.char_to_be_typed))
+        love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
+
+        love.graphics.setColor(unpack(chosen_color.remaining))
+        love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
     end
 
-    local final_word = current_word.final
-    local typed_len = #current_word.buffer
-    local curr_char = final_word:sub(typed_len+1, typed_len+1)
-    local remaining_word = final_word:sub(typed_len+2) -- BEWARE OOB...?
-
-    local typed_width = font:getWidth(current_word.buffer)
-    local curr_width = font:getWidth(curr_char)
-    local char_height = font:getHeight()
-
-    -- Calculate positioning
-
-    -- Draw highlight box
-    -- TODO: Color customization
-    if typed_len > 0 then
-        love.graphics.setColor(254/255, 214/255, 128/255)
-        love.graphics.rectangle("fill", curr_word_x + typed_width, curr_word_y, curr_width, char_height)
-    end
-    
-    -- Draw the different parts of the word
-    love.graphics.setColor(230/255, 137/255, 15/255)
-    love.graphics.print(current_word.buffer, curr_word_x, curr_word_y)
-
-    love.graphics.setColor(.2, .2, .2)
-    love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
-
-    love.graphics.setColor(44/255, 14/255, 126/255)
-    love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
-
-    love.graphics.setColor(1, 1, 1)
+    util.reset_color()
 
 
 end
