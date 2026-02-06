@@ -18,7 +18,7 @@ local adv_word_bucket = {
   "professional","concentrate","determination","anticipation","observation",
   "recognition","performance","combination","configuration","demonstrate",
   "circumstance","psychological","environmental","fundamental","mechanical",
-  "nevertheless","approximately","simultaneously","perpendicular","quadrilateral"
+  "nevertheless","approximately","simultaneously","perpendicular","quadrilateral",
 }
 local active_words = {}
 

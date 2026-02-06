@@ -374,8 +374,6 @@ function typing.draw_word_progress()
         local curr_width = font:getWidth(curr_char)
         local char_height = font:getHeight()
 
-        -- Calculate positioning
-
         -- Draw highlight box
         if typed_len > 0 then
             love.graphics.setColor(unpack(chosen_color.cursor_box))
