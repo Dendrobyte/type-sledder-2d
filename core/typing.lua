@@ -10,7 +10,7 @@ local callouts = require("ui.callouts")
 local typing = {}
 
 -- For future, this becomes easy, medium, hard, etc. that levels up over times
--- For now, using 5 letter words to avoid spacing looking like ass
+-- But for the prototype intent, 5 letter words are perfect
 local word_bucket = {
     -- Ski/winter themed
     "skier", "icing", "snowy", "hills", "colds", "windy", "trees", "poles", "turns",
@@ -32,9 +32,6 @@ local word_bucket = {
     "match", "stack", "drops", "build", "break", "reset", "retry", "wins",
     "loses", "pause", "renew", "chose", "ideal",
 }
--- local word_bucket = { -- Testing for the text width stuff
---     "hi", "mark", "how", "nostradamus", "application", "word", "eel", "instantaneous", "miscellaneous",
--- }
 
 function typing.load()
     typing.default_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 24)
