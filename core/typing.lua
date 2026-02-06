@@ -245,24 +245,21 @@ function typing.draw_words()
     end
 
     -- Only render the word if it isn't currently being typed, otherwise the progress draw function takes care of it
-    local render_dirs = {
-        left = function() love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right") end,
-        right = function() love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left") end,
-        center = function() love.graphics.printf(rendered_words.center, word_pos.center.origin.x, word_pos.center.origin.y, word_pos.center.width, "left") end,
-    }
-    -- Kinda hate this but oh well
+    local skip_indices = {}
     for _, matched_word in ipairs(current_matched_words) do
-        if matched_word.render_idx == "left" then
-            render_dirs["left"] = nil
-        elseif matched_word.render_idx == "right" then
-            render_dirs["right"] = nil
-        elseif matched_word.render_idx == "center" then
-            render_dirs["center"] = nil
-        end
+        skip_indices[matched_word.render_idx] = true
     end
-    for _, render_func in pairs(render_dirs) do
-        render_func()
+
+    if not skip_indices.left then
+        love.graphics.printf(rendered_words.left, word_pos.left.origin.x, word_pos.left.origin.y, word_pos.left.width, "right")
     end
+    if not skip_indices.right then
+        love.graphics.printf(rendered_words.right, word_pos.right.origin.x, word_pos.right.origin.y, word_pos.right.width, "left")
+    end
+    if not skip_indices.center then
+        love.graphics.printf(rendered_words.center, word_pos.center.origin.x, word_pos.center.origin.y, word_pos.center.width, "left")
+    end
+
     if curr_disc_info ~= nil and current_word.render_idx ~= "disc" then
         -- TODO: Word disc offset value, can also use below... depends on when we get to multiple discs?
         --       Could calc based on word size if I wanted to be real specific I suppose
