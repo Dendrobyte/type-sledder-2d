@@ -148,8 +148,7 @@ function typing.on_key_press(key)
             sounds.play_click()
             current_word.buffer = next_buffer
         else
-            -- Do nothing
-            -- TODO: Visual indicator we are wrong
+            -- 1. Append the last letter of the buffer
         end
 
         -- Trigger new word, etc. when we get the word correct
@@ -160,7 +159,6 @@ function typing.on_key_press(key)
                 callouts.add_callout("NICE!", char.x-10, char.y-25, callouts.colors.green)
             end
 
-            -- TODO: More robust movement here depending on curr direction, etc.
             if current_word.render_idx == "left" or
                current_word.render_idx == "right" or
                current_word.render_idx == "center" then
@@ -386,6 +384,8 @@ function typing.draw_word_progress()
 
         love.graphics.setColor(unpack(chosen_color.char_to_be_typed))
         love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
+
+        -- 2. If there's an incorrect letter draw it in red (below the word...?)
 
         love.graphics.setColor(unpack(chosen_color.remaining))
         love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
