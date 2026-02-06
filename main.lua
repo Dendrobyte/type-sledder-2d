@@ -46,10 +46,7 @@ end
 function love.draw()
     local curr_state = states[states.curr_state] -- this... naming feels weird... meh
     if curr_state.draw then curr_state.draw() end
-    if util.get_debug() == true then
-        util.draw_debug_calls()
-        util.debug_grid(32) -- match env const tilewidth
-    end
+    util.draw_debug_calls()
 end
 
 function love.keypressed(key, isrepeat)

@@ -13,9 +13,9 @@ end
 
 function util.print_matrix(matrix)
     for i, row in ipairs(matrix) do
-        io.write("[")
+        print("[")
         for j, col_val in ipairs(row) do
-            io.write(col_val .. ", ")
+            print(col_val .. ", ")
         end
         print("]")
     end
@@ -66,13 +66,15 @@ function util.add_debug_draw_call(callback)
 end
 
 function util.draw_debug_calls()
-    love.graphics.setColor(1, 0, 0)
-    for _, fn in ipairs(debug_draw_calls) do
-        fn()
+    if debug_mode == true then
+        love.graphics.setColor(1, 0, 0)
+        util.debug_grid(32) -- match env const tilewidth
+        for _, fn in ipairs(debug_draw_calls) do
+            fn()
+        end
+        love.graphics.setColor(1, 1, 1)
     end
-    love.graphics.setColor(1, 1, 1)
     debug_draw_calls = {}
-
 end
 
 function util.reset_color()
