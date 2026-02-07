@@ -11,7 +11,7 @@ local char = {}
 function char.load()
     char.move_one = love.graphics.newImage("ski_assets/Tiles/tile_0082.png") -- 82 || 70
     char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0083.png") -- 83 || 71
-    if math.random(1000) == 4 then
+    if math.random(1000) == 1 then
         -- 1 in 1000 chance to become a yeti
         char.move_one = love.graphics.newImage("ski_assets/Tiles/tile_0078.png") 
         char.move_two = love.graphics.newImage("ski_assets/Tiles/tile_0079.png")
@@ -88,8 +88,13 @@ function char.update_sprite(dt)
                 char.move(move.curr_dir, true)
             end
         end
+        if move.curr_dir == "center" then
+            -- Don't let them just sit there forever
+            char.y = char.y - .3
+        end
     else
-        -- If we're not moving at the start of the game, slowly approach the top
+        -- Approach top to kickstart typing 
+        char.y = char.y - .5
     end
 
     -- Collision and bounds checks

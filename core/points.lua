@@ -23,6 +23,10 @@ function points.score_points(scroll_speed)
     current_points = current_points + points
 end
 
+function points.decr(value)
+    current_points = math.max(0, current_points - value)
+end
+
 --[[
     DISTANCE POINTS!
     Handled by how much slope is covered. These points should be moved out, esp. when there are more

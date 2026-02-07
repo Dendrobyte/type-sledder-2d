@@ -1,6 +1,8 @@
 local sounds = {}
 
 function sounds.load()
+    -- TODO: I should just loop through all the files in the source at this point...?
+    -- Hmm, if I looped through the files in the folder and made functions based on those names, how would I know what it's called in the code though?
     sounds.bg_skiing = love.audio.newSource("ski_assets/sound/bg_winter_wind.mp3", "stream")
     sounds.bg_skiing:setVolume(0.2)
     sounds.ding_sound_data = love.audio.newSource("ski_assets/sound/word_complete.mp3", "static")
@@ -8,9 +10,11 @@ function sounds.load()
     sounds.whoosh_sound_data = love.audio.newSource("ski_assets/sound/whoosh.mp3", "static")
     sounds.whoosh_sound_data:setVolume(0.1)
     sounds.dash_sound_data = love.audio.newSource("ski_assets/sound/dash.mp3", "static")
-    sounds.dash_sound_data:setVolume(0.4)
+    sounds.dash_sound_data:setVolume(0.2)
     sounds.crash_sound_data = love.audio.newSource("ski_assets/sound/crash.mp3", "static")
-    sounds.crash_sound_data:setVolume(0.5)
+    sounds.crash_sound_data:setVolume(0.1)
+    sounds.misinput = love.audio.newSource("ski_assets/sound/misinput.mp3", "static")
+    sounds.misinput:setVolume(0.1)
 
     -- Does not get played! We pull this one apart
     sounds.keyboard_clicks = love.sound.newSoundData("ski_assets/sound/keyboard_clicks.mp3")
@@ -47,6 +51,11 @@ end
 
 function sounds.play_crash()
     sounds.crash_sound_data:play()
+end
+
+function sounds.play_error()
+    sounds.misinput:stop()
+    sounds.misinput:play()
 end
 
 function sounds.play_click()

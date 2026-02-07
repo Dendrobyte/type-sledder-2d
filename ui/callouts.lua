@@ -3,7 +3,8 @@ local callouts = {}
 callouts.colors = {
     green = {0, 1, 0},
     purple = {.5, 0, .5},
-    red = {.8, .2, .1}
+    red = {.8, .2, .1},
+    orange = {0.85, 0.4, 0.15},
 }
 
 local floating_messages = {}

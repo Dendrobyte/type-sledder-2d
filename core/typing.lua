@@ -109,6 +109,7 @@ local current_word = {
     final = nil, -- This comes from active_words when we register the first unique keypress
     buffer = "", -- This is the word they are typing as they type it
     render_idx = "", -- This is the word we end up selecting for them
+    mistyped_char = "", -- If we don't match the final word, this gets populated with 1 letter
 }
 -- Sometimes we can match on multiple words, so we need to know what to render for draw_word_progress
 -- The current_word.buffer is the only buffer we need though
@@ -118,7 +119,23 @@ local function reset_current_word()
     current_word.final = nil
     current_word.buffer = ""
     current_word.render_idx = ""
+    current_word.mistyped_char = ""
     current_matched_words = {}
+end
+
+local function reset_displayed_word()
+    if current_word.render_idx == "left" or
+        current_word.render_idx == "right" or
+        current_word.render_idx == "center" then
+        typing.update_word(current_word.render_idx, current_word.final)
+    elseif current_word.render_idx == "disc" then
+        -- TK: Reaaaallyy should have thought out the disc integration a bit more
+        -- TODO: Make a function within typing to properly clear up the disc word related stuff
+        -- Effectively mimicing typing.update_word but relying on the disc's word list
+        typing.clear_disc_info()
+        disc.despawn_disc()
+    end
+    reset_current_word()
 end
 
 function typing.reset_words()
@@ -140,15 +157,30 @@ function typing.update(dt)
 end
 
 function typing.on_key_press(key)
+    -- Players can abandon the current word with either char
+    if key == "backspace" or key == "escape" then
+        -- NOTE: If mult words are highlighted, only one resets. Fine for now (prototype).
+        if #current_word.buffer ~= 0 then
+            reset_displayed_word()
+            callouts.add_callout("BAILED! -10", char.x-10, char.y-25, callouts.colors.orange)
+            points.decr(10)
+        end
+    end
+
+    if #key > 1 then return end
+
     -- If we're typing and we've assigned a word, match on that wor
     if  #current_word.buffer ~= 0 and current_word.final ~= nil then
         local next_buffer = current_word.buffer .. key
         -- Match the substr by length with the typed word
+        sounds.play_click()
         if current_word.final:sub(1, #next_buffer) == next_buffer then
-            sounds.play_click()
             current_word.buffer = next_buffer
+            current_word.mistyped_char = ""
         else
-            -- 1. Append the last letter of the buffer
+            -- Mistyped character gets rendered in draw progress
+            current_word.mistyped_char = key
+            sounds.play_error()
         end
 
         -- Trigger new word, etc. when we get the word correct
@@ -159,23 +191,15 @@ function typing.on_key_press(key)
                 callouts.add_callout("NICE!", char.x-10, char.y-25, callouts.colors.green)
             end
 
-            if current_word.render_idx == "left" or
-               current_word.render_idx == "right" or
-               current_word.render_idx == "center" then
-                typing.update_word(current_word.render_idx, current_word.final)
-                char.move(current_word.render_idx, false)
-            elseif current_word.render_idx == "disc" then
-                -- TK: Reaaaallyy should have thought out the disc integration a bit more
-                -- TODO: Make a function within typing to properly clear up the disc word related stuff
-                -- Effectively mimicing typing.update_word but relying on the disc's word list
-                typing.clear_disc_info()
-                disc.despawn_disc()
+            -- Success behavior
+            if current_word.render_idx == "disc" then
                 points.score_points(20) -- idk, something extra for the disc
+            else
+                char.move(current_word.render_idx, false)
+                points.score_points(slope.get_scroll_speed())
             end
-            reset_current_word() -- resets the buffer, etc.
-            -- TODO: Points for word type
-            -- TODO: General game state of scroll speed
-            points.score_points(slope.get_scroll_speed())
+
+            reset_displayed_word() -- spawns a new word based on the render idx
         end
 
     -- Otherwise, go until we match on an active word
@@ -347,6 +371,10 @@ pink_variant = {
     char_to_be_typed = {.2, .2, .2},
     remaining = {120/255, 40/255, 80/255},
 }
+red_variant = {
+    cursor_box = {255/255, 180/255, 180/255},
+    char = {160/255, 45/255, 40/255}
+}
 function typing.draw_word_progress()
     local font = love.graphics.getFont()
 
@@ -354,7 +382,6 @@ function typing.draw_word_progress()
     for _, matched_word in ipairs(current_matched_words) do
         local curr_word_x = word_pos[matched_word.render_idx].origin.x
         local curr_word_y = word_pos[matched_word.render_idx].origin.y
-        -- TODO (this pr?): should all be centered I think, since they're small enough
         local alignment = matched_word.render_idx == "left" and "right" or "left" 
         
         -- TK: I should have thought this out a little more for the disc stuff...
@@ -385,7 +412,14 @@ function typing.draw_word_progress()
         love.graphics.setColor(unpack(chosen_color.char_to_be_typed))
         love.graphics.print(curr_char, curr_word_x + typed_width, curr_word_y)
 
-        -- 2. If there's an incorrect letter draw it in red (below the word...?)
+        -- If there's an incorrect letter draw it in red (below the word...?)
+        if current_word.mistyped_char ~= "" then
+            local mistyped_width = font:getWidth(current_word.mistyped_char)
+            love.graphics.setColor(unpack(red_variant.cursor_box))
+            love.graphics.rectangle("fill", curr_word_x + typed_width, curr_word_y - char_height, curr_width, char_height)
+            love.graphics.setColor(unpack(red_variant.char))
+            love.graphics.print(current_word.mistyped_char, curr_word_x + typed_width, curr_word_y - char_height)
+        end
 
         love.graphics.setColor(unpack(chosen_color.remaining))
         love.graphics.print(remaining_word, curr_word_x + typed_width + curr_width, curr_word_y)
