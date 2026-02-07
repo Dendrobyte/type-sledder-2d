@@ -54,7 +54,7 @@ fi
 # Windows build (requires love win64 binaries)
 echo "Building Windows version..."
 WIN_DIR="$DIST_DIR/${GAME_NAME}_win"
-LOVE_WIN_DIR="love-win64"  # Download from love2d.org and place here
+LOVE_WIN_DIR="love-win64"  # Download from love2d.org and place in parent dir
 
 if [[ -d "$LOVE_WIN_DIR" ]]; then
     mkdir -p "$WIN_DIR"

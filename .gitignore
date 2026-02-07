@@ -44,5 +44,5 @@ love
 .DS_Store
 /dist
 
-# Re-download from love2d.org each time, for builds
+# Re-download from love2d.org each time, for builds, and place in parent dir
 /love-win64
