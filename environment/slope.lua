@@ -203,12 +203,27 @@ function slope.get_valid_obstacle_indices(curr_head_idx)
     local start_idx, end_idx = nil, nil
     for i, tile_num in ipairs(row) do
         if tile_num == 2 then
-            start_idx = start_idx or i -- Gimmicky JS mode activated
+            start_idx = start_idx or i
             end_idx = i
         end
     end
     return start_idx+1, end_idx-1 -- Don't include the transition tiles
+end
 
+-- NOTE: We could merge this with the above function and pass in what tile we're looking for...?
+-- Above just happens to be a list and a range, but I kinda prefer this
+function slope.get_valid_deco_indices(curr_row_idx)
+    -- There's an assumption here that the entity index head matches slope (they need to be the same size!)
+    -- Thus that's the same row being replaced in both, but we'll pass in the index anyway
+    local row = grid[curr_row_idx]
+    local valid_indices = {}
+    -- NOTE: In some world we're getting [15, 2, ..., 2, 18] which I think is the first preset?
+    for i, tile_num in ipairs(row) do
+        if tile_num == 1 then
+            valid_indices[#valid_indices + 1] = i
+        end
+    end
+    return valid_indices
 end
 
 -- Function to calculate the shifted row index (i.e. logical index 1 translates to grid_head)

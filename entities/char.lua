@@ -94,7 +94,7 @@ function char.update_sprite(dt)
         end
     else
         -- Approach top to kickstart typing 
-        char.y = char.y - .5
+        -- char.y = char.y - .5
     end
 
     -- Collision and bounds checks

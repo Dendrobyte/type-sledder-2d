@@ -13,9 +13,9 @@ end
 
 function util.print_matrix(matrix)
     for i, row in ipairs(matrix) do
-        print("[")
+        io.write("[")
         for j, col_val in ipairs(row) do
-            print(col_val .. ", ")
+            io.write(col_val .. ", ")
         end
         print("]")
     end

@@ -51,7 +51,7 @@ local scroll_offset = 0
 function obstacles.update_grid(dt)
     scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
     if scroll_offset > const.TILE_WIDTH then
-        obstacles.new_row() -- TODO: new_chunk()
+        obstacles.new_row() -- TODO: new_chunk(), see deco layer (abstract out tbh)
         scroll_offset = scroll_offset - const.TILE_WIDTH
     end
 

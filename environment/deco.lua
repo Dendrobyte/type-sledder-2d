@@ -46,13 +46,7 @@ local grid = {} -- Grid head matches slope
 function deco.grid_create(is_start)
     if is_start then
         -- Set up the manual start setup
-        for i = 1, cols+3 do -- Needs to match slope grid
-            row = {}
-            for j = 1, rows do
-                row[j] = const.EMPTY_SPACE
-            end
-            grid[i] = row
-        end
+        deco.new_chunk()
         -- Presumably, grid[1] also doesn't show up here
         grid[3] = {9, 5, 9, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 9,}
         grid[4] = {1, 6, 1, 2, 8, 0, 2, 8, 0, 0, 8, 0, 6, 0, 8, 0, 0, 8, 2, 0, 8, 0, 6, 1, 1,}
@@ -76,11 +70,9 @@ local generated_new_chunk = false
 
 -- For the moment, we want to make sure that we just constantly add new rows to this that are 0s
 -- Thus when the game is reset we can reliably call create to restart it and let the (later) proc gen kick in
+local scroll_offset = 0
 function deco.update_grid(dt)
-    local scroll_offset = slope.get_scroll_offset()
-    -- We're doing 5 for now since that's when the manual grid slides off screen
-    -- If we generate two grids to start then we should do when grid head is at the end or whatever
-    -- I need to "map" out the grid sizes and stuff a little better... 5 is not ideal to work with...
+    scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
     if slope.get_grid_head() == 5 and not generated_new_chunk then
         deco.new_chunk()
         scroll_offset = scroll_offset - const.TILE_WIDTH
@@ -104,10 +96,11 @@ function deco.draw_deco()
 end
 
 -- The deco grid is the first thing that we will render in "chunks"
+-- It'll be double the size, and we regenerate the half we don't show. What could go wrong!!!!
+local half_toggle = true
 function deco.new_chunk()
     -- This is just resetting for now, but here is where we would want to spawn
     -- different deco sprites and group them together, etc. as the rows go
-    print("new chunk!")
     for i = 1, cols+3 do -- Needs to match slope grid
         row = {}
         for j = 1, rows do
@@ -115,6 +108,39 @@ function deco.new_chunk()
         end
         grid[i] = row
     end
+
+    -- Spawn random deco very sparsely on non-snow spaces of the slope grid
+    local i = 1
+    while i <= #grid-1 do
+        -- I'm semi-assuming list order is maintained, but it doesn't really matter here
+        -- TODO: Adding in more deco and whatnot
+        -- TODO: Creating randomization such that there can be more shrubs but fewer tall trees
+        local valid_deco_indices = slope.get_valid_deco_indices(i)
+        local deco_count = math.random(4)-1 -- Spawn anywhere from 0 to 3 deco items
+        local chosen_height = 1
+        if deco_count > 0 and #valid_deco_indices > 0 then
+            for j = 1, deco_count do
+                local which_deco = math.random(4)
+                local where_deco = valid_deco_indices[math.random(#valid_deco_indices)]
+                if which_deco == 3 then which_deco = 2 end -- Start with top of tall tree
+                grid[i][where_deco] = which_deco
+
+                -- NOTE: Could add a chairlift row pretty easily here then and jump 3...
+                if which_deco == 2 then
+                    grid[i+1][where_deco] = 3
+                    chosen_height = 2
+                end
+
+                -- Avoid overwriting
+                table.remove(valid_deco_indices, where_deco)
+            end
+        end
+
+        -- For now, jump two rows if we generate a 2-height item
+        i = i + 1 + chosen_height
+    end
+    util.print_matrix(grid)
+
 end
 
 return deco
