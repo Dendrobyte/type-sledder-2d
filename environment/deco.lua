@@ -70,6 +70,10 @@ function deco.grid_create(is_start)
     end
 end
 
+-- This feels... a little goofy...?
+-- Enforcing only one chunk spawn per call
+local generated_new_chunk = false
+
 -- For the moment, we want to make sure that we just constantly add new rows to this that are 0s
 -- Thus when the game is reset we can reliably call create to restart it and let the (later) proc gen kick in
 function deco.update_grid(dt)
@@ -77,9 +81,12 @@ function deco.update_grid(dt)
     -- We're doing 5 for now since that's when the manual grid slides off screen
     -- If we generate two grids to start then we should do when grid head is at the end or whatever
     -- I need to "map" out the grid sizes and stuff a little better... 5 is not ideal to work with...
-    if slope.get_grid_head() == 5 then
+    if slope.get_grid_head() == 5 and not generated_new_chunk then
         deco.new_chunk()
         scroll_offset = scroll_offset - const.TILE_WIDTH
+        generated_new_chunk = true
+    elseif slope.get_grid_head() == 6 then
+        generated_new_chunk = false
     end
 end
 
@@ -96,11 +103,11 @@ function deco.draw_deco()
     end
 end
 
--- TODO: Spawn some random deco here and there
 -- The deco grid is the first thing that we will render in "chunks"
 function deco.new_chunk()
     -- This is just resetting for now, but here is where we would want to spawn
     -- different deco sprites and group them together, etc. as the rows go
+    print("new chunk!")
     for i = 1, cols+3 do -- Needs to match slope grid
         row = {}
         for j = 1, rows do
