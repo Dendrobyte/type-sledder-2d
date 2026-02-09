@@ -16,7 +16,7 @@ function menu.load()
     menu.small_font = love.graphics.newFont("ski_assets/ithaca/Ithaca.ttf", 16)
     menu.title_color = {.4, .6, 1}
     menu.drop_shadow_color = {.1, .1, .4}
-    menu.start_speed = 3
+    menu.start_speed = 5
 
     -- Start screen buttons
     menu.start_button = {
@@ -52,7 +52,14 @@ function menu.load()
 
     -- End screen
     menu.try_again_button = {
-        x = 300,
+        x = 150,
+        y = 530,
+        w = 200,
+        h = 36,
+    }
+
+    menu.back_to_menu_button = {
+        x = 450,
         y = 530,
         w = 200,
         h = 36,
@@ -152,6 +159,7 @@ function menu.end_game.draw_screen()
     -- Uses the same position and functionality as the start button
     love.graphics.setColor(.4, .7, .9)
     menu_button("try_again_button", "Try Again?", menu.subtitle_font, 2)
+    menu_button("back_to_menu_button", "Main Menu", menu.subtitle_font, 2)
 
     util.reset_color()
 end

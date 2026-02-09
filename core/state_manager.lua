@@ -14,7 +14,7 @@ local info = require("wpm_test.info")
 
 local states = {}
 
-states.curr_state = "start_screen"
+states.curr_state = "loading"
 
 states.valid_states = {
     "loading",
@@ -165,10 +165,12 @@ states.end_game = {
     
     mousepressed = function(x, y, button, _istouch, _presses)
         if button == 1 then
-            is_button_pressed = menu.is_button_pressed("try_again_button", x, y)
-            -- TODO: entities.trigger_entity_spawning() or whatever
-            if is_button_pressed then
+            if menu.is_button_pressed("try_again_button", x, y) then
                 reset_game()
+            end
+            if menu.is_button_pressed("back_to_menu_button", x, y) then
+                reset_game()
+                update_state("start_screen")
             end
         end
     end

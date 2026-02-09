@@ -9,7 +9,7 @@ while getopts "u" opt; do
 done
 
 GAME_NAME="TypeSkiier"
-VERSION="0.1"
+VERSION="0.2"
 DIST_DIR="dist"
 LOVE_FILE="$DIST_DIR/$GAME_NAME.love"
 BUTLER="/Applications/butler/butler"
