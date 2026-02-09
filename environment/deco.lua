@@ -156,6 +156,12 @@ function deco.new_chunk()
         -- For now, jump two rows if we generate a 2-height item
         i = i + 1 + chosen_height
     end
+
+    -- temporaryyy
+    if half_toggle == false then
+        grid[1] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,}
+        grid[22] = {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,}
+    end
     util.print_matrix(grid)
     print("----")
 
