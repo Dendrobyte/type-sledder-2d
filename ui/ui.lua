@@ -2,6 +2,9 @@ local points = require("core.points")
 local callouts = require("ui.callouts")
 local menu = require("ui.menu") -- Colors
 local const = require("core.constants")
+local util = require("core.util")
+
+local slope = require("environment.slope")
 
 -- The UI should never be accessed elsewhere, but instead access state from within
 local ui = {}
@@ -46,7 +49,11 @@ function ui.draw_ui()
     love.graphics.setFont(ui.font_24)
     love.graphics.setColor(unpack(ui.text_color.dark_navy))
     love.graphics.printf(ui.current_points, ui.loc.x-10, ui.loc.y+40, ui.loc.width, ui.loc.align)
-    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("Slope grid head: " .. slope.get_grid_head(), 10, 10)
+
+    util.reset_color()
 end
 
 return ui

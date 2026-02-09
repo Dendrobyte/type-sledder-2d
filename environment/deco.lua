@@ -45,7 +45,8 @@ local cols = pixel_h / tile_width + 0.5 -- Need to properly round this, but for 
 local grid = {} -- Grid head matches slope
 function deco.grid_create(is_start)
     if is_start then
-        -- Set up the manual start setup
+        -- Set up the manual start setup, ensure we generate 2 chunks
+        deco.new_chunk()
         deco.new_chunk()
         -- Presumably, grid[1] also doesn't show up here
         grid[3] = {9, 5, 9, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 10, 9, 9, 10, 9, 9, 10, 9, 5, 9, 9,}
@@ -73,7 +74,7 @@ local generated_new_chunk = false
 local scroll_offset = 0
 function deco.update_grid(dt)
     scroll_offset = scroll_offset + slope.get_scroll_speed() * dt
-    if slope.get_grid_head() == 5 and not generated_new_chunk then
+    if slope.get_grid_head() == 1 and not generated_new_chunk then
         deco.new_chunk()
         scroll_offset = scroll_offset - const.TILE_WIDTH
         generated_new_chunk = true
@@ -82,40 +83,56 @@ function deco.update_grid(dt)
     end
 end
 
+--[[
+    The deco grid is generated in chunks (paving the way for future chunk generation I guess)
+    Which means we need to ensure we render either chunk 1 or chunk 2, and only ever generate the other one
+    The grid will be 2x the size of the original grid, and we just render one half based on that
+    Very much a gimmick right now but hopefully it'll work...
+]]
+local half_toggle = false
+local function get_chunk_offset() 
+    return half_toggle and 0 or 22
+end
 function deco.draw_deco()
     local scroll_offset = slope.get_scroll_offset()
-    for i = 1, #grid do
+    local chunk_offset = get_chunk_offset()
+    local grid_len = #grid-22+chunk_offset
+    -- We always want to draw the whole grid
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("i=" .. chunk_offset .. " gridlen=" .. grid_len, 10, 30)
+    for i = chunk_offset, grid_len do
         idx = slope.calc_grid_idx(i)
         row = grid[idx]
         for j, val in ipairs(row) do
             if val ~= 0 then
-                love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-scroll_offset, 0, 2)
+                love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1-chunk_offset)*const.TILE_WIDTH-scroll_offset, 0, 2)
             end
         end
     end
 end
 
 -- The deco grid is the first thing that we will render in "chunks"
--- It'll be double the size, and we regenerate the half we don't show. What could go wrong!!!!
-local half_toggle = true
+-- All multiplied depending on what half we're on!
 function deco.new_chunk()
     -- This is just resetting for now, but here is where we would want to spawn
     -- different deco sprites and group them together, etc. as the rows go
-    for i = 1, cols+3 do -- Needs to match slope grid
+    local chunk_offset = get_chunk_offset()
+    for i = 1+chunk_offset, (cols+chunk_offset)+3 do -- Needs to match slope grid
         row = {}
-        for j = 1, rows do
+        for j = 1, rows*2 do
             row[j] = const.EMPTY_SPACE
         end
         grid[i] = row
     end
 
     -- Spawn random deco very sparsely on non-snow spaces of the slope grid
-    local i = 1
-    while i <= #grid-1 do
+    local i = 1 + chunk_offset
+    while i <= #grid/2 + chunk_offset-1 do
         -- I'm semi-assuming list order is maintained, but it doesn't really matter here
         -- TODO: Adding in more deco and whatnot
         -- TODO: Creating randomization such that there can be more shrubs but fewer tall trees
-        local valid_deco_indices = slope.get_valid_deco_indices(i)
+        local slope_idx = i % 22
+        local valid_deco_indices = slope.get_valid_deco_indices(slope_idx)
         local deco_count = math.random(4)-1 -- Spawn anywhere from 0 to 3 deco items
         local chosen_height = 1
         if deco_count > 0 and #valid_deco_indices > 0 then
@@ -140,6 +157,9 @@ function deco.new_chunk()
         i = i + 1 + chosen_height
     end
     util.print_matrix(grid)
+    print("----")
+
+    half_toggle = not half_toggle
 
 end
 

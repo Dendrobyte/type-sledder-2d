@@ -132,7 +132,8 @@ function obstacles.does_player_collide_with_entity(char_x, char_y, slope_cell)
             love.graphics.setColor(1, 1, 1)
         end)
         if check_collision(char_x, char_y, obst.x_collision, obst.y_collision, obst.w_collision) == true then
-            return true
+            -- return true
+            return false
         end
     end
     util.add_debug_draw_call(function()
