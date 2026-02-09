@@ -96,16 +96,16 @@ end
 function deco.draw_deco()
     local scroll_offset = slope.get_scroll_offset()
     local chunk_offset = get_chunk_offset()
-    local grid_len = #grid-22+chunk_offset
     -- We always want to draw the whole grid
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.print("i=" .. chunk_offset .. " gridlen=" .. grid_len, 10, 30)
-    for i = chunk_offset, grid_len do
-        idx = slope.calc_grid_idx(i)
+    for i = 1, #grid do
+        -- Modulo in order to wrap the chunks in the right order
+        local idx = ((i - 1 + chunk_offset) % #grid) + 1
+        print(idx)
+        idx = slope.calc_grid_idx(idx)
         row = grid[idx]
         for j, val in ipairs(row) do
             if val ~= 0 then
-                love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1-chunk_offset)*const.TILE_WIDTH-scroll_offset, 0, 2)
+                love.graphics.draw(grid_to_tile[val], (j-1)*const.TILE_WIDTH, (i-1)*const.TILE_WIDTH-scroll_offset, 0, 2)
             end
         end
     end
@@ -160,6 +160,9 @@ function deco.new_chunk()
     -- temporaryyy
     if half_toggle == false then
         grid[1] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,}
+        grid[2] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,}
+        grid[3] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,}
+        grid[4] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,}
         grid[22] = {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,}
     end
     util.print_matrix(grid)
